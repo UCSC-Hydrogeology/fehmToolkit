@@ -1,0 +1,76 @@
+porosity
+ZONES=1;%REQUIRED DEFINITION
+PORA=0.7558;% data from Site 1039, see spreadsheet with calculations
+PORB=-0.00022755;
+FUN=@(depth)PORA+depth.*(PORB);
+global SEDPOROSITY
+SEDPOROSITY=FUN;%defining additional function for use later (see compressibility)
+stop
+
+ZONES=2;%REQUIRED DEFINITION
+FUN=@(depth)0.1;
+stop
+
+ZONES=3;%REQUIRED DEFINITION
+FUN=@(depth)0.05;
+stop
+
+ZONES=4;%REQUIRED DEFINITION
+FUN=@(depth)0.05;
+stop
+
+ZONES=5;%REQUIRED DEFINITION
+FUN=@(depth)0.05;
+stop
+
+ZONES=6;%REQUIRED DEFINITION
+FUN=@(depth)0.01;
+porositystop
+
+conductivity
+ZONES=1;%REQUIRED DEFINITION
+KW=0.62;%thermal conductivity of water
+KG=2.60;%thermal conductivity of clay, calcite mixture (see Revil, 2000, JGR)
+FUN=@(depth,porosity)(KW.^porosity).*(KG.^(1-porosity));
+stop
+
+ZONES=2:6;%REQUIRED DEFINITION
+KW=0.62;%thermal conductivity of water
+KR=2.05;%thermal conductivity of rock
+FUN=@(depth,porosity)(KW.^porosity).*(KR.^(1-porosity));
+conductivitystop
+
+permeability
+ZONES=1;%REQUIRED DEFINITION
+A=1.1e-18; %Spinelli et al. 2004, hemipelagic seds, Table 6.2
+B=2.2;
+VOID=@(porosity)porosity./(1-porosity);%void ratio
+FUN=@(depth,porosity)A.*exp(B.*VOID(porosity));
+stop
+
+ZONES=2:4;%REQUIRED DEFINITION
+ANISOPERM=[1,1,0.01]
+FUN=@(depth,porosity)1e-10;
+stop
+
+ZONES=5:6;%REQUIRED DEFINITION
+FUN=@(depth,porosity)1e-17;
+permeabilitystop
+
+compressibility
+ZONES=1;%REQUIRED DEFINITION
+global RHOW RHOG GRAV%needed for overburden function call
+A=0.09;
+GRAV=9.81;%gravity
+RHOW=1000;%density of water
+RHOG=2650;%density of grains - REQUIRED DEFINITION
+SPECHEAT=800;%specific heat of grains - REQUIRED DEFINITION
+OB=@(depth)max( overburden(depth) , 25);%overburden.m is a separate mfile
+FUN=@(depth,porosity)0.435.*A.*(1-porosity)./OB(depth);
+stop
+
+ZONES=2:6;%REQUIRED DEFINITION
+RHOG=2700;%density of grains - REQUIRED DEFINITION
+SPECHEAT=800;%specific heat of grains - REQUIRED DEFINITION
+FUN=@(depth,porosity)6e-10;
+compressibilitystop
