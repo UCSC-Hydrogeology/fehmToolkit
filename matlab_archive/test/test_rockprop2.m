@@ -1,35 +1,7 @@
-% test rockprop
+% test rockprop2
 
-%% Rockprop np2d_cond
-test_against_fixture('np2d_cond', 'cond');
-
-
-%% Rockprop np2d_p11
-test_against_fixture('np2d_p11', 'run');
-
-
-%% Rockprop np3d_cond
-test_against_fixture('np3d_cond', 'run');
-
-
-%% Rockprop np3d_p11
-test_against_fixture('np3d_p11', 'run');
-
-
-%% Rockprop jdf2d_p12
-test_against_fixture('jdf2d_p12', 'p12');
-
-
-%% Rockprop jdf3d_p12d_g981
-test_against_fixture('jdf3d_p12d_g981', 'p12d_g981');
-
-
-%% Rockprop jdf3d_p12
-test_against_fixture('jdf3d_p12', 'p12');
-
-
-%% Rockprop jdf3d_conduit_p12
-test_against_fixture('jdf3d_conduit_p12', 'p12');
+%% Rockprop jdf3d_deep_p11ani
+test_against_fixture('jdf3d_deep_p11ani', 'p11d600efto_GBv10BBv10_g981');
 
 
 function test_against_fixture(fixture_name, run_name)
@@ -52,7 +24,7 @@ function test_against_fixture(fixture_name, run_name)
             copyfile(input_path, '.');
         end
 
-        rockprop();
+        rockprop2();
 
         for k=1:length(output_extensions)
             filename = strcat(run_name, output_extensions{k});
