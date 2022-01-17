@@ -35,7 +35,7 @@ if nargin<1
 end
 
 %INPUT
-%fprintf('%s%s\n','Reading file: ',histfile_in)
+fprintf('%s%s\n','Reading file: ',histfile_in)
 hist_in=fileread(histfile_in);
 
 [n,loc]=textscan(hist_in,'%f',1,'Headerlines',2);
