@@ -3,7 +3,7 @@ function rockprop(rpi_in)
 %Calculates and writes rock properties (.cond, .perm, .ppor, .rock files)
 %using parameters from .rpi file.
 %SYNTAX
-%   rockprop() reads a local '.hfi' file FILENAME.hfi and uses functions
+%   rockprop() reads a local '.rpi' file FILENAME.rpi and uses functions
 %   within to calculate rock properties for each node in the local .fehm
 %   file. Writes output to files FILENAME.EXT for each file type (.cond,
 %   .perm, .ppor, .rock).
