@@ -1,45 +1,34 @@
-% test rockprop
+% test ipres
 
-%% Rockprop np2d_cond
+%% Ipres np2d_cond
 test_against_fixture('np2d_cond', 'cond');
 
 
-%% Rockprop np2d_p11
-test_against_fixture('np2d_p11', 'run');
-
-
-%% Rockprop np3d_cond
-test_against_fixture('np3d_cond', 'run');
-
-
-%% Rockprop np3d_p11
-test_against_fixture('np3d_p11', 'run');
-
-
-% JdF runs are known failures, .ppor files differ
-% %% Rockprop jdf2d_p12
+% Known failures, .iap and .icp files differ
+% %% Ipres jdf2d_p12
 % test_against_fixture('jdf2d_p12', 'p12');
 % 
 % 
-% %% Rockprop jdf3d_p12d_g981
-% test_against_fixture('jdf3d_p12d_g981', 'p12d_g981');
-% 
-% 
-% %% Rockprop jdf3d_p12
-% test_against_fixture('jdf3d_p12', 'p12');
-% 
-% 
-% %% Rockprop jdf3d_conduit_p12
+% %% Ipres jdf3d_conduit_p12
 % test_against_fixture('jdf3d_conduit_p12', 'p12');
+% 
+% 
+% %% Ipres jdf3d_p12d_g981
+% test_against_fixture('jdf3d_p12d_g981', 'p12d_g981');
+%
+%
+% Known failure, .iap file differs (.icp matches)
+% %% Ipres jdf3d_deep_p11ani
+% test_against_fixture('jdf3d_deep_p11ani', 'p11d600efto_GBv10BBv10_g981');
 
 
 function test_against_fixture(fixture_name, run_name)
     initial_dir = pwd;
     fixture_dir = fullfile(initial_dir, 'fixtures', fixture_name);
-    test_dir = fullfile(tempdir, strcat('test_rockprop__', fixture_name));
+    test_dir = fullfile(tempdir, strcat('test_ipres__', fixture_name));
 
-    input_extensions = {'.fehm', '.zone', '.rpi'};
-    output_extensions = {'.rock', '.cond', '.perm', '.ppor'};
+    input_extensions = {'.fehm', '_outside.zone', '.fin', '.ipi', '.wpi'};
+    output_extensions = {'.icp', '.iap'};
 
     if isfolder(test_dir)
         rmdir(test_dir, 's');
@@ -53,7 +42,7 @@ function test_against_fixture(fixture_name, run_name)
             copyfile(input_path, '.');
         end
 
-        rockprop();
+        ipres();
 
         for k=1:length(output_extensions)
             filename = strcat(run_name, output_extensions{k});
@@ -61,6 +50,7 @@ function test_against_fixture(fixture_name, run_name)
         end
     catch e
         cd(initial_dir);
+        disp(input_path);
         rethrow(e);
     end
 
