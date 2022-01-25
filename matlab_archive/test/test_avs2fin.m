@@ -1,0 +1,30 @@
+% test avs2fin
+
+%% avs2fin np2d_cond
+test_against_fixture('np2d_cond', 'avs2fin_fixture.fin');
+
+
+function test_against_fixture(fixture_name, output_fixture_filename)
+    initial_dir = pwd;
+    fixture_dir = fullfile(initial_dir, 'fixtures', fixture_name);
+    test_dir = fullfile(tempdir, strcat('test_avs2fin__', fixture_name));
+
+    if isfolder(test_dir)
+        rmdir(test_dir, 's');
+    end
+
+    try
+        mkdir(test_dir);
+        cd(test_dir);
+
+        avs2fin('test.fin', fixture_dir);
+
+        assert_files_match('test.fin', fullfile(fixture_dir, output_fixture_filename));
+    catch e
+        cd(initial_dir);
+        rethrow(e);
+    end
+
+    rmdir(test_dir, 's');
+    cd(initial_dir);
+end
