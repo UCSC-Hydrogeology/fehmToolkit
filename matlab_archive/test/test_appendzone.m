@@ -36,9 +36,11 @@ function test_against_fixture(fixture_name, run_name)
     try
         mkdir(test_dir);
         cd(test_dir);
-
-        appendzone('top', 'test.zone', fixture_dir);
-        appendzone('bottom', 'test.zone', test_dir);
+        copyfile(fullfile(fixture_dir, strcat(run_name, '_outside.zone')), '.');
+        copyfile(fullfile(fixture_dir, strcat(run_name, '_material.zone')), strcat(run_name, '.zone'));
+        
+        appendzone('top');
+        appendzone('bottom', 'test.zone');
 
         assert_files_match('test.zone', fullfile(fixture_dir, strcat(run_name, '.zone')));
     catch e
