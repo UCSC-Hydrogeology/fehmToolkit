@@ -23,7 +23,7 @@ function test_against_fixture(fixture_name, output_fixture_filename)
 
         iap2ini('test.ini', fixture_dir);
 
-        assert_files_match('test.dat', fullfile(fixture_dir, output_fixture_filename));
+        assert_files_match('test.ini', fullfile(fixture_dir, output_fixture_filename));
     catch e
         cd(initial_dir);
         rethrow(e);
