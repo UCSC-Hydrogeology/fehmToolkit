@@ -10,7 +10,9 @@ function test_against_fixture(fixture_name, run_name)
     test_dir = fullfile(tempdir, strcat('test_rockprop__', fixture_name));
 
     input_extensions = {'.fehm', '.zone', '.rpi'};
-    output_extensions = {'.rock', '.cond', '.perm', '.ppor'};
+    % Note this only tests perm anisotropy (.cond, .ppor, .rock are checked
+    % in the main rockprop tests).
+    output_extensions = {'.perm'};
 
     if isfolder(test_dir)
         rmdir(test_dir, 's');
