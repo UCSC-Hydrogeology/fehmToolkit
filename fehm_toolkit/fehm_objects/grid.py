@@ -1,3 +1,5 @@
+from typing import TextIO
+
 from .element import Element
 from .node import Node
 
@@ -5,32 +7,32 @@ from .node import Node
 class Grid:
     """Class representing a mesh or grid object."""
 
-    def __init__(self, nodes_by_number, elements_by_number):
+    def __init__(self, nodes_by_number: dict, elements_by_number: dict):
         self._nodes_by_number = nodes_by_number or {}
         self._elements_by_number = elements_by_number or {}
 
-    def node(self, number):
+    def node(self, number: int) -> Node:
         try:
             return self._nodes_by_number[number]
         except KeyError:
             raise KeyError(f'Node ({number}) not found in grid.')
 
-    def element(self, number):
+    def element(self, number: int) -> Element:
         try:
             return self._elements_by_number[number]
         except KeyError:
             raise KeyError(f'Element ({number}) not found in grid.')
 
     @property
-    def n_nodes(self):
+    def n_nodes(self) -> int:
         return len(self._nodes_by_number)
 
     @property
-    def n_elements(self):
+    def n_elements(self) -> int:
         return len(self._elements_by_number)
 
     @classmethod
-    def from_fehm(cls, fehm_file):
+    def from_fehm(cls, fehm_file) -> 'Grid':
         nodes_by_number = None
         elements_by_number = None
 
@@ -52,7 +54,7 @@ class Grid:
         return cls(nodes_by_number=nodes_by_number, elements_by_number=elements_by_number)
 
     @classmethod
-    def _read_coor(cls, open_file):
+    def _read_coor(cls, open_file: TextIO) -> dict[int, Node]:
         n_nodes = int(next(open_file))
 
         nodes_by_number = {}
@@ -63,7 +65,7 @@ class Grid:
         return nodes_by_number
 
     @classmethod
-    def _read_elem(cls, open_file):
+    def _read_elem(cls, open_file: TextIO) -> dict[int, Node]:
         n_elements = int(next(open_file).strip().split()[1])
 
         elements_by_number = {}
