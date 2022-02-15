@@ -1,0 +1,27 @@
+zone
+00001  top
+nnum
+   5
+         1          2          3          4          5
+00002  bottom
+nnum
+   4
+         1          2          3          4
+00003  left_w
+nnum
+   3
+         1          4          5
+00005  right_e
+nnum
+   3
+         2          3          5
+00006  back_n
+nnum
+   3
+         3          4          5
+00004  front_s
+nnum
+   3
+         1          2          5
+ 
+stop
