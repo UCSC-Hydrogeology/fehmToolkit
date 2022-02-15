@@ -12,4 +12,4 @@ class Element:
     def from_fehm_line(cls, raw_line: str) -> 'Element':
         split_line = raw_line.strip().split()
         n, nodes = split_line[0], split_line[1:]
-        return cls(number=int(n), connectivity=len(nodes), nodes=(int(node) for node in nodes))
+        return cls(number=int(n), connectivity=len(nodes), nodes=tuple(int(node) for node in nodes))
