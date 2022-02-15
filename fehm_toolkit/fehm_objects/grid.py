@@ -8,9 +8,13 @@ from .node import Node
 class Grid:
     """Class representing a mesh or grid object."""
 
-    def __init__(self, nodes_by_number: dict, elements_by_number: dict):
-        self._nodes_by_number = nodes_by_number or {}
-        self._elements_by_number = elements_by_number or {}
+    def __init__(
+        self,
+        nodes_by_number: dict[int, Node],
+        elements_by_number: dict[int, Element],
+    ):
+        self._nodes_by_number = nodes_by_number
+        self._elements_by_number = elements_by_number
 
     def node(self, number: int) -> Node:
         try:
@@ -49,11 +53,16 @@ class Grid:
 
 def _construct_nodes_lookup(
     coordinates_by_number,
-) -> dict[int, Node]: 
+) -> dict[int, Node]:
     return {number: Node(number, x, y, z) for number, (x, y, z) in coordinates_by_number.items()}
 
 
 def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
+    """Read FEHM-formatted files (.fehm)
+
+    Read coordinates and elements and return as dictionaries keyed by number.
+    """
+
     coordinates_by_number = None
     elements_by_number = None
 
@@ -72,9 +81,9 @@ def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
             next(f)  # throw away extra line after block
 
     if not coordinates_by_number:
-        raise ValueError(f'Invalid fehm_file ({fehm_file}, no coordinate data found')
+        raise ValueError(f'Invalid fehm_file ({fehm_file}), no coordinate data found')
     if not elements_by_number:
-        raise ValueError(f'Invalid fehm_file ({fehm_file}, no element data found')
+        raise ValueError(f'Invalid fehm_file ({fehm_file}), no element data found')
 
     return coordinates_by_number, elements_by_number
 
