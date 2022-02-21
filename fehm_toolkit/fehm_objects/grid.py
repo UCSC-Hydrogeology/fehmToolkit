@@ -88,6 +88,9 @@ class Grid:
         outside_zone_file: Optional[Path] = None,
         area_file: Optional[Path] = None,
     ) -> 'Grid':
+        if area_file and not outside_zone_file:
+            raise NotImplementedError('Must specify an outside_zone_file to load area data.')
+
         material_zone_lookup = None
         if material_zone_file:
             material_zone_lookup, _ = read_zones(material_zone_file)
