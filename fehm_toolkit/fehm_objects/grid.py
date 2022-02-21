@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional, TextIO
 
 from .element import Element
-from .node import Node
+from .node import Node, Vector
 
 
 class Grid:
@@ -54,7 +54,7 @@ class Grid:
 def _construct_nodes_lookup(
     coordinates_by_number,
 ) -> dict[int, Node]:
-    return {number: Node(number, x, y, z) for number, (x, y, z) in coordinates_by_number.items()}
+    return {number: Node(number, coordinates) for number, coordinates in coordinates_by_number.items()}
 
 
 def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
@@ -88,13 +88,13 @@ def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
     return coordinates_by_number, elements_by_number
 
 
-def _read_coor(open_file: TextIO) -> dict[int, tuple[float]]:
+def _read_coor(open_file: TextIO) -> dict[int, Vector]:
     n_nodes = int(next(open_file))
 
     coordinates_by_number = {}
     for i in range(n_nodes):
         number, x, y, z = next(open_file).strip().split()
-        coordinates_by_number[int(number)] = (float(x), float(y), float(z))
+        coordinates_by_number[int(number)] = Vector(float(x), float(y), float(z))
 
     return coordinates_by_number
 

@@ -1,5 +1,6 @@
 from fehm_toolkit.fehm_objects import Element
 from fehm_toolkit.fehm_objects.grid import read_fehm, read_zones
+from fehm_toolkit.fehm_objects.node import Vector
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -8,8 +9,8 @@ def test_read_fehm_pyramid(fixture_dir):
 
     for node_number, coordinates in coordinates_by_number.items():
         assert isinstance(node_number, int)
-        assert len(coordinates) == 3
-        for coor in coordinates:
+        assert isinstance(coordinates, Vector)
+        for coor in coordinates.value:
             assert isinstance(coor, float)
 
     for element_number, element in elements_by_number.items():
