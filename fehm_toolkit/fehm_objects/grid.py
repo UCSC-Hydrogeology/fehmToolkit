@@ -69,7 +69,10 @@ class Grid:
 
         try:
             node_numbers = self._node_numbers_by_outside_zone_number[zone_number_or_name]
-        except KeyError:
+        except KeyError as e:
+            if self._outside_zone_number_by_name is None:
+                raise e
+
             try:
                 zone_number = self._outside_zone_number_by_name[zone_number_or_name]
                 node_numbers = self._node_numbers_by_outside_zone_number[zone_number]
