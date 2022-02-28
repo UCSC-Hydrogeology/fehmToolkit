@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, TextIO
+from typing import Optional, Iterable, TextIO, Union
 
 from .element import Element
 from .node import Node, Vector
@@ -12,9 +12,16 @@ class Grid:
         self,
         nodes_by_number: dict[int, Node],
         elements_by_number: dict[int, Element],
+        *,
+        node_numbers_by_material_zone_number: Optional[dict[int, tuple[int]]] = None,
+        node_numbers_by_outside_zone_number: Optional[dict[int, tuple[int]]] = None,
+        outside_zone_number_by_name: Optional[dict[str, int]] = None,
     ):
         self._nodes_by_number = nodes_by_number
         self._elements_by_number = elements_by_number
+        self._node_numbers_by_material_zone_number = node_numbers_by_material_zone_number
+        self._node_numbers_by_outside_zone_number = node_numbers_by_outside_zone_number
+        self._outside_zone_number_by_name = outside_zone_number_by_name
 
     def node(self, number: int) -> Node:
         try:
@@ -33,8 +40,47 @@ class Grid:
         return len(self._nodes_by_number)
 
     @property
+    def nodes(self) -> Iterable[Node]:
+        return self._nodes_by_number.values()
+
+    @property
     def n_elements(self) -> int:
         return len(self._elements_by_number)
+
+    @property
+    def elements(self) -> Iterable[Element]:
+        return self._elements_by_number.values()
+
+    def get_nodes_in_material_zone(self, zone_number: int) -> Iterable[Node]:
+        if self._node_numbers_by_material_zone_number is None:
+            raise ValueError('Grid has not been loaded with zone data.')
+
+        try:
+            node_numbers = self._node_numbers_by_material_zone_number[zone_number]
+        except KeyError:
+            raise KeyError(f'Zone "{zone_number}" not found in grid.')
+
+        for node_number in node_numbers:
+            yield self._nodes_by_number[node_number]
+
+    def get_nodes_in_outside_zone(self, zone_number_or_name: Union[int, str]):
+        if self._node_numbers_by_outside_zone_number is None:
+            raise ValueError('Grid has not been loaded with zone data.')
+
+        try:
+            node_numbers = self._node_numbers_by_outside_zone_number[zone_number_or_name]
+        except KeyError as e:
+            if self._outside_zone_number_by_name is None:
+                raise e
+
+            try:
+                zone_number = self._outside_zone_number_by_name[zone_number_or_name]
+                node_numbers = self._node_numbers_by_outside_zone_number[zone_number]
+            except KeyError:
+                raise KeyError(f'Zone "{zone_number_or_name}" not found in grid.')
+
+        for node_number in node_numbers:
+            yield self._nodes_by_number[node_number]
 
     @classmethod
     def from_files(
@@ -45,16 +91,50 @@ class Grid:
         outside_zone_file: Optional[Path] = None,
         area_file: Optional[Path] = None,
     ) -> 'Grid':
-        coordinates_by_number, elements_by_number = read_fehm(fehm_file)
-        nodes_by_number = _construct_nodes_lookup(coordinates_by_number)
+        if area_file and not outside_zone_file:
+            raise NotImplementedError('Must specify an outside_zone_file to load area data.')
 
-        return cls(nodes_by_number=nodes_by_number, elements_by_number=elements_by_number)
+        material_zone_lookup = None
+        if material_zone_file:
+            material_zone_lookup, _ = read_zones(material_zone_file)
+
+        outside_zone_lookup, outside_zone_number_by_name, area_by_number = (None, None, None)
+        if outside_zone_file:
+            outside_zone_lookup, outside_zone_number_by_name = read_zones(outside_zone_file)
+
+            if area_file:
+                area_lookup, area_outside_zone_number_by_name = read_zones(area_file)
+                _validate_outside_zone_lookups_match(outside_zone_number_by_name, area_outside_zone_number_by_name)
+                area_by_number = _get_area_by_node_number(
+                    areas_by_zone=area_lookup,
+                    nodes_by_zone=outside_zone_lookup,
+                )
+
+        coordinates_by_number, elements_by_number = read_fehm(fehm_file)
+        nodes_by_number = _construct_nodes_lookup(coordinates_by_number, area_by_number)
+
+        grid = cls(
+            nodes_by_number=nodes_by_number,
+            elements_by_number=elements_by_number,
+            node_numbers_by_material_zone_number=material_zone_lookup,
+            node_numbers_by_outside_zone_number=outside_zone_lookup,
+            outside_zone_number_by_name=outside_zone_number_by_name,
+        )
+        return grid
 
 
 def _construct_nodes_lookup(
-    coordinates_by_number,
+    coordinates_by_number: dict[int, Vector],
+    area_by_number: Optional[dict[int, Vector]],
 ) -> dict[int, Node]:
-    return {number: Node(number, coordinates) for number, coordinates in coordinates_by_number.items()}
+    return {
+        number: Node(
+            number,
+            coordinates,
+            outside_area=area_by_number.get(number) if area_by_number else None,
+        )
+        for number, coordinates in coordinates_by_number.items()
+    }
 
 
 def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
@@ -218,3 +298,47 @@ def _is_vector_formatted(zone_line_values: list[str], n_nodes: int) -> bool:
     if n_nodes == 1:
         return len(zone_line_values) == 3
     return len(zone_line_values) == 6  # Lagrit writes two 3-vectors per line instead of the usual 10 scalars
+
+
+def _get_area_by_node_number(
+    *,
+    areas_by_zone: dict[int, tuple[tuple[float]]],
+    nodes_by_zone: dict[int, tuple[int]],
+) -> dict[int, tuple[float]]:
+    mismatched_keys = areas_by_zone.keys() ^ nodes_by_zone.keys()  # ^ is the symmetric difference operator for sets
+    if mismatched_keys:
+        raise ValueError(f'Area and node number lookups do not have the same zones: {mismatched_keys}')
+
+    area_by_node_number = {}
+    for zone_number, areas in areas_by_zone.items():
+        node_numbers = nodes_by_zone[zone_number]
+        if len(areas) != len(node_numbers):
+            raise ValueError(
+                f'Different number of nodes ({len(node_numbers)}) and areas ({len(areas)}) in zone "{zone_number}"'
+            )
+
+        for node_number, area in zip(node_numbers, areas):
+            assigned_area = area_by_node_number.get(node_number)
+            if assigned_area:
+                if assigned_area != area:
+                    raise ValueError(
+                        f'Node "{node_number}"" area ({area}) for zone "{zone_number}" '
+                        f'does not match area assigned from previous zone ({assigned_area})'
+                    )
+                continue
+            area_by_node_number[node_number] = area
+
+    return area_by_node_number
+
+
+def _validate_outside_zone_lookups_match(lookup_1: dict, lookup_2: dict):
+    if lookup_1 != lookup_2:
+        mismatched_keys = lookup_1.keys() ^ lookup_2.keys()  # ^ is the symmetric difference operator for sets
+        if mismatched_keys:
+            raise ValueError(f'Different zone names between .area and _outside_zone files: {mismatched_keys}')
+
+        for key in lookup_1.keys():
+            if lookup_1[key] != lookup_2[key]:
+                raise ValueError(f'Different zone numbers for zone "{key}": [{lookup_1[key]}, {lookup_2[key]}]')
+
+        raise ValueError('Different zone names or numbers between .area and _outside.zone files.')
