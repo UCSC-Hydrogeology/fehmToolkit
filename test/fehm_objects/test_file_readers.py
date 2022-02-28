@@ -1,5 +1,6 @@
 from fehm_toolkit.fehm_objects import Element
 from fehm_toolkit.fehm_objects.grid import read_fehm, read_zones
+from fehm_toolkit.fehm_objects.node import Vector
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -8,8 +9,8 @@ def test_read_fehm_pyramid(fixture_dir):
 
     for node_number, coordinates in coordinates_by_number.items():
         assert isinstance(node_number, int)
-        assert len(coordinates) == 3
-        for coor in coordinates:
+        assert isinstance(coordinates, Vector)
+        for coor in coordinates.value:
             assert isinstance(coor, float)
 
     for element_number, element in elements_by_number.items():
@@ -43,10 +44,21 @@ def test_read_area_pyramid(fixture_dir):
     areas_by_zone_number, zone_number_by_name = read_zones(fixture_dir / 'simple_pyramid.area')
     assert zone_number_by_name == {'top': 1, 'bottom': 2, 'left_w': 3, 'front_s': 4, 'right_e': 5, 'back_n': 6}
     assert areas_by_zone_number == {
-        1: ((-30.0, -30.0, -15.0), (30.0, -30.0, -15.0), (30.0, 30.0, -15.0), (-30.0, 30.0, -15.0), (0.0, 0.0, 40.0)),
-        2: ((-30.0, -30.0, -15.0), (30.0, -30.0, -15.0), (30.0, 30.0, -15.0), (-30.0, 30.0, -15.0)),
-        3: ((-30.0, -30.0, -15.0), (-30.0, 30.0, -15.0), (0.0, 0.0, 40.0)),
-        4: ((-30.0, -30.0, -15.0), (30.0, -30.0, -15.0), (0.0, 0.0, 40.0)),
-        5: ((30.0, -30.0, -15.0), (30.0, 30.0, -15.0), (0.0, 0.0, 40.0)),
-        6: ((30.0, 30.0, -15.0), (-30.0, 30.0, -15.0), (0.0, 0.0, 40.0)),
+        1: (
+            Vector(-30.0, -30.0, -15.0),
+            Vector(30.0, -30.0, -15.0),
+            Vector(30.0, 30.0, -15.0),
+            Vector(-30.0, 30.0, -15.0),
+            Vector(0.0, 0.0, 40.0),
+        ),
+        2: (
+            Vector(-30.0, -30.0, -15.0),
+            Vector(30.0, -30.0, -15.0),
+            Vector(30.0, 30.0, -15.0),
+            Vector(-30.0, 30.0, -15.0),
+        ),
+        3: (Vector(-30.0, -30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        4: (Vector(-30.0, -30.0, -15.0), Vector(30.0, -30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        5: (Vector(30.0, -30.0, -15.0), Vector(30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        6: (Vector(30.0, 30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
     }

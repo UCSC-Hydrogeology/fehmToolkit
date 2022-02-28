@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional, TextIO
 
 from .element import Element
-from .node import Node
+from .node import Node, Vector
 
 
 class Grid:
@@ -54,7 +54,7 @@ class Grid:
 def _construct_nodes_lookup(
     coordinates_by_number,
 ) -> dict[int, Node]:
-    return {number: Node(number, x, y, z) for number, (x, y, z) in coordinates_by_number.items()}
+    return {number: Node(number, coordinates) for number, coordinates in coordinates_by_number.items()}
 
 
 def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
@@ -88,13 +88,13 @@ def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
     return coordinates_by_number, elements_by_number
 
 
-def _read_coor(open_file: TextIO) -> dict[int, tuple[float]]:
+def _read_coor(open_file: TextIO) -> dict[int, Vector]:
     n_nodes = int(next(open_file))
 
     coordinates_by_number = {}
     for i in range(n_nodes):
         number, x, y, z = next(open_file).strip().split()
-        coordinates_by_number[int(number)] = (float(x), float(y), float(z))
+        coordinates_by_number[int(number)] = Vector(float(x), float(y), float(z))
 
     return coordinates_by_number
 
@@ -188,18 +188,18 @@ def _parse_zone_values_line(raw_line_values: list[str], is_vector_format: bool) 
     >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6'], False)
     [1, 2, 3, 4, 5, 6]
     >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6'], True)
-    [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)]
+    [Vector(x=1.0, y=2.0, z=3.0), Vector(x=4.0, y=5.0, z=6.0)]
     >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6', '7'], True)
-    [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)]
+    [Vector(x=1.0, y=2.0, z=3.0), Vector(x=4.0, y=5.0, z=6.0)]
     >>> _parse_zone_values_line(['1.0', '1.0', '4.5'], True)
-    [(1.0, 1.0, 4.5)]
+    [Vector(x=1.0, y=1.0, z=4.5)]
     """
     if is_vector_format:
-        first_vector = tuple(float(v) for v in raw_line_values[:3])
-        second_vector = tuple(float(v) for v in raw_line_values[3:6])
-        if not second_vector:
-            return [first_vector]
-        return [first_vector, second_vector]
+        first = Vector(*(float(v) for v in raw_line_values[:3]))
+        second = Vector(*(float(v) for v in raw_line_values[3:6])) if raw_line_values[3:6] else None
+        if not second:
+            return [first]
+        return [first, second]
 
     return [int(v) for v in raw_line_values]
 
