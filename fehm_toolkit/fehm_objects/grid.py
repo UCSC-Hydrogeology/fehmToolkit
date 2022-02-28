@@ -158,6 +158,14 @@ def _read_zone(open_file: TextIO) -> tuple[int]:
 
 
 def _parse_zone_header(header: str) -> tuple[int, Optional[str]]:
+    """ Split up a zone header string into the number and name (if present)
+    >>> _parse_zone_header('00001 top')
+    (1, 'top')
+    >>> _parse_zone_header('00003')
+    (3, None)
+    >>> _parse_zone_header('4 front_s')
+    (4, 'front_s')
+    """
     parsed = header.strip().split()
     if len(parsed) == 1:
         return int(parsed[0]), None
@@ -173,10 +181,22 @@ def _is_end_of_zone_file(header: str, open_file: TextIO) -> bool:
     return False
 
 
-def _parse_zone_values_line(raw_line_values: list[str], is_vector_format: bool) -> tuple:
+def _parse_zone_values_line(raw_line_values: list[str], is_vector_format: bool) -> list:
+    """ Convert zone values into a list of scalar or vector values
+    >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], False)
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6'], False)
+    [1, 2, 3, 4, 5, 6]
+    >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6'], True)
+    [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)]
+    >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6', '7'], True)
+    [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)]
+    >>> _parse_zone_values_line(['1.0', '1.0', '4.5'], True)
+    [(1.0, 1.0, 4.5)]
+    """
     if is_vector_format:
         first_vector = tuple(float(v) for v in raw_line_values[:3])
-        second_vector = tuple(float(v) for v in raw_line_values[4:7])
+        second_vector = tuple(float(v) for v in raw_line_values[3:6])
         if not second_vector:
             return [first_vector]
         return [first_vector, second_vector]
@@ -185,5 +205,16 @@ def _parse_zone_values_line(raw_line_values: list[str], is_vector_format: bool) 
 
 
 def _is_vector_formatted(zone_line_values: list[str], n_nodes: int) -> bool:
-
+    """ Check if line is vector formatted (contains 6 values)
+    >>> _is_vector_formatted(['10.0', '10.0', '0.0', '0.0', '20.0', '20.0'], 10)
+    True
+    >>> _is_vector_formatted([1, 2, 3], 1)
+    True
+    >>> _is_vector_formatted(['1.0', '2.0', '3.0'], 2)
+    False
+    >>> _is_vector_formatted([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 10)
+    False
+    """
+    if n_nodes == 1:
+        return len(zone_line_values) == 3
     return len(zone_line_values) == 6  # Lagrit writes two 3-vectors per line instead of the usual 10 scalars
