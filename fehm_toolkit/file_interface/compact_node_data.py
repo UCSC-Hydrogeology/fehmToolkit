@@ -3,6 +3,49 @@ from itertools import groupby
 from pathlib import Path
 
 
+def read_compact_node_data(compact_node_data_file: Path) -> dict[int, float]:
+    data_by_node = {}
+    with open(compact_node_data_file) as f:
+        file_header = next(f).strip().split()
+        if len(file_header) > 1:
+            raise ValueError(f'Unrecognised file header {file_header}')
+
+        for line in f:
+            data_for_line = _parse_compact_node_data_line(line)
+            if not data_for_line:
+                break
+
+            data_by_node.update(data_for_line)
+
+    return data_by_node
+
+
+def _parse_compact_node_data_line(line: str) -> dict[int, float]:
+    r""" Parse compact node data string into a lookup of values by node.
+    >>> _parse_compact_node_data_line('80   81  1   -3.92330E-04    0.')
+    {80: -0.00039233, 81: -0.00039233}
+    >>> _parse_compact_node_data_line('1\t3\t2\t10.\t0.')
+    {1: 10.0, 3: 10.0}
+    >>> _parse_compact_node_data_line('0')
+    >>> _parse_compact_node_data_line('\n')
+    """
+
+    line = line.strip()
+    if not line or line == '0':
+        return
+
+    data_by_node = {}
+    try:
+        [min_node, max_node, spacing, value, zero] = line.split()
+    except ValueError:
+        raise ValueError(f'Could not parse compact node data line: {line}')
+
+    for node_number in range(int(min_node), int(max_node) + 1, int(spacing)):
+        data_by_node[node_number] = float(value)
+
+    return data_by_node
+
+
 def write_compact_node_data(
     value_by_node: dict[int, float],
     output_file: Path,

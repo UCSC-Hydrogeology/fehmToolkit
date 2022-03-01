@@ -1,7 +1,7 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Callable, Dict
+from typing import Callable
 
 from .config.heat_in import read_legacy_config
 from .fehm_objects import Grid, Node
@@ -41,7 +41,7 @@ def compute_boundary_heatflux(grid: Grid, config: dict[int, float]):
     return {node.number: model(node, heatflux_config['model_params']) for node in input_nodes}
 
 
-def get_heatflux_models_by_kind() -> Dict[str, Callable]:
+def get_heatflux_models_by_kind() -> dict[str, Callable]:
     return {'crustal_age': _crustal_age_heatflux}
 
 
