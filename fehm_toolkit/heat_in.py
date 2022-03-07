@@ -3,6 +3,10 @@ import logging
 from pathlib import Path
 from typing import Callable
 
+from matplotlib import cm, colors, pyplot as plt
+import pandas as pd
+from scipy.spatial import Voronoi, voronoi_plot_2d
+
 from .config.heat_in import read_legacy_config
 from .fehm_objects import Grid, Node
 from .file_interface import write_compact_node_data
@@ -21,11 +25,21 @@ def generate_input_heatflux_file(
     outside_zone_file: Path,
     area_file: Path,
     output_file: Path,
+    plot_result: bool = False,
 ):
+    logger.info(f'Reading configuration file: {config_file}')
     config = read_legacy_config(config_file)  # TODO(dustin): add support for other config file formats
+
+    logger.info('Parsing grid into memory')
     grid = Grid.from_files(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file)
+
+    logger.info('Computing boundary heat flux')
     heatflux_by_node = compute_boundary_heatflux(grid, config)
+
+    logger.info(f'Writing heat flux to disk: {output_file}')
     write_compact_node_data(heatflux_by_node, output_file, header=HEATFLUX_HEADER, footer=HEATFLUX_FOOTER)
+    if plot_result:
+        plot_heatflux(heatflux_by_node, grid)
 
 
 def compute_boundary_heatflux(grid: Grid, config: dict[int, float]):
@@ -39,6 +53,60 @@ def compute_boundary_heatflux(grid: Grid, config: dict[int, float]):
 
     input_nodes = grid.get_nodes_in_outside_zone(HEATFLUX_INPUT_ZONE)
     return {node.number: model(node, heatflux_config['model_params']) for node in input_nodes}
+
+
+def plot_heatflux(heatflux_by_node: dict[int, float], grid: Grid):
+    entries = []
+    for node_number, heatflux_MW in heatflux_by_node.items():
+        node = grid.node(node_number)
+        entries.append({
+            'x': node.x / 1E3,  # convert m -> km
+            'y': node.y / 1E3,  # convert m -> km
+            'heatflux_W': 1E6 * heatflux_MW / node.outside_area.z,  # convert to MW -> W
+        })
+    plot_data = pd.DataFrame(entries)
+
+    axis_2d = _get_2d_axis_or_none(plot_data)
+    if axis_2d:
+        plot_axis = 'x' if axis_2d == 'y' else 'y'
+        fig, ax = plt.subplots(figsize=(8, 5))
+        plot_data.plot(x=plot_axis, y='heatflux_W', marker='o', legend=False, ax=ax)
+        ax.set_xlabel(rf'{plot_axis} ($km$)')
+        ax.set_ylabel(r'Heat flux ($W/m^2$)')
+        ax.set_title('Bottom boundary heat flux')
+        plt.show()
+        return
+
+    vor = Voronoi(plot_data[['x', 'y']].values)
+    heatflux_W = plot_data['heatflux_W'].values
+
+    norm = colors.Normalize(vmin=0, vmax=max(heatflux_W), clip=True)
+    mapper = cm.ScalarMappable(norm=norm, cmap=cm.Reds)
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    voronoi_plot_2d(vor, show_points=False, show_vertices=False, s=1, ax=ax)
+    for r in range(len(vor.point_region)):
+        region = vor.regions[vor.point_region[r]]
+        if -1 not in region:
+            polygon = [vor.vertices[i] for i in region]
+            ax.fill(*zip(*polygon), color=mapper.to_rgba(heatflux_W[r]))
+
+    ax.set_aspect('equal')
+    ax.set_xlabel(r'x ($km$)')
+    ax.set_ylabel(r'y ($km$)')
+    ax.set_title(r'Bottom boundary heat flux ($W/m^2$)')
+    plt.colorbar(mapper, ax=ax)
+    plt.show()
+
+
+def _get_2d_axis_or_none(plot_data: pd.DataFrame) -> str:
+    if not plot_data.x.var():
+        return 'x'
+
+    if not plot_data.y.var():
+        return 'y'
+
+    return None
 
 
 def get_heatflux_models_by_kind() -> dict[str, Callable]:
@@ -62,6 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('--area_file', type=Path, help='Path to boundary area (.area) file.')
     parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
     parser.add_argument('--output_file', type=Path, help='Path for heatflux output to be written.')
+    parser.add_argument('--plot_result', action='store_true', help='Flag to optionally plot the heatflux.')
     args = parser.parse_args()
 
     generate_input_heatflux_file(
@@ -70,4 +139,5 @@ if __name__ == '__main__':
         outside_zone_file=args.outside_zone_file,
         area_file=args.area_file,
         output_file=args.output_file,
+        plot_result=args.plot_result,
     )
