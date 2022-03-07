@@ -31,7 +31,7 @@ def generate_input_heatflux_file(
     config = read_legacy_config(config_file)  # TODO(dustin): add support for other config file formats
 
     logger.info('Parsing grid into memory')
-    grid = Grid.from_files(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file)
+    grid = Grid.from_files(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
 
     logger.info('Computing boundary heat flux')
     heatflux_by_node = compute_boundary_heatflux(grid, config)
