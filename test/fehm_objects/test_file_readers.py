@@ -1,6 +1,7 @@
 from fehm_toolkit.fehm_objects import Element
 from fehm_toolkit.fehm_objects.grid import read_fehm, read_zones
 from fehm_toolkit.fehm_objects.node import Vector
+from fehm_toolkit.config.heat_in import read_legacy_config
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -61,4 +62,26 @@ def test_read_area_pyramid(fixture_dir):
         4: (Vector(-30.0, -30.0, -15.0), Vector(30.0, -30.0, -15.0), Vector(0.0, 0.0, 40.0)),
         5: (Vector(30.0, -30.0, -15.0), Vector(30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
         6: (Vector(30.0, 30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+    }
+
+
+def test_read_legacy_config_jdf(fixture_dir):
+    config = read_legacy_config(fixture_dir / 'legacy_jdf.hfi')
+    params = config['heatflux']['model_params']
+    assert params == {
+        'crustal_age_sign': 1,
+        'spread_rate_mm_per_year': 28.57,
+        'coefficient_MW': 0.367E-6,
+        'boundary_distance_to_ridge_m': 60000,
+    }
+
+
+def test_read_legacy_config_np(fixture_dir):
+    config = read_legacy_config(fixture_dir / 'legacy_np.hfi')
+    params = config['heatflux']['model_params']
+    assert params == {
+        'crustal_age_sign': -1,
+        'spread_rate_mm_per_year': 17,
+        'coefficient_MW': 0.5E-6,
+        'boundary_distance_to_ridge_m': 144000,
     }
