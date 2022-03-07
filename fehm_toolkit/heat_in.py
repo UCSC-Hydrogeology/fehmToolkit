@@ -46,11 +46,11 @@ def get_heatflux_models_by_kind() -> dict[str, Callable]:
 
 
 def _crustal_age_heatflux(node: Node, params: dict) -> float:
-    distance_from_boundary = params['crustal_age_sign'] * node.x
-    distance_from_ridge = params['boundary_distance_to_ridge_m'] + distance_from_boundary
-    age = 1 / (params['spread_rate_mm_per_year'] * 1E3) * distance_from_ridge
-    heatflux_per_area = params['coefficient_MW'] / age ** 0.5
-    return -abs(node.outside_area.z * heatflux_per_area)
+    distance_from_boundary_m = params['crustal_age_sign'] * node.x
+    distance_from_ridge_m = params['boundary_distance_to_ridge_m'] + distance_from_boundary_m
+    age_ma = 1 / (params['spread_rate_mm_per_year'] * 1E3) * distance_from_ridge_m
+    heatflux_per_m2 = params['coefficient_MW'] / age_ma ** 0.5
+    return -abs(node.outside_area.z * heatflux_per_m2)
 
 
 if __name__ == '__main__':
