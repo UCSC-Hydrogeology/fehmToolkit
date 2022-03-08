@@ -1,8 +1,12 @@
+import logging
 from pathlib import Path
 from typing import Optional, Iterable, TextIO, Union
 
 from .element import Element
 from .node import Node, Vector
+
+
+logger = logging.getLogger(__name__)
 
 
 class Grid:
@@ -90,19 +94,23 @@ class Grid:
         material_zone_file: Optional[Path] = None,
         outside_zone_file: Optional[Path] = None,
         area_file: Optional[Path] = None,
+        read_elements: Optional[bool] = True,
     ) -> 'Grid':
         if area_file and not outside_zone_file:
             raise NotImplementedError('Must specify an outside_zone_file to load area data.')
 
         material_zone_lookup = None
         if material_zone_file:
+            logger.debug(f'Reading material zones from {material_zone_file}')
             material_zone_lookup, _ = read_zones(material_zone_file)
 
         outside_zone_lookup, outside_zone_number_by_name, area_by_number = (None, None, None)
         if outside_zone_file:
+            logger.debug(f'Reading outside zones from {outside_zone_file}')
             outside_zone_lookup, outside_zone_number_by_name = read_zones(outside_zone_file)
 
             if area_file:
+                logger.debug(f'Reading outside area from {area_file}')
                 area_lookup, area_outside_zone_number_by_name = read_zones(area_file)
                 _validate_outside_zone_lookups_match(outside_zone_number_by_name, area_outside_zone_number_by_name)
                 area_by_number = _get_area_by_node_number(
@@ -110,7 +118,9 @@ class Grid:
                     nodes_by_zone=outside_zone_lookup,
                 )
 
-        coordinates_by_number, elements_by_number = read_fehm(fehm_file)
+        logger.debug(f'Reading nodes and elements from {fehm_file}')
+        coordinates_by_number, elements_by_number = read_fehm(fehm_file, read_elements=read_elements)
+        logger.debug('Constructing nodes lookup')
         nodes_by_number = _construct_nodes_lookup(coordinates_by_number, area_by_number)
 
         grid = cls(
@@ -137,7 +147,7 @@ def _construct_nodes_lookup(
     }
 
 
-def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
+def read_fehm(fehm_file: Path, read_elements: Optional[bool] = True) -> tuple[dict, dict]:
     """Read FEHM-formatted files (.fehm)
 
     Read coordinates and elements and return as dictionaries keyed by number.
@@ -153,7 +163,7 @@ def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
             if block_name == 'coor':
                 coordinates_by_number = _read_coor(f)
             elif block_name == 'elem':
-                elements_by_number = _read_elem(f)
+                elements_by_number = _read_elem(f, should_read=read_elements)
             elif block_name == 'stop':
                 break
             else:
@@ -162,7 +172,7 @@ def read_fehm(fehm_file: Path) -> tuple[dict, dict]:
 
     if not coordinates_by_number:
         raise ValueError(f'Invalid fehm_file ({fehm_file}), no coordinate data found')
-    if not elements_by_number:
+    if read_elements and not elements_by_number:
         raise ValueError(f'Invalid fehm_file ({fehm_file}), no element data found')
 
     return coordinates_by_number, elements_by_number
@@ -179,12 +189,16 @@ def _read_coor(open_file: TextIO) -> dict[int, Vector]:
     return coordinates_by_number
 
 
-def _read_elem(open_file: TextIO) -> dict[int, Node]:
+def _read_elem(open_file: TextIO, should_read: Optional[bool] = True) -> dict[int, Node]:
     n_elements = int(next(open_file).strip().split()[1])
 
     elements_by_number = {}
     for i in range(n_elements):
-        element = Element.from_fehm_line(next(open_file))
+        line = next(open_file)
+        if not should_read:
+            continue
+
+        element = Element.from_fehm_line(line)
         elements_by_number[element.number] = element
     return elements_by_number
 
