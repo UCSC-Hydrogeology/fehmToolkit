@@ -1,0 +1,102 @@
+%ROCKPROP input file (rpi)
+
+%Define equations for each property and zones to apply to, in MATLAB syntax.
+%Begin each property section with the property name.
+%End each equation and zone definition with a "stop" statement.
+%The final "stop" statement for each property should be led by the property name (e.g. porositystop).
+%All property, stop, and propertystop statements should be in all lowercase.
+
+%The final function in each set must be called "FUN", but may contain any number of subfunctions.
+%Use ALL CAPS for all variable or function definitions, to avoid confusion with the main program.
+%The "FUN" function for porosity must include an input for depth.
+%All other "FUN" functions must include inputs for both depth and porosity.
+
+%The compressibility section must include definitions in each zone for both grain density and specific heat of grains.
+%These values are required for output to the .rock file, and may also be used to define "FUN".
+%Use "RHOG" for grain density.
+%Use "SPECHEAT" for specific heat of grains.
+
+% Edited
+% Adam Price 2019/07/28
+% Sed porosity to be constant 
+
+porosity
+
+ZONES=1;%Sediment
+PORA=0.62;
+FUN=@(depth)PORA;
+global SEDPOROSITY
+SEDPOROSITY=FUN;%defining additional function for use later (see compressibility)
+stop
+
+ZONES=2;%AQ100
+C=0.1;
+FUN=@(depth)C;
+stop
+
+ZONES=3;%AQ300
+D=0.08;
+FUN=@(depth)D;
+stop
+
+ZONES=4;%AQ600
+E=0.05;
+FUN=@(depth)E;
+stop
+
+ZONES=5;%AQ1K
+F=0.02;
+FUN=@(depth)F;
+stop
+
+ZONES=6; %CONDUCTIVE LOWER BASEMENT
+G=0.01;
+FUN=@(depth)G;
+porositystop
+
+conductivity
+ZONES=1;%REQUIRED DEFINITION
+KW=0.62;%thermal conductivity of water
+KG=2.60;%thermal conductivity of clay, calcite mixture (see Revil, 2000, JGR)
+FUN=@(depth,porosity)(KW.^porosity).*(KG.^(1-porosity));
+stop
+
+ZONES=2:6;%REQUIRED DEFINITION
+KW=0.62;%thermal conductivity of water
+KR=2.05;%thermal conductivity of rock
+FUN=@(depth,porosity)(KW.^porosity).*(KR.^(1-porosity));
+conductivitystop
+
+permeability
+ZONES=1;%REQUIRED DEFINITION
+A=1.1e-17; %Spinelli et al. 2004, hemipelagic seds x 10 - better values, Table 6.2
+B=2.2;
+VOID=@(porosity)porosity./(1-porosity);%void ratio
+FUN=@(depth,porosity)A.*exp(B.*VOID(porosity));
+stop
+
+ZONES=2:4;%REQUIRED DEFINITION
+FUN=@(depth,porosity)1e-15;
+stop
+
+ZONES=5:6;%REQUIRED DEFINITION
+FUN=@(depth,porosity)1e-17;
+permeabilitystop
+
+compressibility
+ZONES=1;%REQUIRED DEFINITION
+global RHOW RHOG GRAV %needed for overburden function call
+A=0.09;
+GRAV=9.81;%gravity
+RHOW=1000;%density of water
+RHOG=2650;%density of grains - REQUIRED DEFINITION
+SPECHEAT=800;%specific heat of grains - REQUIRED DEFINITION
+OB=@(depth)max( overburden(depth) , 25);%overburden.m is a separate mfile
+FUN=@(depth,porosity)0.435.*A.*(1-porosity)./OB(depth);
+stop
+
+ZONES=2:6;%REQUIRED DEFINITION
+RHOG=2700;%density of grains - REQUIRED DEFINITION
+SPECHEAT=800;%specific heat of grains - REQUIRED DEFINITION
+FUN=@(depth,porosity)6e-10;
+compressibilitystop
