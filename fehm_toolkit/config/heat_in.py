@@ -8,7 +8,7 @@ AGE_SIGN_PATTERN = r'AGE=@\(x\)\(1\.\/\(SPREADRATE\.\*1E3\)\)\.\*\((-?)x\+X0\)'
 NUMERIC_PATTERN = r'(?:(?:\d+\.\d+)|(?:\.{0,1}\d+))(?:(?:e|E)-{0,1}\d+){0,1}'
 
 
-def read_legacy_config(hfi_file: Path) -> dict:
+def read_legacy_hfi_config(hfi_file: Path) -> dict:
     """Read legacy heatflux in files (.hfi)
 
     This assumes a fairly specific format for these files, supporting only a few files with a specific structure.

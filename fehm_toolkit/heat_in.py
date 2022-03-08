@@ -7,7 +7,7 @@ from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-from .config.heat_in import read_legacy_config
+from .config import read_legacy_hfi_config
 from .fehm_objects import Grid, Node
 from .file_interface import write_compact_node_data
 
@@ -28,7 +28,7 @@ def generate_input_heatflux_file(
     plot_result: bool = False,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    config = read_legacy_config(config_file)  # TODO(dustin): add support for other config file formats
+    config = read_legacy_hfi_config(config_file)  # TODO(dustin): add support for other config file formats
 
     logger.info('Parsing grid into memory')
     grid = Grid.from_files(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
