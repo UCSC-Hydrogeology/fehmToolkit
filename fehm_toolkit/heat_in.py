@@ -62,39 +62,46 @@ def plot_heatflux(heatflux_by_node: dict[int, float], grid: Grid):
         entries.append({
             'x': node.x / 1E3,  # convert m -> km
             'y': node.y / 1E3,  # convert m -> km
-            'heatflux_W': 1E6 * heatflux_MW / node.outside_area.z,  # convert to MW -> W
+            'heatflux_mW': 1E9 * heatflux_MW / node.outside_area.z,  # convert to MW -> mW
         })
     plot_data = pd.DataFrame(entries)
 
     axis_2d = _get_2d_axis_or_none(plot_data)
     if axis_2d:
-        plot_axis = 'x' if axis_2d == 'y' else 'y'
-        fig, ax = plt.subplots(figsize=(8, 5))
-        plot_data.plot(x=plot_axis, y='heatflux_W', marker='o', legend=False, ax=ax)
-        ax.set_xlabel(rf'{plot_axis} ($km$)')
-        ax.set_ylabel(r'Heat flux ($W/m^2$)')
-        ax.set_title('Bottom boundary heat flux')
-        plt.show()
+        _plot_heatflux_2d(plot_data, plot_axis='x' if axis_2d == 'y' else 'y')
         return
 
-    vor = Voronoi(plot_data[['x', 'y']].values)
-    heatflux_W = plot_data['heatflux_W'].values
+    _plot_heaflux_3d(plot_data)
 
-    norm = colors.Normalize(vmin=0, vmax=max(heatflux_W), clip=True)
+
+def _plot_heatflux_2d(plot_data: pd.DataFrame, plot_axis: str):
+    fig, ax = plt.subplots(figsize=(8, 5))
+    plot_data.plot(x=plot_axis, y='heatflux_mW', marker='o', legend=False, ax=ax)
+    ax.set_xlabel(rf'{plot_axis} ($km$)')
+    ax.set_ylabel(r'Heat flux ($mW/m^2$)')
+    ax.set_title('Bottom boundary heat flux')
+    plt.show()
+
+
+def _plot_heaflux_3d(plot_data: pd.DataFrame):
+    vor = Voronoi(plot_data[['x', 'y']].values)
+    heatflux_mW = plot_data['heatflux_mW'].values
+
+    norm = colors.Normalize(vmin=min(heatflux_mW), vmax=max(heatflux_mW), clip=True)
     mapper = cm.ScalarMappable(norm=norm, cmap=cm.Reds)
 
     fig, ax = plt.subplots(figsize=(8, 8))
-    voronoi_plot_2d(vor, show_points=False, show_vertices=False, s=1, ax=ax)
+    voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.3, ax=ax)
     for r in range(len(vor.point_region)):
         region = vor.regions[vor.point_region[r]]
         if -1 not in region:
             polygon = [vor.vertices[i] for i in region]
-            ax.fill(*zip(*polygon), color=mapper.to_rgba(heatflux_W[r]))
+            ax.fill(*zip(*polygon), color=mapper.to_rgba(heatflux_mW[r]))
 
     ax.set_aspect('equal')
     ax.set_xlabel(r'x ($km$)')
     ax.set_ylabel(r'y ($km$)')
-    ax.set_title(r'Bottom boundary heat flux ($W/m^2$)')
+    ax.set_title(r'Bottom boundary heat flux ($mW/m^2$)')
     plt.colorbar(mapper, ax=ax)
     plt.show()
 
