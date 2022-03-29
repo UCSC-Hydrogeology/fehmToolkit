@@ -20,7 +20,7 @@ def ctr2tcon(depth: float, rock_properties_config: dict, property_kind: str) -> 
     for (lower, upper) in node_ranges_by_depth[nearest_depth]:
         lower, upper = round(lower), round(upper)
         weight_total += upper - lower
-        weighted_tcon_total += sum([tcon_func(d) for d in range(lower, upper, TCON_SPACING_M) if d != 0])
+        weighted_tcon_total += sum([tcon_func(d) for d in range(lower, upper + 1, TCON_SPACING_M) if d != 0])
 
     tcon = weighted_tcon_total / weight_total
     return Vector(x=tcon, y=tcon, z=tcon)
