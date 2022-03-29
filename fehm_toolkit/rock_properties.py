@@ -9,6 +9,7 @@ import numpy as np
 from .config import read_legacy_rpi_config
 from .fehm_objects import Grid, Node, Vector
 from .file_interface import write_compact_node_data
+from . import property_models
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,7 @@ def get_rock_property_model(model_kind) -> dict[str, Callable]:
     models_by_kind = {
         'constant': _constant,
         'porosity_weighted_conductivity': _porosity_weighted_conductivity,
+        'ctr2tcon': property_models.ctr2tcon,
         'sediment_porosity_depth_power_law': _sediment_porosity_depth_power_law,
         'min_sediment_porosity_exponential': _min_sediment_porosity_exponential,
         'void_ratio_power_law': _void_ratio_power_law,
