@@ -423,7 +423,7 @@ def calculate_node_depths(
     depth_by_number = {}
     for linear, (number, coordinates) in zip(linear_interpolated, ordered_entries):
         seafloor = linear if not np.isnan(linear) else float(seafloor_2d_nearest(coordinates.x, coordinates.y))
-        depth_by_number[number] = seafloor - coordinates.z
+        depth_by_number[number] = round(seafloor - coordinates.z, 10)  # rounding avoids floating point variation
     return depth_by_number
 
 
