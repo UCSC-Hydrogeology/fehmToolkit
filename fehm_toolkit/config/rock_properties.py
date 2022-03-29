@@ -129,8 +129,13 @@ def _get_models() -> tuple[tuple[str, str, Callable]]:
             'parser': _parse_params__assigned_constant,
         },
         {
-            'model_kind': 'sediment_porosity',
+            'model_kind': 'min_sediment_porosity_exponential',
             'signature': r'FUN=@\(depth\)min\(PORA\.\*depth\.\^\(PORB\),PORA\.\*50\.\^\(PORB\)\)(?:;|\n)',
+            'parser': _parse_params__sediment_porosity,
+        },
+        {
+            'model_kind': 'sediment_porosity_depth_power_law',
+            'signature': r'FUN=@\(depth\)PORA\.\*exp\(PORB\.\*depth\);',
             'parser': _parse_params__sediment_porosity,
         },
         {
@@ -197,7 +202,7 @@ def _parse_params__jdf_ctr2tcon(block: str) -> dict:
                 'x^0': 0,
                 'x^1': 0.603,
                 'x^2': 0.000531,
-                'x^3': 0.000000684,
+                'x^3': -0.000000684,
             },
         },
     }

@@ -73,7 +73,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
                                 "x^0": 0,
                                 "x^1": 0.603,
                                 "x^2": 0.000531,
-                                "x^3": 6.84E-7
+                                "x^3": -6.84E-7
                             }
                         }
                     }
