@@ -18,6 +18,7 @@ def test_pyramid_from_fehm(fixture_dir):
         next(grid.get_nodes_in_outside_zone('bottom'))
 
 
+@pytest.mark.filterwarnings('ignore:The required storage space exceeds the available storage space.')
 def test_pyramid_from_fehm_and_zones(fixture_dir):
     grid = Grid.from_files(
         fixture_dir / 'simple_pyramid.fehm',
@@ -34,7 +35,7 @@ def test_pyramid_from_fehm_and_zones(fixture_dir):
 
     first_material_nodes = grid.get_nodes_in_material_zone(1)
     assert list(first_material_nodes) == [
-        Node(5, coordinates=Vector(5., 5., 10.), outside_area=Vector(0., 0., 40.))
+        Node(5, coordinates=Vector(5., 5., 10.), outside_area=Vector(0., 0., 40.), depth=0.0)
     ]
 
     outside_node_numbers = {node.number for node in grid.get_nodes_in_outside_zone('bottom')}
