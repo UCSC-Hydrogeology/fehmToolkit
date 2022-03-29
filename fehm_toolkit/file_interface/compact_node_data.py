@@ -1,6 +1,9 @@
 from collections import defaultdict
 from itertools import groupby
 from pathlib import Path
+from typing import Iterable, Union
+
+from fehm_toolkit.fehm_objects import Vector
 
 
 def read_compact_node_data(compact_node_data_file: Path) -> dict[int, float]:
@@ -47,19 +50,21 @@ def _parse_compact_node_data_line(line: str) -> dict[int, float]:
 
 
 def write_compact_node_data(
-    value_by_node: dict[int, float],
+    value_by_node: dict[int, Union[float, Vector, tuple[float]]],
     output_file: Path,
     header: str = None,
     footer: str = None,
+    style: str = 'rock_properties',
 ):
-    nodes_by_value = _group_nodes_by_formatted_output(value_by_node)
+    nodes_by_value = _group_nodes_by_formatted_output(value_by_node, style)
     ordered_entries = _get_grouped_entries(nodes_by_value)
-    _write_compact_node_file(ordered_entries, output_file, header=header, footer=footer)
+    _write_compact_node_file(ordered_entries, output_file, style, header=header, footer=footer)
 
 
 def _write_compact_node_file(
     entries: tuple[int, int, str],
     output_file: Path,
+    style: str,
     header: str = None,
     footer: str = None,
 ):
@@ -67,15 +72,18 @@ def _write_compact_node_file(
         if header:
             f.write(header)
         for min_node, max_node, value in entries:
-            f.write(_format_compact_entry(min_node, max_node, value))
+            f.write(_format_compact_entry(min_node, max_node, value, style))
         if footer:
             f.write(footer)
 
 
-def _group_nodes_by_formatted_output(value_by_node: dict[int, float]) -> dict[str, list[int]]:
+def _group_nodes_by_formatted_output(
+    value_by_node: dict[int, Union[float, Vector, tuple[float]]],
+    style: str,
+) -> dict[str, list[int]]:
     nodes_by_formatted_value = defaultdict(list)
     for node, value in value_by_node.items():
-        formatted_value = _format_for_output(value)
+        formatted_value = _format_for_output(value, style)
         nodes_by_formatted_value[formatted_value].append(node)
     return nodes_by_formatted_value
 
@@ -88,14 +96,21 @@ def _get_grouped_entries(nodes_by_value: dict[str, list[int]]) -> list[tuple[int
     return sorted(entries, key=lambda entry: entry[0])  # sort by min_node
 
 
-def _format_compact_entry(min_node: int, max_node: int, value: str) -> str:
+def _format_compact_entry(min_node: int, max_node: int, value: str, style: str) -> str:
     r""" Format compact node data entry as a string.
-    >>> _format_compact_entry(1, 10, '2.00000E02')
+    >>> _format_compact_entry(1, 10, '2.00000E02', 'heatflux')
     '1\t10\t1\t2.00000E02\t0.\n'
-    >>> _format_compact_entry(4, 5, '-3.56738E-04')
+    >>> _format_compact_entry(4, 5, '-3.56738E-04', 'heatflux')
     '4\t5\t1\t-3.56738E-04\t0.\n'
+    >>> _format_compact_entry(1, 10, '2.00000E02', 'rock_properties')
+    '      1      10 1\t2.00000E02\n'
+    >>> _format_compact_entry(4, 5, '-3.56738E-04', 'rock_properties')
+    '      4       5 1\t-3.56738E-04\n'
     """
-    return f'{min_node}\t{max_node}\t1\t{value}\t0.\n'
+    if style == 'heatflux':
+        return f'{min_node}\t{max_node}\t1\t{value}\t0.\n'
+
+    return f'{min_node:7d}{max_node:8d} 1\t{value}\n'
 
 
 def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
@@ -117,11 +132,39 @@ def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
         yield group_start, group_end
 
 
-def _format_for_output(value: float) -> str:
-    """ Format float value for output to boundary condition file.
-    >>> _format_for_output(-0.0397631)
-    '-3.97631E-02'
-    >>> _format_for_output(200)
-    '2.00000E+02'
+def _format_for_output(value: Union[float, Vector, tuple[float]], style: str) -> str:
+    try:
+        return _format_numeric_for_output(value, style)
+    except TypeError:
+        return _format_iterable_triple_for_output(value, style)
+
+
+def _format_iterable_triple_for_output(values: Iterable, style: str) -> str:
+    r""" Format iterable values with three items for output to compact node output file.
+    >>> _format_iterable_triple_for_output((1, 2.5, 3), 'rock_properties')
+    '  1.00000E+00\t  2.50000E+00\t  3.00000E+00'
+    >>> _format_iterable_triple_for_output([100, 0.2, 3], 'rock_properties')
+    '  1.00000E+02\t  2.00000E-01\t  3.00000E+00'
     """
-    return f"{value:.5E}"
+    try:
+        x, y, z = values
+        return '\t'.join([_format_numeric_for_output(i, style) for i in (x, y, z)])
+    except ValueError:
+        raise ValueError(f'Cannot format value for compact node output: {values}')
+
+
+def _format_numeric_for_output(value: float, style: str) -> str:
+    """ Format float value for output to compact node output file.
+    >>> _format_for_output(-0.0397631, 'heatflux')
+    '-3.97631E-02'
+    >>> _format_for_output(200, 'heatflux')
+    '2.00000E+02'
+    >>> _format_for_output(-0.0397631, 'rock_properties')
+    ' -3.97631E-02'
+    >>> _format_for_output(200, 'rock_properties')
+    '  2.00000E+02'
+    """
+    if style == 'heatflux':
+        return f'{value:.5E}'
+
+    return f'{value:13.5E}'

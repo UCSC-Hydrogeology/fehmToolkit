@@ -32,3 +32,6 @@ class Vector:
     @property
     def value(self) -> tuple[float]:
         return (self.x, self.y, self.z)
+
+    def __format__(self, fmt) -> str:
+        return f'{self.x:{fmt}}\t{self.y:{fmt}}\t{self.z:{fmt}}'

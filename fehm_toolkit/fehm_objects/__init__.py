@@ -1,3 +1,3 @@
 from .element import Element
 from .grid import Grid
-from .node import Node
+from .node import Node, Vector

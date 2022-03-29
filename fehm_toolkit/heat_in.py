@@ -37,12 +37,18 @@ def generate_input_heatflux_file(
     heatflux_by_node = compute_boundary_heatflux(grid, config)
 
     logger.info(f'Writing heat flux to disk: {output_file}')
-    write_compact_node_data(heatflux_by_node, output_file, header=HEATFLUX_HEADER, footer=HEATFLUX_FOOTER)
+    write_compact_node_data(
+        heatflux_by_node,
+        output_file,
+        header=HEATFLUX_HEADER,
+        footer=HEATFLUX_FOOTER,
+        style='heatflux',
+    )
     if plot_result:
         plot_heatflux(heatflux_by_node, grid)
 
 
-def compute_boundary_heatflux(grid: Grid, config: dict[int, float]):
+def compute_boundary_heatflux(grid: Grid, config: dict) -> dict[int, float]:
     heatflux_config = config['heatflux']
     heatflux_models = get_heatflux_models_by_kind()
 
