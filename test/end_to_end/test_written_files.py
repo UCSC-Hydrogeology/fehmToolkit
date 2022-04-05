@@ -49,13 +49,11 @@ def test_heat_in_against_fixture(tmpdir, matlab_fixture_dir, model_name, model_r
         ('np2d_p11', 'run'),
         ('jdf3d_p12d_g981', 'p12d_g981'),
 
-        # Fails on ppor file, needs investigation of Matlab code
+        # Fails on ppor file due to bugs in fixture version which have been addressed
+        # jdf runs also fail on cond due to small expected variation in ctr2tcon calculation
         # ('np3d_cond', 'run'),
         # ('jdf2d_p12', 'p12'),
-
-        # Fails to read grid, needs material zone file (can relax all zones covered req or include material zone)
-        # ('jdf3d_p12', 'p12'),  # check ppor and cond
-        # ('jdf3d_conduit_p12', 'p12'),  # check ppor and cond
+        # ('jdf3d_p12', 'p12'),
     )
 )
 def test_rock_properties_against_fixture(tmpdir, matlab_fixture_dir, model_name, model_root):
