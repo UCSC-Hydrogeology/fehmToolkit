@@ -7,6 +7,7 @@ class Node:
     number: int
     coordinates: 'Vector'
     outside_area: 'Vector' = None
+    depth: float = None
 
     @property
     def x(self) -> float:
