@@ -71,7 +71,7 @@ def test_rock_properties_against_fixture(tmpdir, matlab_fixture_dir, model_name,
     )
 
     for output_extension in ('cond', 'perm', 'ppor', 'rock'):
-        if model_name in ('jdf2d_p12', 'jdf3d_p12d_g981') and output_extension == 'cond':
+        if model_name == 'jdf3d_p12d_g981' and output_extension == 'cond':
             logger.info('Skipping file check (%s, %s), small variation expected.', model_name, output_extension)
             continue
 
