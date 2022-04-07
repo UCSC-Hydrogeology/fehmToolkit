@@ -13,10 +13,6 @@ from .file_interface import write_compact_node_data
 
 logger = logging.getLogger(__name__)
 
-HEATFLUX_INPUT_ZONE = 'bottom'
-HEATFLUX_HEADER = 'hflx\n'
-HEATFLUX_FOOTER = '0\n'
-
 
 def generate_input_heatflux_file(
     *,
@@ -40,8 +36,8 @@ def generate_input_heatflux_file(
     write_compact_node_data(
         heatflux_by_node,
         output_file,
-        header=HEATFLUX_HEADER,
-        footer=HEATFLUX_FOOTER,
+        header='hflx\n',
+        footer='0\n',
         style='heatflux',
     )
     if plot_result:
@@ -57,7 +53,7 @@ def compute_boundary_heatflux(grid: Grid, config: dict) -> dict[int, float]:
     except KeyError:
         raise NotImplementedError(f'No model defined for kind "{heatflux_config["model_kind"]}"')
 
-    input_nodes = grid.get_nodes_in_outside_zone(HEATFLUX_INPUT_ZONE)
+    input_nodes = grid.get_nodes_in_outside_zone('bottom')
     return {node.number: model(node, heatflux_config['model_params']) for node in input_nodes}
 
 
