@@ -1,2 +1,2 @@
-from .heat_in import read_legacy_hfi_config
-from .rock_properties import read_legacy_rpi_config
+from .hfi_reader import read_legacy_hfi_config
+from .rpi_reader import read_legacy_rpi_config
