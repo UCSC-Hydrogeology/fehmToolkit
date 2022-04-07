@@ -3,7 +3,7 @@ from itertools import groupby
 from pathlib import Path
 from typing import Iterable, Union
 
-from fehm_toolkit.fehm_objects import Vector
+from ..fehm_objects.vector import Vector
 
 
 def read_compact_node_data(compact_node_data_file: Path) -> dict[int, float]:

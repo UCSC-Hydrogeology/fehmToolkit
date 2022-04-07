@@ -5,9 +5,10 @@ from typing import Optional, Iterable, Union
 import numpy as np
 from scipy import interpolate
 
+from ..file_interface import read_fehm, read_zones
 from .element import Element
-from .file_interface import read_fehm, read_zones
-from .node import Node, Vector
+from .node import Node
+from .vector import Vector
 
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional, TextIO
 
-from fehm_toolkit.fehm_objects import Vector
+from ..fehm_objects.vector import Vector
 
 
 def read_zones(zone_file: Path) -> tuple[dict, dict]:

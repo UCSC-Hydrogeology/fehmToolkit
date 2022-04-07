@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Optional, TextIO
 
-from fehm_toolkit.fehm_objects import Element, Node, Vector
+from ..fehm_objects.element import Element
+from ..fehm_objects.node import Node
+from ..fehm_objects.vector import Vector
 
 
 def read_fehm(fehm_file: Path, read_elements: Optional[bool] = True) -> tuple[dict, dict]:
