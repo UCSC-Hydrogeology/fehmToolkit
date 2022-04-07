@@ -98,11 +98,13 @@ def _plot_heaflux_3d(plot_data: pd.DataFrame):
 
     fig, ax = plt.subplots(figsize=(8, 8))
     voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.3, ax=ax)
-    for r in range(len(vor.point_region)):
-        region = vor.regions[vor.point_region[r]]
-        if -1 not in region:
-            polygon = [vor.vertices[i] for i in region]
-            ax.fill(*zip(*polygon), color=mapper.to_rgba(heatflux_mW[r]))
+    for region_index, region_heatflux_mW in zip(vor.point_region, heatflux_mW):
+        region = vor.regions[region_index]
+        if -1 in region:
+            continue
+
+        polygon = [vor.vertices[i] for i in region]
+        ax.fill(*zip(*polygon), color=mapper.to_rgba(region_heatflux_mW))
 
     ax.set_aspect('equal')
     ax.set_xlabel(r'x ($km$)')
