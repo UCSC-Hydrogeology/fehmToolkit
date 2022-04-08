@@ -31,7 +31,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
             1: {
                 "porosity":
                 {
-                    "model_kind": "min_sediment_porosity_exponential",
+                    "model_kind": "depth_exponential_with_maximum",
                     "model_params":
                     {
                         "porosity_a": 0.84,
@@ -89,7 +89,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
                 },
                 "compressibility":
                 {
-                    "model_kind": "overburden_compressibility",
+                    "model_kind": "overburden",
                     "model_params":
                     {
                         "a": 0.09,
@@ -126,7 +126,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -177,7 +177,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -228,7 +228,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -279,7 +279,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -339,7 +339,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -357,7 +357,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "compressibility":
                 {
-                    "model_kind": "overburden_compressibility",
+                    "model_kind": "overburden",
                     "model_params":
                     {
                         "a": 0.09,
@@ -394,7 +394,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -445,7 +445,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -496,7 +496,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -547,7 +547,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,
@@ -598,7 +598,7 @@ def test_read_legacy_rpi_config_np(fixture_dir):
                 },
                 "conductivity":
                 {
-                    "model_kind": "porosity_weighted_conductivity",
+                    "model_kind": "porosity_weighted",
                     "model_params":
                     {
                         "water_conductivity": 0.62,

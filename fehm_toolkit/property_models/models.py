@@ -8,7 +8,6 @@ from .porosity import get_porosity_models_by_kind
 
 
 def get_rock_property_model(property_kind, model_kind) -> dict[str, Callable]:
-
     property_model_lookup = _get_model_lookup_by_property_kind()[property_kind]
     generic_model_lookup = get_generic_models_by_kind()
 

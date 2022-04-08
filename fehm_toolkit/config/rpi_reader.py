@@ -129,12 +129,12 @@ def _get_models() -> tuple[tuple[str, str, Callable]]:
             'parser': _parse_params__assigned_constant,
         },
         {
-            'model_kind': 'min_sediment_porosity_exponential',
+            'model_kind': 'depth_exponential_with_maximum',
             'signature': r'FUN=@\(depth\)min\(PORA\.\*depth\.\^\(PORB\),PORA\.\*50\.\^\(PORB\)\)(?:;|\n)',
             'parser': _parse_params__sediment_porosity,
         },
         {
-            'model_kind': 'sediment_porosity_depth_power_law',
+            'model_kind': 'depth_power_law',
             'signature': r'FUN=@\(depth\)PORA\.\*exp\(PORB\.\*depth\);',
             'parser': _parse_params__sediment_porosity,
         },
@@ -144,9 +144,9 @@ def _get_models() -> tuple[tuple[str, str, Callable]]:
             'parser': _parse_params__jdf_ctr2tcon,
         },
         {
-            'model_kind': 'porosity_weighted_conductivity',
+            'model_kind': 'porosity_weighted',
             'signature': r'FUN=@\(depth,porosity\)\(KW\.\^porosity\)\.\*\(\w+\.\^\(1-porosity\)\)(?:;|\n)',
-            'parser': _parse_params__porosity_weighted_conductivity,
+            'parser': _parse_params__porosity_weighted,
         },
         {
             'model_kind': 'void_ratio_power_law',
@@ -154,9 +154,9 @@ def _get_models() -> tuple[tuple[str, str, Callable]]:
             'parser': _parse_params__void_ratio_power_law,
         },
         {
-            'model_kind': 'overburden_compressibility',
+            'model_kind': 'overburden',
             'signature': r'FUN=@\(depth,porosity\)0\.435\.\*A\.\*\(1-porosity\)\./OB\(depth\)(?:;|\n)',
-            'parser': _parse_params__overburden_compressibility,
+            'parser': _parse_params__overburden,
         },
     )
 
@@ -208,7 +208,7 @@ def _parse_params__jdf_ctr2tcon(block: str) -> dict:
     }
 
 
-def _parse_params__porosity_weighted_conductivity(block: str) -> dict:
+def _parse_params__porosity_weighted(block: str) -> dict:
     match_var = re.search(r'FUN=@\(depth,porosity\)\(KW\.\^porosity\)\.\*\((\w+)\.\^\(1-porosity\)\)(?:;|\n)', block)
     grain_conductivity_variable = match_var.group(1)
 
@@ -227,7 +227,7 @@ def _parse_params__void_ratio_power_law(block: str) -> dict:
     return {'A': float(match_a.group(1)), 'B': float(match_b.group(1))}
 
 
-def _parse_params__overburden_compressibility(block: str) -> dict:
+def _parse_params__overburden(block: str) -> dict:
     match_a = re.search(rf'A=({NUMERIC_PATTERN})(?:;|\n)', block)
     match_grav = re.search(rf'GRAV=({NUMERIC_PATTERN})(?:;|\n)', block)
     match_rhow = re.search(rf'RHOW=({NUMERIC_PATTERN})(?:;|\n)', block)
