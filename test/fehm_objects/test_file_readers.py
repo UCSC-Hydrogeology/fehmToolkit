@@ -1,6 +1,5 @@
-from fehm_toolkit.fehm_objects import Element
-from fehm_toolkit.fehm_objects.grid import read_fehm, read_zones
-from fehm_toolkit.fehm_objects.node import Vector
+from fehm_toolkit.fehm_objects import Element, Vector
+from fehm_toolkit.file_interface import read_fehm, read_zones
 
 
 def test_read_fehm_pyramid(fixture_dir):
