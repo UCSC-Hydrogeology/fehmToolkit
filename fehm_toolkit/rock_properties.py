@@ -38,8 +38,9 @@ def generate_rock_properties_files(
     _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
 
     property_lookups = {}
-    for zone, zone_config in rock_properties_config.items():
+    for zone in rock_properties_config['zone_assignment_order']:
         logger.info('Computing properties for zone (%d)', zone)
+        zone_config = rock_properties_config['zone_configs_by_zone'][zone]
         zone_properties = compute_rock_properties(zone_config, nodes=grid.get_nodes_in_material_zone(zone))
         property_lookups = _update_with_zone_properties(property_lookups, zone_properties)
 
@@ -87,12 +88,17 @@ def _update_with_zone_properties(property_lookups: dict, zone_properties: dict) 
 
 
 def _validate_config_all_zones_covered(config: dict, zones: tuple[int]):
-    config_zones = config.keys()
+    config_zones = config['zone_configs_by_zone'].keys()
+    assignment_zones = set(config['zone_assignment_order'])
+    mismatched_assignment_zones = config_zones ^ assignment_zones
+    if mismatched_assignment_zones:
+        raise ValueError(f'Zones in zone_assignment_order do not match those in config {mismatched_assignment_zones}')
+
     mismatched_zones = config_zones ^ zones  # ^ is the symmetric difference operator for sets
     if mismatched_zones:
         raise ValueError(f'Config zones do not match zones in grid {mismatched_zones}')
 
-    for zone, zone_config in config.items():
+    for zone, zone_config in config['zone_configs_by_zone'].items():
         mismatched_property_kinds = zone_config.keys() ^ PROPERTY_KINDS
         if mismatched_property_kinds:
             raise ValueError(f'Mismatched property kinds in zone {zone}: {mismatched_property_kinds}')
