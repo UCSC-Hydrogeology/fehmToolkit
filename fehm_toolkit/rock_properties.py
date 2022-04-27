@@ -36,7 +36,6 @@ def generate_rock_properties_files(
         read_elements=False,
     )
     _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
-    _validate_no_zone_overlap(grid)
 
     property_lookups = {}
     for zone, zone_config in rock_properties_config.items():
@@ -97,16 +96,6 @@ def _validate_config_all_zones_covered(config: dict, zones: tuple[int]):
         mismatched_property_kinds = zone_config.keys() ^ PROPERTY_KINDS
         if mismatched_property_kinds:
             raise ValueError(f'Mismatched property kinds in zone {zone}: {mismatched_property_kinds}')
-
-
-def _validate_no_zone_overlap(grid: Grid):
-    node_sets = []
-    for zone in grid.material_zones:
-        nodes = set(node.number for node in grid.get_nodes_in_material_zone(zone))
-        node_sets.append(nodes)
-    intersect = set.intersection(*node_sets)
-    if intersect:
-        raise NotImplementedError(f'No support for overlapping zones. Overlap found at nodes: {intersect}.')
 
 
 def _validate_all_nodes_covered(property_lookups: dict, n_nodes: int):
