@@ -9,7 +9,7 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 
 from .config import read_legacy_hfi_config
 from .fehm_objects import Grid, Node
-from .file_interface import write_compact_node_data
+from .file_interface import read_grid, write_compact_node_data
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def generate_input_heatflux_file(
     config = read_legacy_hfi_config(config_file)  # TODO(dustin): add support for other config file formats
 
     logger.info('Parsing grid into memory')
-    grid = Grid.from_files(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
+    grid = read_grid(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
 
     logger.info('Computing boundary heat flux')
     heatflux_by_node = compute_boundary_heatflux(grid, config)

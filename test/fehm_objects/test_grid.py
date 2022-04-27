@@ -1,11 +1,11 @@
 import pytest
 
-from fehm_toolkit.fehm_objects import Grid, Node
-from fehm_toolkit.fehm_objects.node import Vector
+from fehm_toolkit.fehm_objects import Node, Vector
+from fehm_toolkit.file_interface import read_grid
 
 
 def test_pyramid_from_fehm(fixture_dir):
-    grid = Grid.from_files(fixture_dir / 'simple_pyramid.fehm')
+    grid = read_grid(fixture_dir / 'simple_pyramid.fehm')
     assert grid.n_nodes == 5
     assert grid.n_elements == 2
     assert grid.element(2).number == 2
@@ -19,7 +19,7 @@ def test_pyramid_from_fehm(fixture_dir):
 
 
 def test_square_from_fehm(fixture_dir):
-    grid = Grid.from_files(fixture_dir / 'square.fehm')
+    grid = read_grid(fixture_dir / 'square.fehm')
     assert grid.n_nodes == 5
     assert grid.n_elements == 4
     assert grid.element(3).number == 3
@@ -34,7 +34,7 @@ def test_square_from_fehm(fixture_dir):
 
 @pytest.mark.filterwarnings('ignore:The required storage space exceeds the available storage space.')
 def test_pyramid_from_fehm_and_zones(fixture_dir):
-    grid = Grid.from_files(
+    grid = read_grid(
         fixture_dir / 'simple_pyramid.fehm',
         material_zone_file=fixture_dir / 'simple_pyramid_material.zone',
         outside_zone_file=fixture_dir / 'simple_pyramid_outside.zone',
@@ -56,7 +56,7 @@ def test_pyramid_from_fehm_and_zones(fixture_dir):
 
 
 def test_square_from_fehm_and_zones(fixture_dir):
-    grid = Grid.from_files(
+    grid = read_grid(
         fixture_dir / 'square.fehm',
         material_zone_file=fixture_dir / 'square_material.zone',
         outside_zone_file=fixture_dir / 'square_outside.zone',
@@ -86,7 +86,7 @@ def test_square_from_fehm_and_zones(fixture_dir):
 
 def test_validate_mismatched_outside_zone_lookups(fixture_dir):
     with pytest.raises(ValueError):
-        Grid.from_files(
+        read_grid(
             fixture_dir / 'square.fehm',
             material_zone_file=fixture_dir / 'square_material.zone',
             outside_zone_file=fixture_dir / 'square_outside.zone',

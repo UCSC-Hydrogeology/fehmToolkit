@@ -8,8 +8,8 @@ import numpy as np
 
 from .config import read_legacy_rpi_config
 from .fehm_objects import Grid, Node, Vector
-from .file_interface import write_compact_node_data
 from . import property_models
+from .file_interface import read_grid, write_compact_node_data
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def generate_rock_properties_files(
     rock_properties_config = config['rock_properties']
 
     logger.info('Parsing grid into memory')
-    grid = Grid.from_files(
+    grid = read_grid(
         fehm_file,
         outside_zone_file=outside_zone_file,
         material_zone_file=material_zone_file,
