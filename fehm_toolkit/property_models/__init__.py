@@ -1,1 +1,1 @@
-from .ctr2tcon import ctr2tcon
+from .models import get_rock_property_model

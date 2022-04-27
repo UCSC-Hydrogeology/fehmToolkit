@@ -3,12 +3,31 @@ import re
 from statistics import mean
 from typing import Callable
 
-from fehm_toolkit.fehm_objects import Vector
+from ..fehm_objects import Vector
+from .porosity import get_porosity_model
 
 TCON_SPACING_M = 1
 
 
-def ctr2tcon(depth: float, rock_properties_config: dict, property_kind: str) -> Vector:
+def get_conductivity_models_by_kind() -> dict:
+    return {
+        'porosity_weighted': _porosity_weighted,
+        'ctr2tcon': _ctr2tcon,
+    }
+
+
+def _porosity_weighted(depth: float, rock_properties_config: dict, property_kind: str) -> Vector:
+    params = rock_properties_config[property_kind]['model_params']
+    kw, kg = params['water_conductivity'], params['rock_conductivity']
+
+    porosity_model = get_porosity_model(rock_properties_config['porosity']['model_kind'])
+    porosity = porosity_model(depth, rock_properties_config, 'porosity')
+
+    conductivity = (kw ** porosity) * (kg ** (1 - porosity))
+    return Vector(x=conductivity, y=conductivity, z=conductivity)
+
+
+def _ctr2tcon(depth: float, rock_properties_config: dict, property_kind: str) -> Vector:
     params = rock_properties_config[property_kind]['model_params']
 
     tcon_func = _get_tcon_func(params['ctr_model'])

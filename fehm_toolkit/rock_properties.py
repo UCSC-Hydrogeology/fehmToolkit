@@ -1,15 +1,12 @@
 import argparse
 import logging
-import math
 from pathlib import Path
-from typing import Callable, Iterable, Union
-
-import numpy as np
+from typing import Iterable
 
 from .config import read_legacy_rpi_config
-from .fehm_objects import Grid, Node, Vector
-from . import property_models
+from .fehm_objects import Grid, Node
 from .file_interface import read_grid, write_compact_node_data
+from .property_models import get_rock_property_model
 
 logger = logging.getLogger(__name__)
 
@@ -72,29 +69,13 @@ def generate_rock_properties_files(
 def compute_rock_properties(rock_properties_config: dict, nodes: Iterable[Node]) -> dict[str, dict[int, float]]:
     zone_properties = {}
     for property_kind, property_config in rock_properties_config.items():
-        rock_property_model = get_rock_property_model(property_config['model_kind'])
+        rock_property_model = get_rock_property_model(property_kind, property_config['model_kind'])
 
         zone_properties[property_kind] = {
             node.number: rock_property_model(node.depth, rock_properties_config, property_kind)
             for node in nodes
         }
     return zone_properties
-
-
-def get_rock_property_model(model_kind) -> dict[str, Callable]:
-    models_by_kind = {
-        'constant': _constant,
-        'porosity_weighted_conductivity': _porosity_weighted_conductivity,
-        'ctr2tcon': property_models.ctr2tcon,
-        'sediment_porosity_depth_power_law': _sediment_porosity_depth_power_law,
-        'min_sediment_porosity_exponential': _min_sediment_porosity_exponential,
-        'void_ratio_power_law': _void_ratio_power_law,
-        'overburden_compressibility': _overburden_compressibility,
-    }
-    try:
-        return models_by_kind[model_kind]
-    except KeyError:
-        raise NotImplementedError(f'No model defined for kind "{model_kind}"')
 
 
 def _update_with_zone_properties(property_lookups: dict, zone_properties: dict) -> dict:
@@ -104,72 +85,6 @@ def _update_with_zone_properties(property_lookups: dict, zone_properties: dict) 
         property_lookup.update(zone_properties[property_kind])
         combined[property_kind] = property_lookup
     return combined
-
-
-def _compute_property(depth: float, rock_properties_config: dict, property_kind: str):
-    model = get_rock_property_model(rock_properties_config[property_kind]['model_kind'])
-    return model(depth, rock_properties_config, property_kind)
-
-
-def _constant(depth: float, rock_properties_config: dict, property_kind: str) -> Union[float, Vector]:
-    params = rock_properties_config[property_kind]['model_params']
-    constant = params['constant']
-
-    if property_kind in ('conductivity', 'permeability'):
-        return Vector(x=constant, y=constant, z=constant)
-
-    return constant
-
-
-def _porosity_weighted_conductivity(depth: float, rock_properties_config: dict, property_kind: str) -> Vector:
-    params = rock_properties_config[property_kind]['model_params']
-    kw, kg = params['water_conductivity'], params['rock_conductivity']
-
-    porosity = _compute_property(depth, rock_properties_config, 'porosity')
-    conductivity = (kw ** porosity) * (kg ** (1 - porosity))
-    return Vector(x=conductivity, y=conductivity, z=conductivity)
-
-
-def _sediment_porosity_depth_power_law(depth: float, rock_properties_config: dict, property_kind: str) -> float:
-    params = rock_properties_config[property_kind]['model_params']
-    porosity_a, porosity_b = params['porosity_a'], params['porosity_b']
-    return porosity_a * math.exp(porosity_b * depth)
-
-
-def _min_sediment_porosity_exponential(depth: float, rock_properties_config: dict, property_kind: str) -> float:
-    params = rock_properties_config[property_kind]['model_params']
-    porosity_a, porosity_b = params['porosity_a'], params['porosity_b']
-
-    max_porosity = porosity_a * 50 ** porosity_b
-    if depth == 0:
-        return max_porosity
-
-    return min(porosity_a * depth ** porosity_b, max_porosity)
-
-
-def _void_ratio_power_law(depth: float, rock_properties_config: dict, property_kind: str) -> Vector:
-    params = rock_properties_config[property_kind]['model_params']
-
-    porosity = _compute_property(depth, rock_properties_config, 'porosity')
-    void_ratio = porosity / (1 - porosity)
-    permeability = params['A'] * math.exp(params['B'] * void_ratio)
-    return Vector(x=permeability, y=permeability, z=permeability)
-
-
-def _overburden_compressibility(depth: float, rock_properties_config: dict, property_kind: str) -> float:
-    params = rock_properties_config[property_kind]['model_params']
-
-    depth_column_1m_spacing = list(range(math.floor(depth) + 1)) if depth else [0]
-    porosity_column = np.array([
-        _compute_property(d, rock_properties_config, 'porosity') for d in depth_column_1m_spacing
-    ])
-    grain_density_column = np.array([
-        _compute_property(depth, rock_properties_config, 'grain_density') for d in depth_column_1m_spacing
-    ])
-    rho_wet_bulk_column = (1 - porosity_column) * grain_density_column + porosity_column * params['rhow']
-    overburden = max(params['grav'] * sum(rho_wet_bulk_column - params['rhow']), params['min_overburden'])
-    porosity = _compute_property(depth, rock_properties_config, 'porosity')
-    return 0.435 * params['a'] * (1 - porosity) / overburden
 
 
 def _validate_config_all_zones_covered(config: dict, zones: tuple[int]):
