@@ -42,6 +42,7 @@ def read_legacy_rpi_config(rpi_file: Path) -> dict:
 
 def convert_to_zone_lookup_format(config):
     reformatted_properties = defaultdict(dict)
+    zone_order = []
     for property_kind, block_configs in config['rock_properties'].items():
         for block_config in block_configs:
             for zone in block_config['zones']:
@@ -49,7 +50,15 @@ def convert_to_zone_lookup_format(config):
                     'model_kind': block_config['model_kind'],
                     'model_params': block_config['model_params'],
                 }
-    return {'rock_properties': reformatted_properties}
+                if zone not in zone_order:
+                    zone_order.append(zone)
+
+    return {
+        'rock_properties': {
+            'zone_assignment_order': zone_order,
+            'zone_configs_by_zone': reformatted_properties,
+        },
+    }
 
 
 def _read_and_process_rpi(rpi_file: Path) -> dict[str, str]:
