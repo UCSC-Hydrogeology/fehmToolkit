@@ -1,19 +1,17 @@
 from pathlib import Path
 from typing import Optional, TextIO
 
-from ..fehm_objects import Vector
+from ..fehm_objects import Vector, Zone
 
 
-def read_zones(zone_file: Path) -> tuple[dict, dict]:
+def read_zones(zone_file: Path) -> tuple[Zone]:
     """Read zone-formatted files (_outside.zone, _material.zone, .area)
 
     Read zone-based values (node numbers, areas), and return these as a dictionary keyed by zone number. Also construct
     a mapping dictionary between the zone name and zone number.
     """
 
-    zone_number_by_name = {}
-    node_values_by_zone_number = {}
-
+    zones = []
     with open(zone_file) as f:
         file_header = next(f).strip()
         if file_header != 'zone':
@@ -25,16 +23,13 @@ def read_zones(zone_file: Path) -> tuple[dict, dict]:
                 break
 
             zone_number, zone_name = _parse_zone_header(zone_header)
-            node_values = _read_zone(f)
+            node_values = _read_zone_values(f)
+            zones.append(Zone(number=zone_number, name=zone_name, data=node_values))
 
-            node_values_by_zone_number[zone_number] = node_values
-            if zone_name:
-                zone_number_by_name[zone_name] = zone_number
-
-    return node_values_by_zone_number, zone_number_by_name
+    return tuple(zones)
 
 
-def _read_zone(open_file: TextIO) -> tuple[int]:
+def _read_zone_values(open_file: TextIO) -> tuple[int]:
     nnum_header = next(open_file).strip()
     if nnum_header != 'nnum':
         raise ValueError(f'Invalid zone file, expected "nnum" instead of "{nnum_header}"')
