@@ -3,6 +3,7 @@ from typing import Optional, Iterable, Union
 
 from .element import Element
 from .node import Node
+from .zone import Zone
 
 
 logger = logging.getLogger(__name__)
@@ -16,15 +17,13 @@ class Grid:
         nodes_by_number: dict[int, Node],
         elements_by_number: dict[int, Element],
         *,
-        node_numbers_by_material_zone_number: Optional[dict[int, tuple[int]]] = None,
-        node_numbers_by_outside_zone_number: Optional[dict[int, tuple[int]]] = None,
-        outside_zone_number_by_name: Optional[dict[str, int]] = None,
+        material_zones: Optional[tuple[Zone]] = None,
+        outside_zones: Optional[tuple[Zone]] = None,
     ):
         self._nodes_by_number = nodes_by_number
         self._elements_by_number = elements_by_number
-        self._node_numbers_by_material_zone_number = node_numbers_by_material_zone_number
-        self._node_numbers_by_outside_zone_number = node_numbers_by_outside_zone_number
-        self._outside_zone_number_by_name = outside_zone_number_by_name
+        self._material_zones = material_zones
+        self._outside_zones = outside_zones
 
     def node(self, number: int) -> Node:
         try:
@@ -56,53 +55,40 @@ class Grid:
 
     @property
     def material_zones(self) -> set[int]:
-        if self._node_numbers_by_material_zone_number is None:
+        if self._material_zones is None:
             raise ValueError('Grid has not been loaded with zone data.')
-        return set(self._node_numbers_by_material_zone_number.keys())
+        return self._material_zones
 
     @property
     def outside_zones(self) -> set[int]:
-        if self._node_numbers_by_outside_zone_number is None:
+        if self._outside_zones is None:
             raise ValueError('Grid has not been loaded with zone data.')
-        return set(self._node_numbers_by_outside_zone_number.keys())
+        return self._outside_zones
 
-    def get_nodes_in_material_zone(self, zone_number: Union[int, Iterable[int]]) -> tuple[Node]:
-        try:
-            nodes = []
-            for number in zone_number:
-                for node in self._get_nodes_in_material_zone(number):
-                    nodes.append(node)
-            return tuple(nodes)
-        except TypeError:
-            return tuple(node for node in self._get_nodes_in_material_zone(zone_number))
+    def get_material_zone(self, zone_key: Union[int, str]) -> Zone:
+        if zone_key is None:
+            raise ValueError('Invalid zone name or number: None')
 
-    def _get_nodes_in_material_zone(self, zone_number: int) -> Iterable[Node]:
-        if self._node_numbers_by_material_zone_number is None:
-            raise ValueError('Grid has not been loaded with zone data.')
+        for zone in self.material_zones:
+            if zone_key in {zone.number, zone.name}:
+                return zone
 
-        try:
-            node_numbers = self._node_numbers_by_material_zone_number[zone_number]
-        except KeyError:
-            raise KeyError(f'Zone "{zone_number}" not found in grid.')
+        raise KeyError(f'Zone "{zone_key}" not found in grid material_zones.')
 
-        for node_number in node_numbers:
-            yield self._nodes_by_number[node_number]
+    def get_outside_zone(self, zone_key: Union[int, str]) -> Zone:
+        if zone_key is None:
+            raise ValueError('Invalid zone name or number: None')
 
-    def get_nodes_in_outside_zone(self, zone_number_or_name: Union[int, str]):
-        if self._node_numbers_by_outside_zone_number is None:
-            raise ValueError('Grid has not been loaded with zone data.')
+        for zone in self.outside_zones:
+            if zone_key in {zone.number, zone.name}:
+                return zone
 
-        try:
-            node_numbers = self._node_numbers_by_outside_zone_number[zone_number_or_name]
-        except KeyError as e:
-            if self._outside_zone_number_by_name is None:
-                raise e
+        raise KeyError(f'Zone "{zone_key}" not found in grid outside_zones.')
 
-            try:
-                zone_number = self._outside_zone_number_by_name[zone_number_or_name]
-                node_numbers = self._node_numbers_by_outside_zone_number[zone_number]
-            except KeyError:
-                raise KeyError(f'Zone "{zone_number_or_name}" not found in grid.')
+    def get_nodes_in_material_zone(self, zone_key: Union[int, str]) -> tuple[Node]:
+        zone = self.get_material_zone(zone_key)
+        return tuple(self._nodes_by_number[node_number] for node_number in zone.data)
 
-        for node_number in node_numbers:
-            yield self._nodes_by_number[node_number]
+    def get_nodes_in_outside_zone(self, zone_key: Union[int, str]) -> tuple[Node]:
+        zone = self.get_outside_zone(zone_key)
+        return tuple(self._nodes_by_number[node_number] for node_number in zone.data)
