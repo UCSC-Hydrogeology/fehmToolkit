@@ -2,9 +2,10 @@ import logging
 
 import pytest
 
-
+from fehm_toolkit.file_interface import write_zones
 from fehm_toolkit.heat_in import generate_input_heatflux_file
 from fehm_toolkit.rock_properties import generate_rock_properties_files
+from fehm_toolkit.utilities import append_zones
 
 logger = logging.getLogger(__name__)
 
@@ -84,3 +85,34 @@ def test_rock_properties_against_fixture(tmpdir, matlab_fixture_dir, model_name,
 
         equal = actual == expected
         assert equal
+
+
+@pytest.mark.parametrize(
+    'model_name, model_root',
+    (
+        # TODO(dustin): replace these with small custom grids
+        ('np2d_cond', 'cond'),
+        ('np2d_p11', 'run'),
+        ('jdf3d_p12d_g981', 'p12d_g981'),
+        ('jdf3d_deep_p11ani', 'p11d600efto_GBv10BBv10_g981'),
+        ('np3d_cond', 'run'),
+        ('np3d_p11', 'run'),
+    )
+)
+def test_append_zones_against_fixture(tmpdir, matlab_fixture_dir, model_name, model_root):
+    model_dir = matlab_fixture_dir / model_name
+    combined_zones = append_zones(
+        zone_keys_to_add=('top', 'bottom'),
+        add_zones_from_file=model_dir / f'{model_root}_outside.zone',
+        add_zones_to_file=model_dir / f'{model_root}_material.zone',
+    )
+    write_zones(combined_zones, tmpdir / 'output.zone', include_zone_names=False)
+
+    # Zone file manually fixed with ending newline and longer spacing on node counts for appended zones
+    with open(model_dir / f'{model_root}.zone_fixed') as fixture_file:
+        expected = fixture_file.read()
+
+    with open(tmpdir / 'output.zone') as output_file:
+        actual = output_file.read()
+
+    assert actual == expected
