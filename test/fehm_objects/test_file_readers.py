@@ -1,4 +1,4 @@
-from fehm_toolkit.fehm_objects import Element, Vector
+from fehm_toolkit.fehm_objects import Element, Vector, Zone
 from fehm_toolkit.file_interface import read_fehm, read_zones
 
 
@@ -21,43 +21,67 @@ def test_read_fehm_pyramid(fixture_dir):
 
 
 def test_read_outside_zone_pyramid(fixture_dir):
-    node_numbers_by_zone_number, zone_number_by_name = read_zones(fixture_dir / 'simple_pyramid_outside.zone')
-    assert zone_number_by_name == {'top': 1, 'bottom': 2, 'left_w': 3, 'front_s': 4, 'right_e': 5, 'back_n': 6}
-    assert node_numbers_by_zone_number == {
-        1: (1, 2, 3, 4, 5),
-        2: (1, 2, 3, 4),
-        3: (1, 4, 5),
-        4: (1, 2, 5),
-        5: (2, 3, 5),
-        6: (3, 4, 5),
-    }
+    outside_zones = read_zones(fixture_dir / 'simple_pyramid_outside.zone')
+    assert outside_zones == (
+        Zone(number=1, name='top', data=(1, 2, 3, 4, 5)),
+        Zone(number=2, name='bottom', data=(1, 2, 3, 4)),
+        Zone(number=3, name='left_w', data=(1, 4, 5)),
+        Zone(number=5, name='right_e', data=(2, 3, 5)),
+        Zone(number=6, name='back_n', data=(3, 4, 5)),
+        Zone(number=4, name='front_s', data=(1, 2, 5)),
+    )
 
 
 def test_read_material_zone_pyramid(fixture_dir):
-    node_numbers_by_zone_number, zone_number_by_name = read_zones(fixture_dir / 'simple_pyramid_material.zone')
-    assert zone_number_by_name == {}
-    assert node_numbers_by_zone_number == {1: (5,), 2: (1, 2, 3, 4)}
+    material_zones = read_zones(fixture_dir / 'simple_pyramid_material.zone')
+    assert material_zones == (
+        Zone(number=1, name=None, data=(5,)),
+        Zone(number=2, name=None, data=(1, 2, 3, 4)),
+    )
 
 
 def test_read_area_pyramid(fixture_dir):
-    areas_by_zone_number, zone_number_by_name = read_zones(fixture_dir / 'simple_pyramid.area')
-    assert zone_number_by_name == {'top': 1, 'bottom': 2, 'left_w': 3, 'front_s': 4, 'right_e': 5, 'back_n': 6}
-    assert areas_by_zone_number == {
-        1: (
-            Vector(-30.0, -30.0, -15.0),
-            Vector(30.0, -30.0, -15.0),
-            Vector(30.0, 30.0, -15.0),
-            Vector(-30.0, 30.0, -15.0),
-            Vector(0.0, 0.0, 40.0),
+    area_zones = read_zones(fixture_dir / 'simple_pyramid.area')
+    assert area_zones == (
+        Zone(
+            number=1,
+            name='top',
+            data=(
+                Vector(-30.0, -30.0, -15.0),
+                Vector(30.0, -30.0, -15.0),
+                Vector(30.0, 30.0, -15.0),
+                Vector(-30.0, 30.0, -15.0),
+                Vector(0.0, 0.0, 40.0),
+            ),
         ),
-        2: (
-            Vector(-30.0, -30.0, -15.0),
-            Vector(30.0, -30.0, -15.0),
-            Vector(30.0, 30.0, -15.0),
-            Vector(-30.0, 30.0, -15.0),
+        Zone(
+            number=2,
+            name='bottom',
+            data=(
+                Vector(-30.0, -30.0, -15.0),
+                Vector(30.0, -30.0, -15.0),
+                Vector(30.0, 30.0, -15.0),
+                Vector(-30.0, 30.0, -15.0),
+            ),
         ),
-        3: (Vector(-30.0, -30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
-        4: (Vector(-30.0, -30.0, -15.0), Vector(30.0, -30.0, -15.0), Vector(0.0, 0.0, 40.0)),
-        5: (Vector(30.0, -30.0, -15.0), Vector(30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
-        6: (Vector(30.0, 30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
-    }
+        Zone(
+            number=3,
+            name='left_w',
+            data=(Vector(-30.0, -30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        ),
+        Zone(
+            number=5,
+            name='right_e',
+            data=(Vector(30.0, -30.0, -15.0), Vector(30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        ),
+        Zone(
+            number=6,
+            name='back_n',
+            data=(Vector(30.0, 30.0, -15.0), Vector(-30.0, 30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        ),
+        Zone(
+            number=4,
+            name='front_s',
+            data=(Vector(-30.0, -30.0, -15.0), Vector(30.0, -30.0, -15.0), Vector(0.0, 0.0, 40.0)),
+        ),
+    )

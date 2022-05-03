@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .config import read_legacy_rpi_config
-from .fehm_objects import Grid, Node
+from .fehm_objects import Node, Zone
 from .file_interface import read_grid, write_compact_node_data
 from .property_models import get_rock_property_model
 
@@ -87,14 +87,14 @@ def _update_with_zone_properties(property_lookups: dict, zone_properties: dict) 
     return combined
 
 
-def _validate_config_all_zones_covered(config: dict, zones: tuple[int]):
+def _validate_config_all_zones_covered(config: dict, zones: tuple[Zone]):
     config_zones = config['zone_configs_by_zone'].keys()
     assignment_zones = set(config['zone_assignment_order'])
     mismatched_assignment_zones = config_zones ^ assignment_zones
     if mismatched_assignment_zones:
         raise ValueError(f'Zones in zone_assignment_order do not match those in config {mismatched_assignment_zones}')
 
-    mismatched_zones = config_zones ^ zones  # ^ is the symmetric difference operator for sets
+    mismatched_zones = config_zones ^ {zone.number for zone in zones}  # symmetric difference
     if mismatched_zones:
         raise ValueError(f'Config zones do not match zones in grid {mismatched_zones}')
 
