@@ -1,5 +1,6 @@
+import itertools
 from pathlib import Path
-from typing import Optional, TextIO
+from typing import Iterable, Optional, TextIO
 
 from ..fehm_objects import Vector, Zone
 
@@ -108,3 +109,36 @@ def _is_vector_formatted(zone_line_values: list[str], n_nodes: int) -> bool:
     if n_nodes == 1:
         return len(zone_line_values) == 3
     return len(zone_line_values) == 6  # Lagrit writes two 3-vectors per line instead of the usual 10 scalars
+
+
+def write_zones(zones: Iterable[Zone], output_file: Path, include_zone_names: bool = True):
+    with open(output_file, 'w') as f:
+        f.write('zone\n')
+        for zone in zones:
+            _write_zone_header(f, zone, include_zone_names)
+            _write_zone_data(f, zone)
+        f.write(' \nstop\n')
+
+
+def _write_zone_header(open_file: TextIO, zone: Zone, include_zone_names: bool):
+    open_file.write(f'{zone.number:05d}{f"  {zone.name}" if include_zone_names and zone.name else ""}\n')
+    open_file.write('nnum\n')
+    open_file.write(f'{len(zone.data):21d}\n')
+
+
+def _write_zone_data(open_file: TextIO, zone: Zone):
+    if isinstance(zone.data[0], Vector):
+        raise NotImplementedError('No support for writing vector zone data (e.g. .area files).')
+
+    for chunk in _grouper(zone.data, chunksize=10):
+        formatted = ' '.join(f'{item:10d}' for item in chunk)
+        open_file.write(formatted + '\n')
+
+
+def _grouper(iterable, chunksize):
+    it = iter(iterable)
+    while True:
+        chunk = tuple(itertools.islice(it, chunksize))
+        if not chunk:
+            return
+        yield chunk
