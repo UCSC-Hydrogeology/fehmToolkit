@@ -1,5 +1,7 @@
+import pytest
+
 from fehm_toolkit.fehm_objects import Element, State, Vector, Zone
-from fehm_toolkit.file_interface import read_fehm, read_restart, read_zones
+from fehm_toolkit.file_interface import read_avs, read_fehm, read_restart, read_zones
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -127,3 +129,18 @@ def test_read_tracer_restart(fixture_dir):
             0.1001154722096991, 0.1001154722096991, 0.1001154822144740, 0.1001154822144740,
         ]
     )
+
+
+def test_read_avs_simple_scalar(fixture_dir):
+    state = read_avs(fixture_dir / 'simple_sca_node.avs')
+    assert state == State(
+        temperatures=[9.48206013, 14.2026957, 8.41485536, 69.8006870],
+        pressures=[33.6952093, 33.6937832, 31.4565476, 36.1576666],
+        sources=[0, 0, 0, 0],
+        mass_fluxes=[0, 0, 0, 0],
+    )
+
+
+def test_read_avs_simple_vector_raises(fixture_dir):
+    with pytest.raises(NotImplementedError):
+        read_avs(fixture_dir / 'simple_vec_node.avs')
