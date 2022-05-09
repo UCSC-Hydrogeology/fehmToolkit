@@ -1,8 +1,8 @@
-import itertools
 from pathlib import Path
 from typing import Iterable, Optional, TextIO
 
 from ..fehm_objects import Vector, Zone
+from .helpers import grouper
 
 
 def read_zones(zone_file: Path) -> tuple[Zone]:
@@ -130,15 +130,6 @@ def _write_zone_data(open_file: TextIO, zone: Zone):
     if isinstance(zone.data[0], Vector):
         raise NotImplementedError('No support for writing vector zone data (e.g. .area files).')
 
-    for chunk in _grouper(zone.data, chunksize=10):
+    for chunk in grouper(zone.data, chunksize=10):
         formatted = ' '.join(f'{item:10d}' for item in chunk)
         open_file.write(formatted + '\n')
-
-
-def _grouper(iterable, chunksize):
-    it = iter(iterable)
-    while True:
-        chunk = tuple(itertools.islice(it, chunksize))
-        if not chunk:
-            return
-        yield chunk
