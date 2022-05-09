@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import Decimal
 from pathlib import Path
 
 from fehm_toolkit.fehm_objects import State
@@ -25,7 +26,7 @@ def read_avs(restart_file: Path) -> tuple[State, dict]:
         fields_to_save = [field for field in field_names if field in SUPPORTED_FIELDS]
 
         for line in f:
-            row = {field_name: float(value) for field_name, value in zip(field_names, line.strip().split())}
+            row = {field_name: Decimal(value) for field_name, value in zip(field_names, line.strip().split())}
             for field_name in fields_to_save:
                 avs_data[field_name].append(row[field_name])
 
