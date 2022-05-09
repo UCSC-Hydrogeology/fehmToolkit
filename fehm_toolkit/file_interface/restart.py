@@ -60,3 +60,71 @@ def _parse_scalar_block(open_file: TextIO, n_nodes: int) -> tuple[float]:
         for value in line.strip().split():
             scalar_values.append(Decimal(value))
     return scalar_values
+
+
+def write_restart(state: State, metadata: RestartMetadata, output_file: Path, fmt: str = 'legacy'):
+    state.validate()
+    if metadata.unsupported_blocks:
+        raise NotImplementedError('Some blocks in restart not supported, cannot guarantee accurate write.')
+
+    with open(output_file, 'w') as f:
+
+        if fmt == 'fehm':
+            _write_headers_fehm_format(f, metadata)
+            for block_name in SUPPORTED_BLOCK_KINDS:
+                block_data = _get_data_for_block(block_name, state)
+                _write_block_fehm_format(f, block_name, block_data)
+        elif fmt == 'legacy':
+            _write_headers_legacy_format(f, metadata)
+            for block_name in SUPPORTED_BLOCK_KINDS:
+                block_data = _get_data_for_block(block_name, state)
+                _write_block_legacy_format(f, block_name, block_data)
+        else:
+            raise NotImplementedError(f'Invalid format for restart writer ({fmt})')
+
+        f.write('no fluxes')
+
+
+def _write_headers_fehm_format(open_file: TextIO, metadata: RestartMetadata):
+    open_file.write(f'{metadata.runtime_header}\n')
+    open_file.write(f'{metadata.model_description:80}\n')
+    open_file.write(f'   {metadata.simulation_time_days or "0.0000000000000000"}     \n')
+
+    if metadata.dual_porosity_permeability_keyword:
+        open_file.write(f'{metadata.n_nodes:9d} {metadata.dual_porosity_permeability_keyword}\n')
+    else:
+        open_file.write(f'{metadata.n_nodes:9d}\n')
+
+
+def _write_headers_legacy_format(open_file: TextIO, metadata: RestartMetadata):
+    open_file.write(f'{metadata.runtime_header}\n')
+    open_file.write(f'{metadata.model_description}\n')
+    open_file.write(f'   {metadata.simulation_time_days or "0000000000.000000"}\n')
+
+    if metadata.dual_porosity_permeability_keyword:
+        open_file.write(f'{metadata.n_nodes:9d} {metadata.dual_porosity_permeability_keyword}\n')
+    else:
+        open_file.write(f'{metadata.n_nodes:9d}\n')
+
+
+def _write_block_fehm_format(open_file: TextIO, block_name: str, block_data: Sequence):
+    open_file.write(f'{block_name:11}\n')
+    for chunk in grouper(block_data, chunksize=4):
+        open_file.write(''.join(f'    {v:17}    ' for v in chunk) + '\n')
+
+
+def _write_block_legacy_format(open_file: TextIO, block_name: str, block_data: Sequence):
+    open_file.write(f'{block_name}\n')
+    for chunk in grouper(block_data, chunksize=4):
+        open_file.write('    '.join(f'{v:21}' for v in chunk) + '\n')
+
+
+def _get_data_for_block(block_name: str, state: State) -> Sequence:
+    if block_name == 'temperature':
+        return state.temperatures
+    elif block_name == 'pressure':
+        return state.pressures
+    elif block_name == 'saturation':
+        return state.saturations
+    else:
+        raise NotImplementedError(f'Block kind "{block_name}" not supported.')
