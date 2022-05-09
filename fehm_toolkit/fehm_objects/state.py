@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Optional, Sequence
 
 
@@ -21,3 +22,14 @@ class State:
                 raise ValueError(
                     f'Number of {field} ({len(data)}) does not match the number of temperatures ({n_temperatures})'
                 )
+
+
+@dataclass
+class RestartMetadata:
+    """Class for holding structured metadata from the header in restart (.ini, .fin) files."""
+    simulation_time_days: Decimal
+    n_nodes: int
+    runtime_header: str
+    model_description: str
+    dual_porosity_permeability_keyword: str
+    unsupported_blocks: bool = False
