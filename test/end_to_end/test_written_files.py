@@ -144,7 +144,6 @@ def test_create_restart_from_restart_against_fixture(tmp_path, matlab_fixture_di
     state, metadata = create_restart_from_restart(model_dir / f'{model_root}.fin', reset_model_time=True)
 
     output_file = tmp_path / 'test.fin'
-    # output_file = '/Users/dustin/Desktop/test.ini'
     fixture_file = model_dir / 'fin2ini_fixture_1.ini'
 
     write_restart(state, metadata, output_file=output_file)
