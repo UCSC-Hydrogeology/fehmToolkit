@@ -5,10 +5,10 @@ from pathlib import Path
 from fehm_toolkit.fehm_objects import State
 
 SUPPORTED_FIELDS = {
-    'Liquid Pressure (MPa), (MPa)': 'pressures',
-    'Temperature (deg C), (deg C)': 'temperatures',
-    'Source (kg/s), (kg/s)': 'sources',
-    'Liquid Flux (kg/s), (kg/s)': 'mass_fluxes',
+    'Liquid Pressure (MPa), (MPa)': 'pressure',
+    'Temperature (deg C), (deg C)': 'temperature',
+    'Source (kg/s), (kg/s)': 'source',
+    'Liquid Flux (kg/s), (kg/s)': 'mass_flux',
 }
 
 

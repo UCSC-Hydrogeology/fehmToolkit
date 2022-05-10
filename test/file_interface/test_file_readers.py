@@ -101,17 +101,17 @@ def test_read_simple_restart_legacy_format(fixture_dir):
         dual_porosity_permeability_keyword='nddp',
     )
     assert state == State(
-        temperatures=[
+        temperature=[
             Decimal(v) for v in (
                 '35.3103156449', '26.3715674828', '26.6993730893', '13.7232584411', '13.4748018922', '9.9921394765',
             )
         ],
-        saturations=[
+        saturation=[
             Decimal(v) for v in (
                 '1.0000000000', '1.0000000000', '1.0000000000', '1.0000000000', '1.0000000000', '1.0000000000',
             )
         ],
-        pressures=[
+        pressure=[
             Decimal(v) for v in (
                 '46.1720206040', '45.6706062299', '45.6811178622', '45.4069398347', '45.3847810418', '45.1548391299',
             )
@@ -129,14 +129,14 @@ def test_read_simple_restart_fehm_format(fixture_dir):
         dual_porosity_permeability_keyword='nddp',
     )
     assert state == State(
-        temperatures=[
+        temperature=[
             Decimal(v) for v in (
                 '9.482060132451755', '14.20269570985147', '8.414855364338784', '69.80068704764734',
                 '86.91250913933038', '85.88408430521636', '69.38671894047677', '68.56111995201577',
             )
         ],
-        saturations=8 * [Decimal('1.000000000000000')],
-        pressures=[
+        saturation=8 * [Decimal('1.000000000000000')],
+        pressure=[
             Decimal(v) for v in (
                 '33.69520926926931', '33.69378317097816', '31.45654762003292', '36.15766656073081',
                 '37.61776959952319', '37.61945828718319', '36.15826817848320', '34.69600450690525',
@@ -156,21 +156,21 @@ def test_read_tracer_restart(fixture_dir):
         unsupported_blocks=True,
     )
     assert state == State(
-        temperatures=[
+        temperature=[
             Decimal(v) for v in (
                 '34.99999999987494', '34.99999999987494', '29.99740954219060', '29.99740954219060',
                 '24.99481908388880', '24.99481908388880', '19.99222863160355', '19.99222863160355',
                 '14.99935303204482', '14.99935303204482', '10.00000000012507', '10.00000000012507',
             )
         ],
-        saturations=[
+        saturation=[
             Decimal(v) for v in (
                 '0.1000000000000000E-98', '0.1000000000000000E-98', '0.1000000000000000E-98', '0.1000000000000000E-98',
                 '0.1000000000000000E-98', '0.1000000000000000E-98', '0.1727371363921276', '0.1727371363921281',
                 '0.4344871249926068', '0.4344871249926068', '0.7817833455822488', '0.7817833455822516',
             )
         ],
-        pressures=[
+        pressure=[
             Decimal(v) for v in (
                 '0.1001154694602094', '0.1001154694602094', '0.1001154694628803', '0.1001154694628803',
                 '0.1001154694707533', '0.1001154694707533', '0.1001154694901246', '0.1001154694901246',
@@ -183,10 +183,10 @@ def test_read_tracer_restart(fixture_dir):
 def test_read_avs_simple_scalar(fixture_dir):
     state = read_avs(fixture_dir / 'simple_sca_node.avs')
     assert state == State(
-        temperatures=[Decimal(v) for v in ('9.48206013', '14.2026957', '8.41485536', '69.8006870')],
-        pressures=[Decimal(v) for v in ('33.6952093', '33.6937832', '31.4565476', '36.1576666')],
-        sources=[Decimal(v) for v in (0, 0, 0, 0)],
-        mass_fluxes=[Decimal(v) for v in (0, 0, 0, 0)],
+        temperature=[Decimal(v) for v in ('9.48206013', '14.2026957', '8.41485536', '69.8006870')],
+        pressure=[Decimal(v) for v in ('33.6952093', '33.6937832', '31.4565476', '36.1576666')],
+        source=[Decimal(v) for v in (0, 0, 0, 0)],
+        mass_flux=[Decimal(v) for v in (0, 0, 0, 0)],
     )
 
 

@@ -6,21 +6,21 @@ from typing import Optional, Sequence
 @dataclass
 class State:
     """Class representing a snapshotted model state."""
-    temperatures: Sequence[float]
-    pressures: Sequence[float]
-    saturations: Optional[Sequence[float]] = None
-    sources: Optional[Sequence[float]] = None
-    mass_fluxes: Optional[Sequence[float]] = None
+    temperature: Sequence[Decimal]
+    pressure: Sequence[Decimal]
+    saturation: Optional[Sequence[Decimal]] = None
+    source: Optional[Sequence[Decimal]] = None
+    mass_flux: Optional[Sequence[Decimal]] = None
 
     def __post_init__(self):
         self.validate()
 
     def validate(self):
-        n_temperatures = len(self.temperatures)
+        n_temps = len(self.temperature)
         for field, data in self.__dict__.items():
-            if data is not None and len(data) != n_temperatures:
+            if data is not None and len(data) != n_temps:
                 raise ValueError(
-                    f'Number of {field} ({len(data)}) does not match the number of temperatures ({n_temperatures})'
+                    f'Number of {field} ({len(data)}) does not match the number of temperatures ({n_temps})'
                 )
 
 
