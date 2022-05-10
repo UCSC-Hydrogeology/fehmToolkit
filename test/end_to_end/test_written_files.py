@@ -149,3 +149,26 @@ def test_create_restart_from_restart_against_fixture(tmp_path, matlab_fixture_di
     write_restart(state, metadata, output_file=output_file)
 
     assert output_file.read_text() == fixture_file.read_text()
+
+
+@pytest.mark.parametrize(
+    'model_name, model_root', (
+        # TODO(dustin): replace these with small custom grids
+        ('np2d_cond', 'cond'),
+        ('jdf2d_p12', 'p12'),
+    )
+)
+def test_create_restart_from_pressure_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
+    model_dir = matlab_fixture_dir / model_name
+    state, metadata = create_restart_from_restart(
+        base_restart_file=model_dir / f'{model_root}.fin',
+        reset_model_time=True,
+        pressure_file=model_dir / f'{model_root}.iap'
+    )
+
+    output_file = tmp_path / 'test.fin'
+    fixture_file = model_dir / 'iap2ini_fixture.ini'
+
+    write_restart(state, metadata, output_file=output_file)
+
+    assert output_file.read_text() == fixture_file.read_text()

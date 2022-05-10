@@ -1,15 +1,21 @@
 import dataclasses
 from pathlib import Path
+from typing import Optional
 
 from ..fehm_objects import RestartMetadata, State
-from ..file_interface import read_avs, read_restart
+from ..file_interface import read_avs, read_pressure, read_restart
 
 
 def create_restart_from_restart(
     base_restart_file: Path,
     reset_model_time: bool = True,
+    pressure_file: Optional[Path] = None,
 ) -> tuple[State, RestartMetadata]:
     state, metadata = read_restart(base_restart_file)
+
+    if pressure_file is not None:
+        pressure = read_pressure(pressure_file)
+        state = dataclasses.replace(state, pressure=pressure)
 
     if reset_model_time:
         metadata = dataclasses.replace(metadata, simulation_time_days=0)
