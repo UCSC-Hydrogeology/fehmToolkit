@@ -98,7 +98,7 @@ def _write_headers_fehm_format(open_file: TextIO, metadata: RestartMetadata):
 
 def _write_headers_legacy_format(open_file: TextIO, metadata: RestartMetadata):
     open_file.write(f'{metadata.runtime_header}\n')
-    open_file.write(f'{metadata.model_description}\n')
+    open_file.write(f'{metadata.model_description:80}\n')
     open_file.write(f'   {metadata.simulation_time_days or "0000000000.000000"}\n')
 
     if metadata.dual_porosity_permeability_keyword:
@@ -116,7 +116,7 @@ def _write_block_fehm_format(open_file: TextIO, block_name: str, block_data: Seq
 def _write_block_legacy_format(open_file: TextIO, block_name: str, block_data: Sequence):
     open_file.write(f'{block_name}\n')
     for chunk in grouper(block_data, chunksize=4):
-        open_file.write('    '.join(f'{v:21}' for v in chunk) + '\n')
+        open_file.write('    '.join(f'{float(v):21.10f}' for v in chunk) + '\n')
 
 
 def _get_data_for_block(block_name: str, state: State) -> Sequence:
