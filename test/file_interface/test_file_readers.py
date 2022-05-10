@@ -1,5 +1,5 @@
-from fehm_toolkit.fehm_objects import Element, Vector, Zone
-from fehm_toolkit.file_interface import read_fehm, read_zones
+from fehm_toolkit.fehm_objects import Element, State, Vector, Zone
+from fehm_toolkit.file_interface import read_fehm, read_restart, read_zones
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -84,4 +84,46 @@ def test_read_area_pyramid(fixture_dir):
             name='front_s',
             data=(Vector(-30.0, -30.0, -15.0), Vector(30.0, -30.0, -15.0), Vector(0.0, 0.0, 40.0)),
         ),
+    )
+
+
+def test_read_simple_restart(fixture_dir):
+    state, metadata = read_restart(fixture_dir / 'simple_restart.ini')
+    assert metadata == {
+        'runtime_header': 'FEHM V3.1gf 12-02-29 QA:NA       09/23/2018    02:31:14',
+        'model_description': '"Simple restart description"',
+        'simulation_time_days': 0,
+        'n_nodes': 6,
+    }
+    assert state == State(
+        temperatures=[35.3103156449, 26.3715674828, 26.6993730893, 13.7232584411, 13.4748018922, 9.9921394765],
+        saturations=[1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000, 1.0000000000],
+        pressures=[46.1720206040, 45.6706062299, 45.6811178622, 45.4069398347, 45.3847810418, 45.1548391299],
+    )
+
+
+def test_read_tracer_restart(fixture_dir):
+    state, metadata = read_restart(fixture_dir / 'tracer_restart.fin')
+    assert metadata == {
+        'runtime_header': 'FEHM V3.1gf 12-02-09 QA:NA       02/09/2012    11:48:27',
+        'model_description': 'Unsaturated Diffusion tests',
+        'simulation_time_days': 5000,
+        'n_nodes': 12,
+    }
+    assert state == State(
+        temperatures=[
+            34.99999999987494, 34.99999999987494, 29.99740954219060, 29.99740954219060,
+            24.99481908388880, 24.99481908388880, 19.99222863160355, 19.99222863160355,
+            14.99935303204482, 14.99935303204482, 10.00000000012507, 10.00000000012507,
+        ],
+        saturations=[
+            0.1000000000000000E-98, 0.1000000000000000E-98, 0.1000000000000000E-98, 0.1000000000000000E-98,
+            0.1000000000000000E-98, 0.1000000000000000E-98, 0.1727371363921276, 0.1727371363921281,
+            0.4344871249926068, 0.4344871249926068, 0.7817833455822488, 0.7817833455822516,
+        ],
+        pressures=[
+            0.1001154694602094, 0.1001154694602094, 0.1001154694628803, 0.1001154694628803,
+            0.1001154694707533, 0.1001154694707533, 0.1001154694901246, 0.1001154694901246,
+            0.1001154722096991, 0.1001154722096991, 0.1001154822144740, 0.1001154822144740,
+        ]
     )
