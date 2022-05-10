@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from fehm_toolkit.fehm_objects import Element, RestartMetadata, State, Vector, Zone
-from fehm_toolkit.file_interface import read_avs, read_fehm, read_restart, read_zones
+from fehm_toolkit.file_interface import read_avs, read_fehm, read_pressure, read_restart, read_zones
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -193,3 +193,10 @@ def test_read_avs_simple_scalar(fixture_dir):
 def test_read_avs_simple_vector_raises(fixture_dir):
     with pytest.raises(NotImplementedError):
         read_avs(fixture_dir / 'simple_vec_node.avs')
+
+
+def test_read_pressure_square(fixture_dir):
+    pressure = read_pressure(fixture_dir / 'square.iap')
+    assert pressure == [
+        Decimal(v) for v in ('36.0977050', '38.9579341', '38.9579867', '34.6465422', '35.1315995')
+    ]
