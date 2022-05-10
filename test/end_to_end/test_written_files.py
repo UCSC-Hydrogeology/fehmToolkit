@@ -5,7 +5,12 @@ import pytest
 from fehm_toolkit.file_interface import write_restart, write_zones
 from fehm_toolkit.heat_in import generate_input_heatflux_file
 from fehm_toolkit.rock_properties import generate_rock_properties_files
-from fehm_toolkit.utilities import append_zones, create_restart_from_avs, create_restart_from_restart
+from fehm_toolkit.utilities import (
+    append_zones,
+    create_restart_from_avs,
+    create_restart_from_restart,
+    write_modified_control_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -171,4 +176,46 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, matlab_fixture_d
 
     write_restart(state, metadata, output_file=output_file)
 
+    assert output_file.read_text() == fixture_file.read_text()
+
+
+@pytest.mark.parametrize(
+    'model_name, model_root', (
+        ('np2d_cond', 'cond'),
+        ('jdf3d_p12d_g981', 'p12d_g981'),
+    )
+)
+def test_write_modified_control_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
+    model_dir = matlab_fixture_dir / model_name
+    output_file = tmp_path / 'test.dat'
+    file_extensions = {'perm', 'rock', 'cond', 'ppor', 'hflx', 'flow'}
+
+    write_modified_control_file(
+        base_control_file=model_dir / f'{model_root}.dat',
+        out_file=output_file,
+        file_mapping={f'{model_root}.{ext}': f'test.{ext}' for ext in file_extensions},
+    )
+
+    fixture_file = model_dir / 'datcopy_fixture.dat'
+    assert output_file.read_text() == fixture_file.read_text()
+
+
+@pytest.mark.parametrize(
+    'model_name, model_root', (
+        ('np2d_cond', 'cond'),
+        ('jdf3d_p12d_g981', 'p12d_g981'),
+    )
+)
+def test_write_modified_control_with_timing_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
+    model_dir = matlab_fixture_dir / model_name
+    output_file = tmp_path / 'test.dat'
+
+    write_modified_control_file(
+        base_control_file=model_dir / f'{model_root}.dat',
+        out_file=output_file,
+        initial_timestep_days=7300,
+        initial_simulation_time_days=1234,
+    )
+
+    fixture_file = model_dir / 'datreset_fixture.dat'
     assert output_file.read_text() == fixture_file.read_text()
