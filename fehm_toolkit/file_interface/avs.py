@@ -12,7 +12,7 @@ SUPPORTED_FIELDS = {
 }
 
 
-def read_avs(avs_file: Path) -> tuple[State, dict]:
+def read_avs(avs_file: Path) -> State:
     """Loads AVS contour files (.avs) into memory as a model State."""
 
     with open(avs_file) as f:

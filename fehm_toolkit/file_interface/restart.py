@@ -53,7 +53,7 @@ def _parse_nodes_header(nodes_header: str) -> int:
     return int(header_items[0]), keyword
 
 
-def _parse_scalar_block(open_file: TextIO, n_nodes: int) -> tuple[float]:
+def _parse_scalar_block(open_file: TextIO, n_nodes: int) -> list[Decimal]:
     scalar_values = []
     while len(scalar_values) < n_nodes:
         line = next(open_file)
