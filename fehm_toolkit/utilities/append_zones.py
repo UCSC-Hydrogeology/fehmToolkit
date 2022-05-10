@@ -1,12 +1,12 @@
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Sequence, Union
 
 from ..fehm_objects import Zone
 from ..file_interface import read_zones
 
 
 def append_zones(
-    zone_keys_to_add: Iterable[Union[int, str]],
+    zone_keys_to_add: Sequence[Union[int, str]],
     add_zones_from_file: Path,
     add_zones_to_file: Path,
 ):
@@ -14,7 +14,7 @@ def append_zones(
     return _combine_zones(zones_to_add=zones_to_add, source_zones=read_zones(add_zones_to_file))
 
 
-def _filter_zones_to_add(zone_keys_to_add: Iterable[Union[int, str]], raw_zones_to_add: tuple[Zone]) -> tuple[Zone]:
+def _filter_zones_to_add(zone_keys_to_add: Sequence[Union[int, str]], raw_zones_to_add: tuple[Zone]) -> tuple[Zone]:
     return (zone for zone in raw_zones_to_add if zone.number in zone_keys_to_add or zone.name in zone_keys_to_add)
 
 
