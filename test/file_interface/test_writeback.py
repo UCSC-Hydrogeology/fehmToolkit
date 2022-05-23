@@ -1,6 +1,6 @@
 import pytest
 
-from fehm_toolkit.file_interface import read_zones, write_zones
+from fehm_toolkit.file_interface import read_restart, read_zones, write_restart, write_zones
 
 
 @pytest.mark.parametrize(
@@ -24,3 +24,30 @@ def test_write_area_raises(fixture_dir, tmp_path):
 
     with pytest.raises(NotImplementedError):
         write_zones(area_zones, tmp_path / 'out.area')
+
+
+def test_writeback_restart_legacy_format(fixture_dir, tmp_path):
+    initial_file = fixture_dir / 'simple_restart_legacy_format.ini'
+    output_file = tmp_path / 'out.restart'
+
+    state, metadata = read_restart(initial_file)
+    write_restart(state, metadata, output_file)
+
+    assert initial_file.read_text() == output_file.read_text()
+
+
+def test_writeback_restart_fehm_format(fixture_dir, tmp_path):
+    initial_file = fixture_dir / 'simple_restart_fehm_format.fin'
+    output_file = tmp_path / 'out.restart'
+
+    state, metadata = read_restart(initial_file)
+    write_restart(state, metadata, output_file, fmt='fehm')
+
+    assert initial_file.read_text() == output_file.read_text()
+
+
+def test_tracer_restart_raises(fixture_dir, tmp_path):
+    state, metadata = read_restart(fixture_dir / 'tracer_restart.fin')
+
+    with pytest.raises(NotImplementedError):
+        write_restart(state, metadata, tmp_path / 'out.restart')
