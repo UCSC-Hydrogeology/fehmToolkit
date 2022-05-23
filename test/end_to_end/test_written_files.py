@@ -1,9 +1,11 @@
 import logging
 
+from numpy.testing import assert_array_almost_equal
 import pytest
 
-from fehm_toolkit.file_interface import write_restart, write_zones
+from fehm_toolkit.file_interface import read_pressure, write_restart, write_zones
 from fehm_toolkit.heat_in import generate_input_heatflux_file
+from fehm_toolkit.hydrostatic_pressure import generate_hydrostatic_pressure_files
 from fehm_toolkit.rock_properties import generate_rock_properties_files
 from fehm_toolkit.utilities import (
     append_zones,
@@ -219,3 +221,37 @@ def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, matlab_
 
     fixture_file = model_dir / 'datreset_fixture.dat'
     assert output_file.read_text() == fixture_file.read_text()
+
+
+@pytest.mark.parametrize(
+    'model_name, model_root, fixture_filename', (
+        # ('jdf2d_p12', 'p12', 'rerun_2022.iap'),
+        # ('np2d_cond', 'cond', 'cond.iap'),
+        ('jdf3d_p12d_g981', 'p12d_g981', 'rerun_2022.iap'),
+    )
+)
+def test_generate_hydrostatic_pressure(tmp_path, matlab_fixture_dir, model_name, model_root, fixture_filename):
+    model_dir = matlab_fixture_dir / model_name
+    output_file = tmp_path / 'test.iap'
+
+    generate_hydrostatic_pressure_files(
+        config_file=model_dir / f'{model_root}.ipi',
+        fehm_file=model_dir / f'{model_root}.fehm',
+        outside_zone_file=model_dir / f'{model_root}_outside.zone',
+        restart_file=model_dir / f'{model_root}.fin',
+        water_properties_file=matlab_fixture_dir / 'fehm_tutorial' / 'tutWork' / 'cond' / 'cond.wpi',
+        pressure_output_file=output_file,
+    )
+    fixture_file = model_dir / fixture_filename
+
+    from pathlib import Path  # remove this block when done with debugging 
+    desktop_output = Path("/Users/dustin/Desktop/ipres/") / model_name / 'test.iap'
+    desktop_output.write_text(output_file.read_text())
+    desktop_initial = Path("/Users/dustin/Desktop/ipres/") / model_name / f'{model_root}.iap'
+    desktop_initial.write_text(fixture_file.read_text())
+
+    fixture_pressure = read_pressure(fixture_file)
+    output_pressure = read_pressure(output_file)
+
+    import ipdb; ipdb.set_trace()  # breakpoint 8c8549b1 //
+    assert_array_almost_equal(fixture_pressure, output_pressure, 1)
