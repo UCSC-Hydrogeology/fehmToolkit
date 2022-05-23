@@ -5,14 +5,14 @@ from pathlib import Path
 from fehm_toolkit.fehm_objects import State
 
 SUPPORTED_FIELDS = {
-    'Liquid Pressure (MPa), (MPa)': 'pressures',
-    'Temperature (deg C), (deg C)': 'temperatures',
-    'Source (kg/s), (kg/s)': 'sources',
-    'Liquid Flux (kg/s), (kg/s)': 'mass_fluxes',
+    'Liquid Pressure (MPa), (MPa)': 'pressure',
+    'Temperature (deg C), (deg C)': 'temperature',
+    'Source (kg/s), (kg/s)': 'source',
+    'Liquid Flux (kg/s), (kg/s)': 'mass_flux',
 }
 
 
-def read_avs(avs_file: Path) -> tuple[State, dict]:
+def read_avs(avs_file: Path) -> State:
     """Loads AVS contour files (.avs) into memory as a model State."""
 
     with open(avs_file) as f:

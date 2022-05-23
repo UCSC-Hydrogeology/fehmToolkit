@@ -29,9 +29,9 @@ def read_restart(restart_file: Path) -> tuple[State, RestartMetadata]:
 
     try:
         state = State(
-            temperatures=values_by_block['temperature'],
-            saturations=values_by_block['saturation'],
-            pressures=values_by_block['pressure'],
+            temperature=values_by_block['temperature'],
+            saturation=values_by_block['saturation'],
+            pressure=values_by_block['pressure'],
         )
     except KeyError:
         raise KeyError(f'Required block "{block_name}" not found in restart file {restart_file}.')
@@ -53,7 +53,7 @@ def _parse_nodes_header(nodes_header: str) -> int:
     return int(header_items[0]), keyword
 
 
-def _parse_scalar_block(open_file: TextIO, n_nodes: int) -> tuple[float]:
+def _parse_scalar_block(open_file: TextIO, n_nodes: int) -> list[Decimal]:
     scalar_values = []
     while len(scalar_values) < n_nodes:
         line = next(open_file)
@@ -121,10 +121,10 @@ def _write_block_legacy_format(open_file: TextIO, block_name: str, block_data: S
 
 def _get_data_for_block(block_name: str, state: State) -> Sequence:
     if block_name == 'temperature':
-        return state.temperatures
+        return state.temperature
     elif block_name == 'pressure':
-        return state.pressures
+        return state.pressure
     elif block_name == 'saturation':
-        return state.saturations
+        return state.saturation
     else:
         raise NotImplementedError(f'Block kind "{block_name}" not supported.')
