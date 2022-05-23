@@ -12,10 +12,10 @@ SUPPORTED_FIELDS = {
 }
 
 
-def read_avs(restart_file: Path) -> tuple[State, dict]:
+def read_avs(avs_file: Path) -> tuple[State, dict]:
     """Loads AVS contour files (.avs) into memory as a model State."""
 
-    with open(restart_file) as f:
+    with open(avs_file) as f:
         metadata = [int(value) for value in next(f).strip().split()]
         n_columns, column_dimensions = metadata[0], metadata[1:]
         if any(dim > 1 for dim in column_dimensions):
@@ -26,7 +26,10 @@ def read_avs(restart_file: Path) -> tuple[State, dict]:
         fields_to_save = [field for field in field_names if field in SUPPORTED_FIELDS]
 
         for line in f:
-            row = {field_name: Decimal(value) for field_name, value in zip(field_names, line.strip().split())}
+            row = {
+                field_name: round(Decimal(value), 10)
+                for field_name, value in zip(field_names, line.strip().split())
+            }
             for field_name in fields_to_save:
                 avs_data[field_name].append(row[field_name])
 

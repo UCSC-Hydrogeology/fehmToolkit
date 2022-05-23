@@ -2,10 +2,10 @@ import logging
 
 import pytest
 
-from fehm_toolkit.file_interface import write_zones
+from fehm_toolkit.file_interface import write_restart, write_zones
 from fehm_toolkit.heat_in import generate_input_heatflux_file
 from fehm_toolkit.rock_properties import generate_rock_properties_files
-from fehm_toolkit.utilities import append_zones
+from fehm_toolkit.utilities import append_zones, create_restart_from_avs, create_restart_from_restart
 
 logger = logging.getLogger(__name__)
 
@@ -116,3 +116,36 @@ def test_append_zones_against_fixture(tmpdir, matlab_fixture_dir, model_name, mo
         actual = output_file.read()
 
     assert actual == expected
+
+
+def test_create_restart_from_avs_against_fixture(tmp_path, matlab_fixture_dir):
+    model_dir = matlab_fixture_dir / 'jdf2d_p12'
+    state, metadata = create_restart_from_avs(
+        avs_file=model_dir / 'p12.00014_sca_node.avs',
+        base_restart_file=model_dir / 'p12.ini',
+    )
+    output_file = tmp_path / 'test.fin'
+    fixture_file = model_dir / 'avs2fin_fixture.fin'
+
+    write_restart(state, metadata, output_file=output_file)
+
+    assert output_file.read_text() == fixture_file.read_text()
+
+
+@pytest.mark.parametrize(
+    'model_name, model_root', (
+        # TODO(dustin): replace these with small custom grids
+        ('np2d_cond', 'cond'),
+        ('jdf2d_p12', 'p12'),
+    )
+)
+def test_create_restart_from_restart_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
+    model_dir = matlab_fixture_dir / model_name
+    state, metadata = create_restart_from_restart(model_dir / f'{model_root}.fin', reset_model_time=True)
+
+    output_file = tmp_path / 'test.fin'
+    fixture_file = model_dir / 'fin2ini_fixture_1.ini'
+
+    write_restart(state, metadata, output_file=output_file)
+
+    assert output_file.read_text() == fixture_file.read_text()
