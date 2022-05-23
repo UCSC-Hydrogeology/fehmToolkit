@@ -1,6 +1,13 @@
 import pytest
 
-from fehm_toolkit.file_interface import read_restart, read_zones, write_restart, write_zones
+from fehm_toolkit.file_interface import (
+    read_pressure,
+    read_restart,
+    read_zones,
+    write_pressure,
+    write_restart,
+    write_zones,
+)
 
 
 @pytest.mark.parametrize(
@@ -51,3 +58,14 @@ def test_tracer_restart_raises(fixture_dir, tmp_path):
 
     with pytest.raises(NotImplementedError):
         write_restart(state, metadata, tmp_path / 'out.restart')
+
+
+def test_writeback_pressure(fixture_dir, tmp_path):
+    initial_file = fixture_dir / 'square.iap'
+    output_file = tmp_path / 'out.iap'
+
+    pressure = read_pressure(initial_file)
+    pressure_by_node = {i: pressure for i, pressure in enumerate(pressure)}
+    write_pressure(pressure_by_node, output_file=output_file)
+
+    assert initial_file.read_text() == output_file.read_text()
