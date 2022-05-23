@@ -4,25 +4,25 @@ from typing import Optional
 
 
 def write_modified_fehm_input_file(
-    base_control_file: Path,
+    base_fehm_input_file: Path,
     out_file: Path,
     initial_timestep_days: float = None,
     initial_simulation_time_days: float = None,
     file_mapping: Optional[dict[str, str]] = None,
 ) -> str:
     """Write a control file (.dat) from the (modified) contents of another control file."""
-    control_content = base_control_file.read_text()
+    fehm_input_content = base_fehm_input_file.read_text()
     if file_mapping:
-        control_content = _replace_mapped_files(control_content, file_mapping)
+        fehm_input_content = _replace_mapped_files(fehm_input_content, file_mapping)
 
     if initial_timestep_days is not None or initial_simulation_time_days is not None:
-        control_content = _replace_timing(
-            control_content,
+        fehm_input_content = _replace_timing(
+            fehm_input_content,
             initial_timestep_days=initial_timestep_days,
             initial_simulation_time_days=initial_simulation_time_days,
         )
 
-    out_file.write_text(control_content)
+    out_file.write_text(fehm_input_content)
 
 
 def _replace_mapped_files(content: str, file_mapping: dict[str, str]) -> str:
