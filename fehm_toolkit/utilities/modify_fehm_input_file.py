@@ -3,7 +3,7 @@ import re
 from typing import Optional
 
 
-def write_modified_control_file(
+def write_modified_fehm_input_file(
     base_control_file: Path,
     out_file: Path,
     initial_timestep_days: float = None,

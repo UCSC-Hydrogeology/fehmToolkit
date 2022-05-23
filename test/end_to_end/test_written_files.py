@@ -9,7 +9,7 @@ from fehm_toolkit.utilities import (
     append_zones,
     create_restart_from_avs,
     create_restart_from_restart,
-    write_modified_control_file,
+    write_modified_fehm_input_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -185,12 +185,12 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, matlab_fixture_d
         ('jdf3d_p12d_g981', 'p12d_g981'),
     )
 )
-def test_write_modified_control_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
+def test_write_modified_fehm_input_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
     model_dir = matlab_fixture_dir / model_name
     output_file = tmp_path / 'test.dat'
     file_extensions = {'perm', 'rock', 'cond', 'ppor', 'hflx', 'flow'}
 
-    write_modified_control_file(
+    write_modified_fehm_input_file(
         base_control_file=model_dir / f'{model_root}.dat',
         out_file=output_file,
         file_mapping={f'{model_root}.{ext}': f'test.{ext}' for ext in file_extensions},
@@ -206,11 +206,11 @@ def test_write_modified_control_against_fixture(tmp_path, matlab_fixture_dir, mo
         ('jdf3d_p12d_g981', 'p12d_g981'),
     )
 )
-def test_write_modified_control_with_timing_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
+def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
     model_dir = matlab_fixture_dir / model_name
     output_file = tmp_path / 'test.dat'
 
-    write_modified_control_file(
+    write_modified_fehm_input_file(
         base_control_file=model_dir / f'{model_root}.dat',
         out_file=output_file,
         initial_timestep_days=7300,
