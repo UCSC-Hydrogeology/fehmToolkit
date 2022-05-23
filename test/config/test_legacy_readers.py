@@ -1,4 +1,4 @@
-from fehm_toolkit.config import read_legacy_hfi_config, read_legacy_rpi_config
+from fehm_toolkit.config import read_legacy_hfi_config, read_legacy_ipi_config, read_legacy_rpi_config
 
 
 def test_read_legacy_hfi_config_jdf(fixture_dir):
@@ -20,6 +20,28 @@ def test_read_legacy_hfi_config_np(fixture_dir):
         'spread_rate_mm_per_year': 17,
         'coefficient_MW': 0.5E-6,
         'boundary_distance_to_ridge_m': 144000,
+    }
+
+
+def test_read_legacy_ipi_config_jdf(fixture_dir):
+    config = read_legacy_ipi_config(fixture_dir / 'legacy_jdf.ipi')
+    params = config['hydrostatic_pressure']['model_params']
+    assert params == {
+        'z_interval_m': 5,
+        'reference_z': 4450,
+        'reference_pressure_MPa': 25,
+        'reference_temperature_degC': 2,
+    }
+
+
+def test_read_legacy_ipi_config_np(fixture_dir):
+    config = read_legacy_ipi_config(fixture_dir / 'legacy_np.ipi')
+    params = config['hydrostatic_pressure']['model_params']
+    assert params == {
+        'z_interval_m': 5,
+        'reference_z': 4174.31,
+        'reference_pressure_MPa': 45.289,
+        'reference_temperature_degC': 2,
     }
 
 
