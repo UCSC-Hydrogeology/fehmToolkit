@@ -3,7 +3,14 @@ from decimal import Decimal
 import pytest
 
 from fehm_toolkit.fehm_objects import Element, RestartMetadata, State, Vector, Zone
-from fehm_toolkit.file_interface import read_avs, read_fehm, read_pressure, read_restart, read_zones
+from fehm_toolkit.file_interface import (
+    read_avs,
+    read_fehm,
+    read_nist_lookup_table,
+    read_pressure,
+    read_restart,
+    read_zones,
+)
 
 
 def test_read_fehm_pyramid(fixture_dir):
@@ -200,3 +207,17 @@ def test_read_pressure_square(fixture_dir):
     assert pressure == [
         Decimal(v) for v in ('36.0977050', '38.9579341', '38.9579867', '34.6465422', '35.1315995')
     ]
+
+
+def test_read_nist_lookup(fixture_dir):
+    lookup_table = read_nist_lookup_table(fixture_dir / 'nist_lookup_sample.in')
+    assert lookup_table == {
+        (20, 0): {'density_kg_m3': 0.100974E+04},
+        (20, 2): {'density_kg_m3': 0.100970E+04},
+        (20, 4): {'density_kg_m3': 0.100960E+04},
+        (20, 6): {'density_kg_m3': 0.100946E+04},
+        (22, 0): {'density_kg_m3': 0.101071E+04},
+        (22, 2): {'density_kg_m3': 0.101065E+04},
+        (22, 4): {'density_kg_m3': 0.101055E+04},
+        (22, 6): {'density_kg_m3': 0.101039E+04},
+    }
