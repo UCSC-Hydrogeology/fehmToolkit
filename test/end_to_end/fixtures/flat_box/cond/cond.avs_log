@@ -1,0 +1,15 @@
+# FEHM V3.1gf 12-02-29 QA:NA       05/23/2022 
+#   LOG AVS OUTPUT
+# "Conductive run - 10km box model of a section of crust"                         
+# Root filename               Output Time (days)
+ cond.00001       0.00000000    
+ cond.00002      0.366847558E+10
+ cond.00003      0.731847558E+10
+ cond.00004      0.109684756E+11
+ cond.00005      0.146184756E+11
+ cond.00006      0.182684756E+11
+ cond.00007      0.219184756E+11
+ cond.00008      0.255684756E+11
+ cond.00009      0.292184756E+11
+ cond.00010      0.328684756E+11
+ cond.00011      0.365000000E+11

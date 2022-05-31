@@ -1,0 +1,23 @@
+porosity
+ZONES=1;%REQUIRED DEFINITION
+FUN=@(depth)0.2;
+porositystop
+
+conductivity
+ZONES=1;%REQUIRED DEFINITION
+KW=0.62;%thermal conductivity of water
+KR=2.05;%thermal conductivity of rock
+FUN=@(depth,porosity)(KW.^porosity).*(KR.^(1-porosity));
+conductivitystop
+
+permeability
+ZONES=1;%REQUIRED DEFINITION
+FUN=@(depth,porosity)1e-11;
+permeabilitystop
+
+compressibility
+ZONES=1;%REQUIRED DEFINITION
+RHOG=2700;%density of grains - REQUIRED DEFINITION
+SPECHEAT=800;%specific heat of water - REQUIRED DEFINITION
+FUN=@(depth,porosity)6e-10;
+compressibilitystop

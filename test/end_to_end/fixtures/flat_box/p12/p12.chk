@@ -1,0 +1,174 @@
+FEHM V3.1gf 12-02-29 QA:NA       05/25/2022    01:03:47
+
+ "Flat box column of seafloor"                                                   
+
+
+
+       43 nodes contained in zone =          1
+
+       1       2       3       4       5       6       7       8       9      10
+      11      12      13      14      15      16      17      18      19      20
+      21      22      23      24      25      26      27      28      29      30
+      31      32      33      34      35      36      37      38      39      40
+      41      42      43
+
+      125 nodes contained in zone =          2
+
+      44      45      46      47      48      49      50      51      52      53
+      54      55      56      57      58      59      60      61      62      63
+      64      65      66      67      68      69      70      71      72      73
+      74      75      76      77      78      79      80      81      82      83
+      84      85      86      87      88      89      90      91      92      93
+      94      95      96      97      98      99     100     101     102     103
+     104     105     106     107     108     109     110     111     112     113
+     114     115     116     117     118     119     120     121     122     123
+     124     125     126     127     128     129     130     131     132     133
+     134     135     136     137     138     139     140     141     142     143
+     144     145     146     147     148     149     150     151     152     153
+     154     155     156     157     158     159     160     161     162     163
+     164     165     166     167     168
+
+       26 nodes contained in zone =          3
+
+     169     170     171     172     173     174     175     176     177     178
+     179     180     181     182     183     184     185     186     187     188
+     189     190     191     192     193     194
+
+        9 nodes contained in zone =          4
+
+       1       2       3       4       5       6       7       8       9
+
+        4 nodes contained in zone =          5
+
+     191     192     193     194
+
+ Macro: perm  Group:           1
+ Values were explicitly set for each node
+
+
+ Macro: rock  Group:           1
+ Values were explicitly set for each node
+
+
+ Macro: cond  Group:           1
+ Values were explicitly set for each node
+
+
+ Macro: ppor  Group:           2
+ Values were explicitly set for each node
+
+
+ Macro: hflx  Group:           1
+ Data explicitly set only for the following nodes:
+        1       2       3       4       5       6       7       8       9
+ The remainder are set to the default value
+ or were set in a previous invokation of this macro
+
+
+ Macro: hflx  Group:           1
+ Data explicitly set only for the following nodes:
+      191     192     193     194
+ The remainder are set to the default value
+ or were set in a previous invokation of this macro
+
+
+ Macro: flow  Group:           1
+ Data explicitly set only for the following nodes:
+        1       2       3       4       5       6       7       8       9
+ The remainder are set to the default value
+ or were set in a previous invokation of this macro
+
+
+ Macro: ctrl  Group:           2
+ Values were explicitly set for each node
+
+
+ number of nodes in problem =        194
+
+ heat and mass transfer solution
+ lobatto (node point) quadrature used
+ value of upwind weight =   1.0000    
+ porosity model is enabled
+ finite volume calculations used
+ n4 may be reduced to 1
+ n6 may be reduced to 1
+
+ EOS data obtained from internal equations
+
+
+ max total pressure, node number, x coordinate, y coordinate, z coordinate
+      62.299991            192    0.100E+04     0.00         0.00    
+
+ min total pressure, node number, x coordinate, y coordinate, z coordinate
+      29.520638              1     0.00         0.00        0.400E+04
+
+ max temperature, node number, x coordinate, y coordinate, z coordinate
+      438.15371            191     0.00         0.00         0.00    
+
+ min temperature, node number, x coordinate, y coordinate, z coordinate
+      2.0000000              1     0.00         0.00        0.400E+04
+
+ max saturation, node number, x coordinate, y coordinate, z coordinate
+      1.0000000              1     0.00         0.00        0.400E+04
+
+ min saturation, node number, x coordinate, y coordinate, z coordinate
+      1.0000000              1     0.00         0.00        0.400E+04
+
+ max porosity, node number, x coordinate, y coordinate, z coordinate
+     0.51512000              1     0.00         0.00        0.400E+04
+
+ min porosity, node number, x coordinate, y coordinate, z coordinate
+     0.50000000E-01        169     0.00         0.00        0.288E+04
+
+ max permeability, node number, x coordinate, y coordinate, z coordinate
+     0.10000000E-11         44     0.00         0.00        0.353E+04
+
+ min permeability, node number, x coordinate, y coordinate, z coordinate
+     0.10000000E-17        169     0.00         0.00        0.288E+04
+
+ max rock density, node number, x coordinate, y coordinate, z coordinate
+      2700.0000             44     0.00         0.00        0.353E+04
+
+ min rock density, node number, x coordinate, y coordinate, z coordinate
+      2650.0000              1     0.00         0.00        0.400E+04
+
+ max heat capacity, node number, x coordinate, y coordinate, z coordinate
+     0.80000000E-03          1     0.00         0.00        0.400E+04
+
+ min heat capacity, node number, x coordinate, y coordinate, z coordinate
+     0.80000000E-03          1     0.00         0.00        0.400E+04
+
+ max t conductivity, node number, x coordinate, y coordinate, z coordinate
+     0.19310200E-05        169     0.00         0.00        0.288E+04
+
+ min t conductivity, node number, x coordinate, y coordinate, z coordinate
+     0.13770000E-05         10     0.00         0.00        0.380E+04
+
+ max x coordinate, node number, x coordinate, y coordinate, z coordinate
+      1000.0000              3    0.100E+04     0.00        0.400E+04
+
+ min x coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000              1     0.00         0.00        0.400E+04
+
+ max y coordinate, node number, x coordinate, y coordinate, z coordinate
+      1000.0000              7     0.00        0.100E+04    0.400E+04
+
+ min y coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000              1     0.00         0.00        0.400E+04
+
+ max z coordinate, node number, x coordinate, y coordinate, z coordinate
+      4000.0000              1     0.00         0.00        0.400E+04
+
+ min z coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000            191     0.00         0.00         0.00    
+
+ max cell volume, node number, x coordinate, y coordinate, z coordinate
+     0.24017857E+09        187     0.00         0.00        0.140E+04
+
+ min cell volume, node number, x coordinate, y coordinate, z coordinate
+      1171875.0             44     0.00         0.00        0.353E+04
+
+ initial mass =  0.374E+12
+        steam =   0.00    
+       energy =  0.203E+13
+ total volume =  0.400E+10

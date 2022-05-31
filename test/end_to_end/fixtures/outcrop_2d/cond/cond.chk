@@ -1,0 +1,160 @@
+FEHM V3.1gf 12-02-29 QA:NA       05/25/2022    00:50:38
+
+ "Conductive run - 10km box model of a section of crust"                         
+
+
+
+       16 nodes contained in zone =          1
+
+      13      14      15      16      17      18      19      20      26      27
+      28      29      30      31      32      33
+
+       38 nodes contained in zone =          2
+
+       1       2       3       4       5       6       7       8       9      10
+      11      12      21      22      23      24      25      34      35      36
+      37      38      39      47      48      49      50      51      52      53
+      60      61      62      63      64      65      66      67
+
+       18 nodes contained in zone =          3
+
+      40      41      42      43      44      45      46      54      55      56
+      57      58      59      68      69      70      71      72
+
+       41 nodes contained in zone =          4
+
+      73      74      75      76      77      78      79      80      81      82
+      83      84      85      86      87      88      89      90      91      92
+      93      94      95      96      97      98      99     100     101     102
+     103     104     105     106     107     108     109     110     111     112
+     113
+
+       13 nodes contained in zone =          5
+
+       1       2       3       7      12      13      14      15      16      17
+      18      19      20
+
+        4 nodes contained in zone =          6
+
+     110     111     112     113
+
+ Macro: rock  Group:           1
+ Values were explicitly set for each node
+
+
+ Macro: cond  Group:           1
+ Values were explicitly set for each node
+
+
+ Macro: ppor  Group:           2
+ Values were explicitly set for each node
+
+
+ Macro: hflx  Group:           1
+ Data explicitly set only for the following nodes:
+        1       2       3       7      12      13      14      15      16      17
+       18      19      20
+ The remainder are set to the default value
+ or were set in a previous invokation of this macro
+
+
+ Macro: hflx  Group:           1
+ Data explicitly set only for the following nodes:
+      110     111     112     113
+ The remainder are set to the default value
+ or were set in a previous invokation of this macro
+
+
+ Macro: ctrl  Group:           2
+ Values were explicitly set for each node
+
+
+ number of nodes in problem =        113
+
+ heat conduction only solution
+ lobatto (node point) quadrature used
+ value of upwind weight =   1.0000    
+ porosity model is enabled
+ finite volume calculations used
+ n4 may be reduced to 1
+ n6 may be reduced to 1
+
+ EOS data obtained from internal equations
+
+
+ max total pressure, node number, x coordinate, y coordinate, z coordinate
+      148.45639            110     0.00         0.00         0.00    
+
+ min total pressure, node number, x coordinate, y coordinate, z coordinate
+      25.000000              1     0.00         0.00        0.440E+04
+
+ max temperature, node number, x coordinate, y coordinate, z coordinate
+      900.00000              1     0.00         0.00        0.440E+04
+
+ min temperature, node number, x coordinate, y coordinate, z coordinate
+      370.00000              1     0.00         0.00        0.440E+04
+
+ max saturation, node number, x coordinate, y coordinate, z coordinate
+      1.0000000              1     0.00         0.00        0.440E+04
+
+ min saturation, node number, x coordinate, y coordinate, z coordinate
+      1.0000000              1     0.00         0.00        0.440E+04
+
+ max porosity, node number, x coordinate, y coordinate, z coordinate
+     0.51512000             13     0.00        0.250E+04    0.400E+04
+
+ min porosity, node number, x coordinate, y coordinate, z coordinate
+     0.50000000E-01         73     0.00         0.00        0.300E+04
+
+ max permeability, node number, x coordinate, y coordinate, z coordinate
+     0.21432157-310          1     0.00         0.00        0.440E+04
+
+ min permeability, node number, x coordinate, y coordinate, z coordinate
+     0.12845707-321          1     0.00         0.00        0.440E+04
+
+ max rock density, node number, x coordinate, y coordinate, z coordinate
+      2700.0000              1     0.00         0.00        0.440E+04
+
+ min rock density, node number, x coordinate, y coordinate, z coordinate
+      2650.0000             13     0.00        0.250E+04    0.400E+04
+
+ max heat capacity, node number, x coordinate, y coordinate, z coordinate
+     0.80000000E-03          1     0.00         0.00        0.440E+04
+
+ min heat capacity, node number, x coordinate, y coordinate, z coordinate
+     0.80000000E-03          1     0.00         0.00        0.440E+04
+
+ max t conductivity, node number, x coordinate, y coordinate, z coordinate
+     0.19310200E-05         73     0.00         0.00        0.300E+04
+
+ min t conductivity, node number, x coordinate, y coordinate, z coordinate
+     0.12000000E-05         13     0.00        0.250E+04    0.400E+04
+
+ max x coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000              1     0.00         0.00        0.440E+04
+
+ min x coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000              1     0.00         0.00        0.440E+04
+
+ max y coordinate, node number, x coordinate, y coordinate, z coordinate
+      6000.0000             20     0.00        0.600E+04    0.400E+04
+
+ min y coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000              1     0.00         0.00        0.440E+04
+
+ max z coordinate, node number, x coordinate, y coordinate, z coordinate
+      4400.0000              1     0.00         0.00        0.440E+04
+
+ min z coordinate, node number, x coordinate, y coordinate, z coordinate
+      0.0000000            110     0.00         0.00         0.00    
+
+ max cell volume, node number, x coordinate, y coordinate, z coordinate
+      1742857.1            107     0.00        0.200E+04    0.140E+04
+
+ min cell volume, node number, x coordinate, y coordinate, z coordinate
+      25000.000              1     0.00         0.00        0.440E+04
+
+ initial mass =   0.00    
+        steam =   0.00    
+       energy =  0.478E+11
+ total volume =  0.246E+08
