@@ -103,18 +103,6 @@ def _bootstrap_pressure(
     previous_P_MPa = PT_column[-2, 0] if len(PT_column) > 1 else params['reference_pressure_MPa']
     return np.interp(target_z, xp=[previous_z, z], fp=[previous_P_MPa, P_MPa])
 
-    # P_MPa = None
-    # for previous_z, z, previous_T, T in zip(z_column[:-1], z_column[1:], T_column[:-1], T_column[1:]):
-    #     previous_P_MPa = P_MPa or params['reference_pressure_MPa']
-    #     mean_T = (previous_T + T) / 2
-    #     density_kg_m3 = density_lookup_MPa_degC(np.array([(previous_P_MPa, mean_T)]))[0]
-    #     P_MPa = previous_P_MPa + 1e-6 * signed_z_interval_m * density_kg_m3 * GRAVITY_ACCELERATION_M_S2
-
-    # if z == target_z:
-    #     return P_MPa
-
-    # return np.interp(target_z, xp=[previous_z, z], fp=[previous_P_MPa, P_MPa])
-
 
 def _prepend_scalar_to_array(scalar: float, z_column: np.array):
     tiled_xy = np.tile(np.array(scalar), reps=(len(z_column), 1))
