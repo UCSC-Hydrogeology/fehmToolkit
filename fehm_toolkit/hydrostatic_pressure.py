@@ -1,9 +1,11 @@
+import argparse
 import logging
 from pathlib import Path
 from typing import Callable, Optional
 
 import numpy as np
 from scipy import interpolate
+import yaml
 
 from .config import read_legacy_ipi_config
 from .fehm_objects import Grid, State
@@ -15,18 +17,17 @@ N_ITERATIONS = 3
 GRAVITY_ACCELERATION_M_S2 = -9.80665
 
 
-def generate_hydrostatic_pressure_files(
+def generate_hydrostatic_pressure_file(
     *,
     config_file: Path,
     fehm_file: Path,
     outside_zone_file: Path,
     restart_file: Path,
     water_properties_file: Path,
-    pressure_output_file: Path,
+    output_file: Path,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    config = read_legacy_ipi_config(config_file)  # TODO(dustin): add support for other config file formats
-    pressure_config = config['hydrostatic_pressure']
+    pressure_config = _read_pressure_config(config_file)
 
     if pressure_config['model_kind'] not in ('depth'):
         raise NotImplementedError(f'model_kind {pressure_config["model_kind"]} not supported.')
@@ -57,7 +58,7 @@ def generate_hydrostatic_pressure_files(
         if np.isnan(pressure_by_node[node_number]):
             raise ValueError(f'Pressure for node {node_number} is not a number.')
 
-    write_pressure(pressure_by_node, output_file=pressure_output_file)
+    write_pressure(pressure_by_node, output_file=output_file)
 
 
 def _calculate_hydrostatic_pressure(
@@ -127,6 +128,16 @@ def _get_structured_node_data(grid: Grid, state: State) -> tuple[np.ndarray]:
     return numbers, coordinates, temperatures
 
 
+def _read_pressure_config(config_file: Path):
+    with open(config_file) as f:
+        config = yaml.load(f, Loader=yaml.Loader)
+        logger.info(f'Format for {config_file} is not YAML, trying legacy reader.')
+    if not isinstance(config, dict):
+        config = read_legacy_ipi_config(config_file)
+
+    return config['hydrostatic_pressure']
+
+
 def _read_density_lookup(water_properties_file: Path):
     raw_lookup = read_nist_lookup_table(water_properties_file)
     points, density_kg_m3 = [], []
@@ -165,3 +176,25 @@ def _get_flat_dimension_or_none(coordinates: np.array) -> Optional[int]:
         if not coordinates[:, dim].var():
             return dim
     return None
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s (%(levelname)s) %(message)s')
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.ipi) file.')
+    parser.add_argument('--fehm_file', type=Path, help='Path to main grid (.fehm) file.')
+    parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
+    parser.add_argument('--restart_file', type=Path, help='Path to restart (.fin/.ini) file.')
+    parser.add_argument('--water_properties_file', type=Path, help='Path to NIST lookup table (.out/.wpi).')
+    parser.add_argument('--output_file', type=Path, help='Path for heatflux output to be written.')
+    args = parser.parse_args()
+
+    generate_hydrostatic_pressure_file(
+        config_file=args.config_file,
+        fehm_file=args.fehm_file,
+        outside_zone_file=args.outside_zone_file,
+        restart_file=args.restart_file,
+        water_properties_file=args.water_properties_file,
+        output_file=args.output_file,
+    )
