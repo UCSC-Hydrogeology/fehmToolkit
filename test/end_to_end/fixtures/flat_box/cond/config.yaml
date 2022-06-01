@@ -1,0 +1,128 @@
+files:
+  material_zone: cond.zone
+  outside_zone: cond_outside.zone
+  area: cond.area
+  initial_conditions: cond.ini
+  final_conditions: cond.fin
+  rock_properties: cond.rock
+  conductivity: cond.cond
+  pore_pressure: cond.ppor
+  permeability: cond.perm
+  heatflux: cond.hflx
+  flow: cond.flow
+  files: cond.files
+  fehm_grid: cond.fehm
+  input: cond.dat
+  output: cond.out
+  store: cond.stor
+  history: cond.hist
+  water_properties: ../../nist120-1800.out
+  check: cond.chk
+  error: cond.err
+
+heatflux:
+  model_kind: crustal_age
+  model_params:
+    crustal_age_sign: 1
+    spread_rate_mm_per_year: 28.57
+    coefficient_MW: 0.367E-6
+    boundary_distance_to_ridge_m: 60000
+
+rock_properties:
+  zone_assignment_order: [1, 2, 3]
+  property_configs: 
+
+    compressibility:
+    - model_kind: overburden_compressibility
+      model_params:
+        a: 0.09
+        grav: 9.81
+        min_overburden: 25.0
+        rhow: 1000.0
+      zones: [1]
+    - model_kind: constant
+      model_params:
+        constant: 6.0e-10
+      zones: [2, 3]
+
+    conductivity:
+    - model_kind: ctr2tcon
+      model_params:
+        ctr_model:
+          model_kind: polynomial
+          model_params:
+            x^0: 0
+            x^1: 0.603
+            x^2: 0.000531
+            x^3: -6.84e-07
+        node_depth_columns:
+        - [0, 200, 425, 450]
+      zones: [1]
+    - model_kind: porosity_weighted_conductivity
+      model_params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+      zones: [2, 3]
+
+    permeability:
+    - model_kind: void_ratio_power_law
+      model_params:
+        A: 3.66e-18
+        B: 1.68
+      zones: [1]
+    - model_kind: constant
+      model_params:
+        constant: 1.0e-12
+      zones: [2]
+    - model_kind: constant
+      model_params:
+        constant: 1.0e-18
+      zones: [3]
+
+    grain_density:
+    - model_kind: constant
+      model_params:
+        constant: 2650
+      zones: [1, 2, 3]
+
+    specific_heat:
+    - model_kind: constant
+      model_params:
+        constant: 800
+      zones: [1, 2, 3]
+
+    porosity:
+    - model_kind: sediment_porosity_depth_power_law
+      model_params:
+        porosity_a: 0.84
+        porosity_b: -0.125
+      zones: [1]
+    - model_kind: constant
+      model_params:
+        constant: 0.1
+      zones: [2]
+    - model_kind: constant
+      model_params:
+        constant: 0.05
+      zones: [3]
+
+hydrostatic_pressure:
+  model_kind: depth
+  model_params:
+    z_interval_m: 5
+    reference_z: 4450
+    reference_pressure_MPa: 25
+    reference_temperature_degC: 2
+  sampling_configs:
+  - method: fraction
+    size: 1
+    zone_kind: outside
+    zones: [top]
+  - method: fraction
+    size: 0.5
+    zone_kind: outside
+    zones: [bottom, left_w, right_e, back_n, front_s]
+  - method: number
+    size: 10
+    zone_kind: material
+    zones: [1, 2, 3, 4, 5]
