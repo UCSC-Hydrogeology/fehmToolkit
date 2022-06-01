@@ -47,11 +47,12 @@ def generate_hydrostatic_pressure_files(
     for i, (node_number, coordinates) in enumerate(zip(node_numbers, node_coordinates)):
         if not i % 1000:
             logger.info(f'Pressures calculated: {i} / {grid.n_nodes}')
-        pressure_by_node[node_number] = _bootstrap_pressure(
+        pressure_by_node[node_number] = _calculate_hydrostatic_pressure(
             target_coordinates=coordinates,
             params=pressure_config['model_params'],
             density_lookup_MPa_degC=density_lookup_MPa_degC,
             temperature_lookup=temperature_lookup,
+            n_iterations=N_ITERATIONS,
         )
         if np.isnan(pressure_by_node[node_number]):
             raise ValueError(f'Pressure for node {node_number} is not a number.')
@@ -59,13 +60,13 @@ def generate_hydrostatic_pressure_files(
     write_pressure(pressure_by_node, output_file=pressure_output_file)
 
 
-def _bootstrap_pressure(
+def _calculate_hydrostatic_pressure(
     *,
     target_coordinates: np.ndarray,
     params: dict[str, float],
     density_lookup_MPa_degC: Callable,
     temperature_lookup: Optional[Callable],
-    debug_flag=False,
+    n_iterations: int,
 ) -> float:
     target_xy = target_coordinates[:-1]
     target_z = target_coordinates[-1]
@@ -88,7 +89,7 @@ def _bootstrap_pressure(
     mean_T = ((T_column + np.roll(T_column, -1)) / 2)[:-1]
     PT_column = _prepend_scalar_to_array(params['reference_pressure_MPa'], mean_T)
 
-    for iteration in range(N_ITERATIONS):
+    for iteration in range(n_iterations):
         density_kg_m3 = density_lookup_MPa_degC(PT_column)
         delta_P = 1e-6 * density_kg_m3 * GRAVITY_ACCELERATION_M_S2 * signed_z_interval_m
         PT_column[:, 0] = params['reference_pressure_MPa'] + np.cumsum(delta_P)
