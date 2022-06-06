@@ -114,15 +114,15 @@ hydrostatic_pressure:
     reference_pressure_MPa: 25
     reference_temperature_degC: 2
   sampling_configs:
-  - method: fraction
-    size: 1
+  - sample_method: fraction
+    sample_size: 1
     zone_kind: outside
     zones: [top]
-  - method: fraction
-    size: 0.5
+  - sample_method: fraction
+    sample_size: 0.5
     zone_kind: outside
     zones: [bottom, left_w, right_e, back_n, front_s]
-  - method: number
-    size: 10
+  - sample_method: fraction
+    sample_size: 0.5
     zone_kind: material
-    zones: [1, 2, 3, 4, 5]
+    zones: [1, 2, 3]
