@@ -108,13 +108,13 @@ def _calculate_hydrostatic_pressure(
         step=signed_z_interval_m,
     )
     if temperature_lookup is not None:
-        coordinates_column = _prepend_scalar_to_array(target_xy, z_column)
+        coordinates_column = _prepend_entry_to_array(target_xy, z_column)
         T_column = temperature_lookup(coordinates_column)
     else:
         T_column = len(z_column) * [params['reference_temperature_degC']]
 
     mean_T = ((T_column + np.roll(T_column, -1)) / 2)[:-1]
-    PT_column = _prepend_scalar_to_array(params['reference_pressure_MPa'], mean_T)
+    PT_column = _prepend_entry_to_array(params['reference_pressure_MPa'], mean_T)
 
     for iteration in range(n_iterations):  # TODO(Dustin): use convergence criteria rather than set number
         density_kg_m3 = density_lookup_MPa_degC(PT_column)
@@ -132,7 +132,7 @@ def _calculate_hydrostatic_pressure(
     return np.interp(target_z, xp=[previous_z, z], fp=[previous_P_MPa, P_MPa])
 
 
-def _prepend_scalar_to_array(scalar: float, z_column: np.array):
+def _prepend_entry_to_array(scalar: float, z_column: np.array):
     tiled_xy = np.tile(np.array(scalar), reps=(len(z_column), 1))
     return np.column_stack((tiled_xy, z_column))
 
