@@ -31,8 +31,8 @@ def generate_hydrostatic_pressure_file(
     logger.info(f'Reading configuration file: {config_file}')
     pressure_config = _read_pressure_config(config_file)
 
-    if pressure_config['model_kind'] not in ('depth'):
-        raise NotImplementedError(f'model_kind {pressure_config["model_kind"]} not supported.')
+    logger.info('Reading water properties lookup')
+    density_lookup_MPa_degC = _read_density_lookup(water_properties_file)
 
     logger.info('Reading node data into memory')
     grid = read_grid(
@@ -51,8 +51,8 @@ def generate_hydrostatic_pressure_file(
         sampled_node_numbers=sampled_node_numbers,
     )
 
-    logger.info('Reading water properties lookup')
-    density_lookup_MPa_degC = _read_density_lookup(water_properties_file)
+
+    _validate_pressure_config(pressure_config, node_coordinates)
 
     # TODO(dustin): Add config support for uniform temperature
     logger.info('Generating temperature lookups')
@@ -71,9 +71,7 @@ def generate_hydrostatic_pressure_file(
             n_iterations=N_ITERATIONS,
         )
         if np.isnan(pressure_by_node[node_number]):
-            raise ValueError(
-                f'Pressure for node {node_number} is not a number. May have gone out of range for density lookup.'
-            )
+            raise ValueError(f'Pressure at node {node_number} is not a number. May be out of range for density lookup.')
 
     logger.info('Interpolating remaining node pressures')
     pressure_lookup = get_lookup_with_out_of_range_backup(
@@ -250,6 +248,25 @@ def _get_flat_dimension_or_none(coordinates: np.array) -> Optional[int]:
         if not coordinates[:, dim].var():
             return dim
     return None
+
+
+def _validate_pressure_config(config: dict, node_coordinates: np.ndarray):
+    if config['model_kind'] not in ('depth'):
+        raise NotImplementedError(f'model_kind {config["model_kind"]} not supported.')
+
+    if config['interpolation_kind'] not in ('grid_samples'):
+        raise NotImplementedError(f'interpolation_kind {config["interpolation_kind"]} not supported.')
+
+    interpolation_params = config['interpolation_params']
+    x_samples = interpolation_params.get('x_samples', 0)
+    y_samples = interpolation_params.get('y_samples', 0)
+    sample_xy_dimensions = (x_samples > 1) + (y_samples > 1)
+    node_xy_dimensions = node_coordinates.shape[1] - 1
+    if sample_xy_dimensions != node_xy_dimensions:
+        raise ValueError(
+            f'Number of sample dimensions ({sample_xy_dimensions}) '
+            f'inconsistent with grid dimensions ({node_xy_dimensions}).'
+        )
 
 
 if __name__ == '__main__':
