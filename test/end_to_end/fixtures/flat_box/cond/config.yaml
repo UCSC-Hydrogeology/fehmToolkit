@@ -113,7 +113,7 @@ hydrostatic_pressure:
     reference_z: 4450
     reference_pressure_MPa: 25
     reference_temperature_degC: 2
-  interpolation_kind: grid_samples
+  interpolation_kind: regular_grid
   interpolation_params:
     x_samples: 50
     y_samples: 50
