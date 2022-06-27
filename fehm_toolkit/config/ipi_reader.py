@@ -17,6 +17,8 @@ def read_legacy_ipi_config(ipi_file: Path) -> dict:
                 'reference_z': reference_z,
                 'reference_pressure_MPa': reference_pressure,
                 'reference_temperature_degC': reference_temperature,
-            }
+            },
+            'interpolation_kind': 'none',
+            'interpolation_params': {},
         }
     }

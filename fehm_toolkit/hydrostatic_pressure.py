@@ -13,7 +13,7 @@ from .file_interface import read_grid, read_nist_lookup_table, read_restart, wri
 
 logger = logging.getLogger(__name__)
 
-N_ITERATIONS = 3
+N_ITERATIONS = 5
 GRAVITY_ACCELERATION_M_S2 = -9.80665
 RANDOM_SAMPLE_SEED = 12
 
@@ -52,7 +52,11 @@ def generate_hydrostatic_pressure_file(
     logger.info('Generating temperature lookups')
     temperature_lookup = interpolate.NearestNDInterpolator(node_coordinates, node_temperatures)
 
-    sampled_node_numbers = _sample_node_numbers(grid, sampling_config=pressure_config.get('sampling_config', {}))
+    if pressure_config['interpolation_kind'] == 'none':
+        sampled_node_numbers = [node.number for node in grid.nodes]
+    else:
+        sampled_node_numbers = _sample_node_numbers(grid, sampling_config=pressure_config.get('sampling_config', {}))
+
     logger.info(f'Calculating explicit pressures for {len(sampled_node_numbers)}/{len(coordinates_by_number)} nodes')
     pressure_by_node = {}
     for i, node_number in enumerate(sampled_node_numbers, start=1):
@@ -71,31 +75,32 @@ def generate_hydrostatic_pressure_file(
         if np.isnan(pressure_by_node[node_number]):
             raise ValueError(f'Pressure at node {node_number} is not a number. May be out of range for density lookup.')
 
-    x_targets, y_targets, z_targets = _get_xyz_targets(
-        node_coordinates,
-        interpolation_params=pressure_config['interpolation_params'],
-    )
-    n_columns = _get_n_columns(pressure_config['interpolation_params'])
-    logger.info(f'Calculating explicit pressures for {n_columns} sampled columns.')
+    if pressure_config['interpolation_kind'] != 'none':
+        x_targets, y_targets, z_targets = _get_xyz_targets(
+            node_coordinates,
+            interpolation_params=pressure_config['interpolation_params'],
+        )
+        n_columns = _get_n_columns(pressure_config['interpolation_params'])
+        logger.info(f'Calculating explicit pressures for {n_columns} sampled columns.')
 
-    target_points, P_cube = _calculate_explicit_target_pressures(
-        x=x_targets,
-        y=y_targets,
-        z=z_targets,
-        params=pressure_config['model_params'],
-        density_lookup_MPa_degC=density_lookup_MPa_degC,
-        temperature_lookup=temperature_lookup,
-        n_iterations=N_ITERATIONS,
-    )
+        target_points, P_cube = _calculate_explicit_target_pressures(
+            x=x_targets,
+            y=y_targets,
+            z=z_targets,
+            params=pressure_config['model_params'],
+            density_lookup_MPa_degC=density_lookup_MPa_degC,
+            temperature_lookup=temperature_lookup,
+            n_iterations=N_ITERATIONS,
+        )
 
-    logger.info('Interpolating remaining node pressures')
-    unassigned_nodes = coordinates_by_number.keys() - pressure_by_node.keys()
-    unassigned_coordinates = np.array([coordinates_by_number[node_number] for node_number in unassigned_nodes])
+        logger.info('Interpolating remaining node pressures')
+        unassigned_nodes = coordinates_by_number.keys() - pressure_by_node.keys()
+        unassigned_coordinates = np.array([coordinates_by_number[node_number] for node_number in unassigned_nodes])
 
-    P_lookup = interpolate.RegularGridInterpolator(points=target_points, values=P_cube)
-    P_interpolated = P_lookup(unassigned_coordinates)
-    for node, pressure in zip(unassigned_nodes, P_interpolated):
-        pressure_by_node[node] = pressure
+        P_lookup = interpolate.RegularGridInterpolator(points=target_points, values=P_cube)
+        P_interpolated = P_lookup(unassigned_coordinates)
+        for node, pressure in zip(unassigned_nodes, P_interpolated):
+            pressure_by_node[node] = pressure
 
     logger.info(f'Writing pressures to file {output_file}')
     write_pressure(pressure_by_node, output_file=output_file)
@@ -114,7 +119,7 @@ def calculate_hydrostatic_pressures(
     if len(z_targets) == 1 and z_targets[0] == params['reference_z']:
         return np.array([params['reference_pressure_MPa']])
 
-    z_column = _build_z_column_around_reference(z_targets, params)
+    z_column = build_z_column_around_reference(z_targets, params)
 
     reference_index = np.where(z_column == params['reference_z'])[0][0]
     coordinates_column = _prepend_entry_to_array(target_xy, z_column)
@@ -137,7 +142,7 @@ def calculate_hydrostatic_pressures(
     return np.interp(z_targets, xp=np.flip(z_column), fp=np.flip(P_column))
 
 
-def _build_z_column_around_reference(z_targets: np.ndarray, params: dict[str, float]) -> np.ndarray:
+def build_z_column_around_reference(z_targets: np.ndarray, params: dict[str, float]) -> np.ndarray:
     upper_column = np.arange(
         start=params['reference_z'],
         stop=z_targets.max() + params['z_interval_m'],
@@ -309,7 +314,7 @@ def get_lookup_with_out_of_range_backup(points: np.ndarray, values: np.ndarray) 
     return lookup_with_backup
 
 
-def _sample_node_numbers(grid: Grid, sampling_config: dict):
+def _sample_node_numbers(grid: Grid, sampling_config: dict) -> set[int]:
     explicit_nodes = sampling_config.get('explicit_nodes', [])
     explicit_material_zones = sampling_config.get('explicit_material_zones', [])
     explicit_outside_zones = sampling_config.get('explicit_outside_zones', [])
@@ -345,19 +350,21 @@ def _validate_pressure_config(config: dict, node_coordinates: np.ndarray):
     if config['model_kind'] not in ('depth'):
         raise NotImplementedError(f'model_kind {config["model_kind"]} not supported.')
 
-    if config['interpolation_kind'] not in ('grid_samples'):
+    if config['interpolation_kind'] not in ('regular_grid', 'none'):
         raise NotImplementedError(f'interpolation_kind {config["interpolation_kind"]} not supported.')
 
     interpolation_params = config['interpolation_params']
-    x_samples = interpolation_params.get('x_samples', 0)
-    y_samples = interpolation_params.get('y_samples', 0)
-    sample_xy_dimensions = (x_samples > 1) + (y_samples > 1)
-    node_xy_dimensions = node_coordinates.shape[1] - 1
-    if sample_xy_dimensions != node_xy_dimensions:
-        raise ValueError(
-            f'Number of sample dimensions ({sample_xy_dimensions}) '
-            f'inconsistent with grid dimensions ({node_xy_dimensions}).'
-        )
+
+    if config['interpolation_kind'] == 'regular_grid':
+        x_samples = interpolation_params.get('x_samples', 0)
+        y_samples = interpolation_params.get('y_samples', 0)
+        sample_xy_dimensions = (x_samples > 1) + (y_samples > 1)
+        node_xy_dimensions = node_coordinates.shape[1] - 1
+        if sample_xy_dimensions != node_xy_dimensions:
+            raise ValueError(
+                f'Number of sample dimensions ({sample_xy_dimensions}) '
+                f'inconsistent with grid dimensions ({node_xy_dimensions}).'
+            )
 
 
 if __name__ == '__main__':
