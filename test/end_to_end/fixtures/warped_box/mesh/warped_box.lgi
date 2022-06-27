@@ -1,0 +1,26 @@
+define/NX/3
+define/NY/4
+define/NZ/4
+*
+cmo/create/cmo_1/
+quadxyz/NX NY NZ/ &
+  0. 0. 0. / 10. 0. 1. / 10. 10. 0. / 0. 10. 1. / & 
+  0. 0. 15. / 10. 0. 10. / 10. 10. 10. / 0. 10. 13.
+connect
+*
+surface / s_above / intrface / plane / &
+    0., 0., 100. / 1., 0., 100. / 1., 1., 100 /
+region / r_all / lt s_above
+mregion / m_all / r_all
+*
+cmo / setatt / cmo_1 / itetclr / 1 0 0 / 1
+cmo/setatt//ipolydat/no
+*
+setpts
+settets
+resetpts / itp
+*
+dump / gmv / warped_box.gmv / cmo_1
+dump / fehm / warped_box / cmo_1 / ascii
+*
+finish

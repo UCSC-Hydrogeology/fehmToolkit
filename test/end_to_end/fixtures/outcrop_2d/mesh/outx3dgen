@@ -1,0 +1,335 @@
+ 
+ 
+*               * * * * * * * * * * * * * * * * * * * * * * * *                 
+*               *                                             *                 
+*               *    Program:  LaGriT V2.200   Linux m32      *                 
+*               *    date_compile: 2010/11/22                 *                 
+ 
+WARNING: code expiration date has passed.                                       
+WARNING: code expiration date has passed.                                       
+ 
+ 
+*               *    Run Time: 2022/05/24  07:07:10           *                 
+*               *    Manual:   http://lagrit.lanl.gov         *                 
+*               *                                             *                 
+*               * * * * * * * * * * * * * * * * * * * * * * * *                 
+ 
+                               -----oOo-----                                    
+LaGriT Copyright: This program was prepared by Los Alamos National Security, LLC
+at Los Alamos National Laboratory (LANL) under contract No. DE-AC52-06NA25396   
+with the U.S. Department of Energy (DOE). All rights in the program are reserved
+by the DOE and Los Alamos National Security, LLC. Permission is granted to the  
+public to copy and use this software without charge, provided that this Notice  
+and any statement of authorship are reproduced on all copies. Neither the       
+U.S. Government nor LANS makes any warranty, express or implied, or assumes     
+any liability or responsibility for the use of this software.                   
+                               -----oOo-----                                    
+ 
+ 
+Output log file: outx3dgen                                                      
+Command log file: logx3dgen                                                     
+ 
+cmo/create/bigmesh///triplane                                                   
+cmo/select/bigmesh                                                              
+cmo/setatt/bigmesh/ipolydat/no                                                  
+npoints = 0 in subroutine cmo_setatt                                            
+Warning: nelements = 0                                                          
+         1 values reset for attribute ipolydat                                  
+ 
+*                                                                               
+* -----------                                                                   
+* DEFINITIONS                                                                   
+* -----------                                                                   
+define/ymax/6000.                                                               
+*                                                                               
+define/sf/4000.                                                                 
+define/sbi/3650.                                                                
+define/aq_base/3050.                                                            
+*                                                                               
+define/aq_bot/2800.                                                             
+define/base_mid1/2100.                                                          
+define/base_mid2/1400.                                                          
+define/base_bot/0.                                                              
+*                                                                               
+define/ed_top/4400.                                                             
+define/ed_topwidth/1000.                                                        
+define/ed_sfwidth/2000.                                                         
+*                                                                               
+*                                                                               
+* ---------                                                                     
+* POINTSETS                                                                     
+* ---------                                                                     
+* Sediment, edifice and aquifer                                                 
+createpts/xyz/1 13 9/0. 0. ed_top/0. ymax aq_bot/1 1 1                          
+  RZ GENERATED POINTS                    1 TO                  117              
+*                                                                               
+* Basement mid1                                                                 
+createpts/xyz/1 7 1/0. 0. base_mid1/0. ymax base_mid1/1 1 1                     
+  RZ GENERATED POINTS                  118 TO                  124              
+*                                                                               
+* Basement mid2                                                                 
+createpts/xyz/1 4 1/0. 0. base_mid2/0. ymax base_mid2/1 1 1                     
+  RZ GENERATED POINTS                  125 TO                  128              
+*                                                                               
+* Basement bottom                                                               
+createpts/xyz/1 4 1/0. 0. base_bot/0. ymax base_bot/1 1 1                       
+  RZ GENERATED POINTS                  129 TO                  132              
+*                                                                               
+* --------                                                                      
+* SURFACES                                                                      
+* --------                                                                      
+surface/s_sf/interface/plane/0 0 sf/100 0 sf/100 100 sf                         
+  The unit vector for s_sf     is  0.0000000i   0.0000000j   1.0000000k         
+surface/s_sbi/intrface/plane/0.,0.,sbi/100.,0.,sbi/100.,100.,sbi/               
+  The unit vector for s_sbi    is  0.0000000i   0.0000000j   1.0000000k         
+surface/s_aq_base/intrface/plane/0.,0.,aq_base/100.,0.,aq_base/100.,100.,aq_base
+/                                                                               
+  The unit vector for s_aq_bas is  0.0000000i   0.0000000j   1.0000000k         
+surface/s_edy/interface/plane/0. ed_topwidth 4510./ed_sfwidth ed_sfwidth 4010./0
+. ed_sfwidth 4010./                                                             
+  The unit vector for s_edy    is  0.0000000i   0.4472136j   0.8944272k         
+*                                                                               
+*                                                                               
+* ---------                                                                     
+* REGIONS                                                                       
+* ---------                                                                     
+region/r_ed/ge s_aq_base and le s_edy                                           
+region/r_null/gt s_sf and not r_ed                                              
+*                                                                               
+*                                                                               
+* ---------                                                                     
+* CONNECT                                                                       
+* ---------                                                                     
+pset/p_null/region/r_null                                                       
+ 
+ THE PSET  p_null  HAS         19 POINTS                                        
+rmpoint/pset get p_null                                                         
+ Dudded        19 points plus parents, there are no elements in mesh.           
+filter/1 0 0/1E-3                                                               
+ 
+FILTER:User specified value =    0.100000000000E-02                             
+ 
+FILTER:Dudding      0 duplicate points.                                         
+rmpoint/compress                                                                
+        19 points removed and          0 elements removed.                      
+   The new point count is       113.                                            
+   The new element count is         0.                                          
+connect                                                                         
+ No materials associated with       113 noninterface points.                    
+ Coordinates of enclosing triangle are:                                         
+           0.00000D+00-0.10500D+05-0.70400D+04                                  
+           0.00000D+00 0.16500D+05-0.77000D+04                                  
+           0.00000D+00 0.30300D+04 0.29200D+05                                  
+ Cannot locate interface between points       110 and       114.                
+ Cannot locate interface between points       106 and       114.                
+ Cannot locate interface between points       106 and       110.                
+ Cannot locate interface between points        99 and       114.                
+ Cannot locate interface between points        99 and       106.                
+ Cannot locate interface between points       111 and       114.                
+ Cannot locate interface between points       111 and       115.                
+ Cannot locate interface between points        16 and        17.                
+ Cannot locate interface between points        16 and       116.                
+ Cannot locate interface between points        17 and       116.                
+ Cannot locate interface between points        18 and        19.                
+ Cannot locate interface between points        18 and       116.                
+ Cannot locate interface between points        19 and       116.                
+ Cannot locate interface between points        72 and       115.                
+ Cannot locate interface between points        59 and        72.                
+ Cannot locate interface between points        59 and       115.                
+ Cannot locate interface between points        20 and       115.                
+ Cannot locate interface between points        20 and       116.                
+ Cannot locate interface between points       110 and       111.                
+ Cannot locate interface between points       111 and       112.                
+ Cannot locate interface between points       112 and       115.                
+ Cannot locate interface between points        17 and        18.                
+ Cannot locate interface between points         2 and         3.                
+ Cannot locate interface between points         2 and       116.                
+ Cannot locate interface between points         3 and       116.                
+ Cannot locate interface between points        86 and       114.                
+ Cannot locate interface between points        73 and       114.                
+ Cannot locate interface between points        73 and        86.                
+ Cannot locate interface between points       112 and       113.                
+ Cannot locate interface between points       113 and       115.                
+ Cannot locate interface between points        86 and        99.                
+ Cannot locate interface between points        19 and        20.                
+ Cannot locate interface between points       105 and       115.                
+ Cannot locate interface between points        98 and       105.                
+ Cannot locate interface between points        98 and       115.                
+ Cannot locate interface between points       109 and       115.                
+ Cannot locate interface between points       105 and       109.                
+ Cannot locate interface between points         4 and       114.                
+ Cannot locate interface between points         1 and       114.                
+ Cannot locate interface between points         1 and         4.                
+ Cannot locate interface between points        60 and       114.                
+ Cannot locate interface between points        60 and        73.                
+ Cannot locate interface between points        47 and       114.                
+ Cannot locate interface between points        47 and        60.                
+ Cannot locate interface between points         1 and       116.                
+ Cannot locate interface between points         8 and       114.                
+ Cannot locate interface between points         4 and         8.                
+ Cannot locate interface between points        21 and       114.                
+ Cannot locate interface between points         8 and        21.                
+ Cannot locate interface between points         3 and        16.                
+ Cannot locate interface between points        33 and       115.                
+ Cannot locate interface between points        20 and        33.                
+ Cannot locate interface between points       109 and       113.                
+ Cannot locate interface between points        34 and       114.                
+ Cannot locate interface between points        21 and        34.                
+ Cannot locate interface between points        34 and        47.                
+ Cannot locate interface between points        85 and       115.                
+ Cannot locate interface between points        72 and        85.                
+ Cannot locate interface between points        85 and        98.                
+ Cannot locate interface between points        46 and       115.                
+ Cannot locate interface between points        33 and        46.                
+ Cannot locate interface between points        46 and        59.                
+ Cannot locate interface between points         1 and         2.                
+ 
+ Successfully eliminated all multimaterial connections.                         
+ 
+ The mesh is now complete!                                                      
+ 
+*                                                                               
+*                                                                               
+* ---------                                                                     
+* M-REGIONS                                                                     
+* ---------                                                                     
+mregion/m_sed/gt s_sbi and not r_ed                                             
+mregion/m_ed/r_ed                                                               
+mregion/m_aq/lt s_sbi and gt s_aq_base and not r_ed                             
+mregion/m_base/lt s_aq_base                                                     
+*                                                                               
+*                                                                               
+* -------                                                                       
+* CLEANUP                                                                       
+* -------                                                                       
+eltset/e_null/region/r_null                                                     
+ 
+ THE ELTSET e_null                           HAS          5 ELEMENTS            
+rmpoint/element/eltset get e_null                                               
+ Dudded         0 points plus parents, and          5 elements removed.         
+*                                                                               
+setpts                                                                          
+ FOR imt=   1 NAME= m_sed    THERE ARE              16 POINTS                   
+ FOR imt=   2 NAME= m_ed     THERE ARE              38 POINTS                   
+ FOR imt=   3 NAME= m_aq     THERE ARE              18 POINTS                   
+ FOR imt=   4 NAME= m_base   THERE ARE              41 POINTS                   
+settets                                                                         
+ Multimaterial tet:          6 itet=        75        76        62              
+ Multimaterial tet:          7 itet=        75        62        61              
+ Multimaterial tet:         14 itet=        41        42        28              
+ Multimaterial tet:         16 itet=        28        42        29              
+ Multimaterial tet:         18 itet=        71        84        72              
+ Multimaterial tet:         20 itet=        54        67        55              
+ Multimaterial tet:         23 itet=        30        43        31              
+ Multimaterial tet:         26 itet=        25        26        13              
+ Multimaterial tet:         27 itet=        41        28        27              
+ Multimaterial tet:         34 itet=        66        54        53              
+ Multimaterial tet:         35 itet=        81        69        68              
+ Multimaterial tet:         36 itet=        31        44        32              
+ Multimaterial tet:         40 itet=        80        67        79              
+ Multimaterial tet:         50 itet=        69        82        70              
+ Multimaterial tet:         51 itet=        84        85        72              
+ Multimaterial tet:         57 itet=        76        64        63              
+ Multimaterial tet:         64 itet=        29        42        30              
+ Multimaterial tet:         65 itet=        25        13        12              
+ Multimaterial tet:         72 itet=        82        69        81              
+ Multimaterial tet:         82 itet=        54        41        53              
+ Multimaterial tet:         85 itet=        71        70        83              
+ Multimaterial tet:         87 itet=        64        77        65              
+ Multimaterial tet:         89 itet=        74        75        61              
+ Multimaterial tet:         94 itet=        42        43        30              
+ Multimaterial tet:         95 itet=        80        81        67              
+ Multimaterial tet:         97 itet=        27        40        41              
+ Multimaterial tet:         98 itet=        76        77        64              
+ Multimaterial tet:        104 itet=        38        39        26              
+ Multimaterial tet:        106 itet=        44        45        32              
+ Multimaterial tet:        112 itet=        82        83        70              
+ 
+There are     49  multimaterial tets.                                           
+resetpts/itp                                                                    
+geniee                                                                          
+finish                                                                          
+*                                                                               
+dump/gmv/outcrop_2d.gmv/bigmesh                                                 
+cmo/modatt/-def-/-def-/ioflag/x                                                 
+finish                                                                          
+dump/fehm/outcrop_2d/bigmesh/ascii                                              
+*** Write FEHMN GEOM AND ZONE FILES ***                                         
+*********dump_material_lists********                                            
+Minimum material ID value =      1                                              
+Maximum material ID value =      4                                              
+Total possible materials  =      4                                              
+Material           1 has        16 nodes. #nodes/nnodes is   0.141592910000     
+Material           2 has        38 nodes. #nodes/nnodes is   0.336283200000     
+Material           3 has        18 nodes. #nodes/nnodes is   0.159292040000     
+Material           4 has        41 nodes. #nodes/nnodes is   0.362831900000     
+*********dump_interface_list********                                            
+Interface material         1 has        10 nodes.                               
+Interface material         2 has        13 nodes.                               
+Interface material         3 has        16 nodes.                               
+Interface material         4 has         9 nodes.                               
+*********dump_multi_material_list********                                       
+Material         1 has        19 multi-material connections.                    
+Material         2 has        30 multi-material connections.                    
+Material         3 has        30 multi-material connections.                    
+Material         4 has        25 multi-material connections.                    
+log/tty/off                                                                     
+finish                                                                          
+*********dump_outside_list********                                              
+Voronoi Areas used for outside faces.                                           
+ 
+assign_quadrant_id epsilon for zero:   1.0000000E-15                            
+cmo/addatt/bigmesh/top/vint/scalar/nnodes/linear/permanent/afgx/-5.0/           
+finish                                                                          
+Face top           1 has        13 nodes.                                       
+top        Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.0000000E+00   0.6000000E+03   0.6000000E+04            
+cmo/addatt/bigmesh/bottom/vint/scalar/nnodes/linear/permanent/afgx/-5.0/        
+finish                                                                          
+Face bottom        2 has         4 nodes.                                       
+bottom     Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.0000000E+00   0.1400000E+04   0.6000000E+04            
+cmo/addatt/bigmesh/left_w/vint/scalar/nnodes/linear/permanent/afgx/-5.0/        
+finish                                                                          
+cmo/addatt/bigmesh/right_e/vint/scalar/nnodes/linear/permanent/afgx/-5.0/       
+finish                                                                          
+cmo/addatt/bigmesh/back_n/vint/scalar/nnodes/linear/permanent/afgx/-5.0/        
+finish                                                                          
+Face back_n        6 has        10 nodes.                                       
+back_n     Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.0000000E+00   0.4000000E+04   0.1250000E+04            
+cmo/addatt/bigmesh/front_s/vint/scalar/nnodes/linear/permanent/afgx/-5.0/       
+finish                                                                          
+Face front_s       4 has        12 nodes.                                       
+front_s    Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.0000000E+00   0.4400000E+04   0.1250000E+04            
+cmo/DELATT//top                                                                 
+finish                                                                          
+cmo/DELATT//bottom                                                              
+finish                                                                          
+cmo/DELATT//left_w                                                              
+finish                                                                          
+cmo/DELATT//right_e                                                             
+finish                                                                          
+cmo/DELATT//back_n                                                              
+finish                                                                          
+cmo/DELATT//front_s                                                             
+finish                                                                          
+log/tty/on                                                                      
+finish                                                                          
+*********dump_parent_list********                                               
+***Construct Regular Sparse Matrix:2D***                                        
+------------                                                                    
+Matbldtri                                                                       
+Number of Nodes             =        113                                        
+Max. Connection to a Node   =          9                                        
+Number of Area Coefficients =        715                                        
+Minimum Voronoi area        =   2.5000000E+04                                   
+Maximum Voronoi area        =   1.7428571E+06                                   
+Minimum Voronoi edge length =   0.0000000E+00                                   
+Maximum Voronoi edge length =   2.5000000E+00                                   
+Total   Voronoi area        =   2.4600000E+07                                   
+Total   Triangle area       =   2.4600000E+07                                   
+*                                                                               
+finish                                                                          
+LaGriT successfully completed                                                   

@@ -1,0 +1,44 @@
+"Conductive run - warped box"
+cont
+avs 10000  365e8
+material
+liquid
+velocity
+temperature
+pressure
+flux
+source
+endavs
+sol
+ -1    -1
+init
+   25.0, 2.0,  900., 0., 0., 900., 0., 0.
+perm
+file
+cond.perm
+rock
+file
+cond.rock
+cond
+file
+cond.cond
+ppor
+file
+cond.ppor
+hflx
+-2 0 0 3.0 1.e6
+0
+hflx
+file
+cond.hflx
+time
+  7300 365e8 10000 10 0 1 1234
+  0.0    0.0    0.0    0.0
+ctrl
+   -50 1.e-04  25 100 gmre
+   1   0   0   2
+   0   0   0   0
+  1.0  3  1.0 
+  7   2.0   1.e-6  365e5
+  0   1
+stop

@@ -1,0 +1,15 @@
+%HEATFLUX input file (hfi)
+
+% The final function for heatflux must be named "HFLX", but may contain any number of subfunctions.
+% HFLX must also be a function of x, y, and z, even if some or all of these are unused.
+% Use ALL CAPS for all variable or function definitions, to avoid confusion with the main program.
+% Units must be specified in megawatts per m^2.
+
+hflx
+A=.367E-6%megawatts
+X0=95E3%distance of leftmost edge of model from ridge in m
+SPREADRATE=28.57%spreading rate in mm/yr=km/Ma
+
+AGE=@(x)(1./(SPREADRATE.*1E3)).*(x+X0)%age in Ma
+HFLX=@(x,y,z)A./AGE(x).^(.5)
+stop

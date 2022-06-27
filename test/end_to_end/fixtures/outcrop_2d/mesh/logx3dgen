@@ -1,0 +1,43 @@
+cmo/create/bigmesh///triplane                                                   
+cmo/select/bigmesh                                                              
+cmo/setatt/bigmesh/ipolydat/no                                                  
+define/ymax/6000.                                                               
+define/sf/4000.                                                                 
+define/sbi/3650.                                                                
+define/aq_base/3050.                                                            
+define/aq_bot/2800.                                                             
+define/base_mid1/2100.                                                          
+define/base_mid2/1400.                                                          
+define/base_bot/0.                                                              
+define/ed_top/4400.                                                             
+define/ed_topwidth/1000.                                                        
+define/ed_sfwidth/2000.                                                         
+createpts/xyz/1 13 9/0. 0. ed_top/0. ymax aq_bot/1 1 1                          
+createpts/xyz/1 7 1/0. 0. base_mid1/0. ymax base_mid1/1 1 1                     
+createpts/xyz/1 4 1/0. 0. base_mid2/0. ymax base_mid2/1 1 1                     
+createpts/xyz/1 4 1/0. 0. base_bot/0. ymax base_bot/1 1 1                       
+surface/s_sf/interface/plane/0 0 sf/100 0 sf/100 100 sf                         
+surface/s_sbi/intrface/plane/0.,0.,sbi/100.,0.,sbi/100.,100.,sbi/               
+surface/s_aq_base/intrface/plane/0.,0.,aq_base/100.,0.,aq_base/100.,100.,aq_base
+/                                                                               
+surface/s_edy/interface/plane/0. ed_topwidth 4510./ed_sfwidth ed_sfwidth 4010./0
+. ed_sfwidth 4010./                                                             
+region/r_ed/ge s_aq_base and le s_edy                                           
+region/r_null/gt s_sf and not r_ed                                              
+pset/p_null/region/r_null                                                       
+rmpoint/pset get p_null                                                         
+filter/1 0 0/1E-3                                                               
+rmpoint/compress                                                                
+connect                                                                         
+mregion/m_sed/gt s_sbi and not r_ed                                             
+mregion/m_ed/r_ed                                                               
+mregion/m_aq/lt s_sbi and gt s_aq_base and not r_ed                             
+mregion/m_base/lt s_aq_base                                                     
+eltset/e_null/region/r_null                                                     
+rmpoint/element/eltset get e_null                                               
+setpts                                                                          
+settets                                                                         
+resetpts/itp                                                                    
+dump/gmv/outcrop_2d.gmv/bigmesh                                                 
+dump/fehm/outcrop_2d/bigmesh/ascii                                              
+finish                                                                          

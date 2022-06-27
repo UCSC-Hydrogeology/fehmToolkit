@@ -1,0 +1,299 @@
+ 
+ 
+*               * * * * * * * * * * * * * * * * * * * * * * * *                 
+*               *                                             *                 
+*               *    Program:  LaGriT V2.200   Linux m32      *                 
+*               *    date_compile: 2010/11/22                 *                 
+ 
+WARNING: code expiration date has passed.                                       
+WARNING: code expiration date has passed.                                       
+ 
+ 
+*               *    Run Time: 2022/05/23  06:19:17           *                 
+*               *    Manual:   http://lagrit.lanl.gov         *                 
+*               *                                             *                 
+*               * * * * * * * * * * * * * * * * * * * * * * * *                 
+ 
+                               -----oOo-----                                    
+LaGriT Copyright: This program was prepared by Los Alamos National Security, LLC
+at Los Alamos National Laboratory (LANL) under contract No. DE-AC52-06NA25396   
+with the U.S. Department of Energy (DOE). All rights in the program are reserved
+by the DOE and Los Alamos National Security, LLC. Permission is granted to the  
+public to copy and use this software without charge, provided that this Notice  
+and any statement of authorship are reproduced on all copies. Neither the       
+U.S. Government nor LANS makes any warranty, express or implied, or assumes     
+any liability or responsibility for the use of this software.                   
+                               -----oOo-----                                    
+ 
+ 
+Output log file: outx3dgen                                                      
+Command log file: logx3dgen                                                     
+ 
+*-----------------------------box.lgi----------------------                     
+*                                                                               
+* Lagrit input file for idealized three-dimensional                             
+* seafloor grid for tutorial purposes. Mesh dimensions                          
+* are 10km x 10km x 4km, with sediment, aquifer, and                            
+* conductive basement layers.                                                   
+*                                                                               
+*------------------------------------------------------------                   
+*                                                                               
+* ----                                                                          
+* MESH                                                                          
+* ----                                                                          
+*                                                                               
+cmo/create/1km_mesh                                                             
+cmo/select/1km_mesh                                                             
+cmo/setatt/1km_mesh/ipolydat/no                                                 
+npoints = 0 in subroutine cmo_setatt                                            
+Warning: nelements = 0                                                          
+         1 values reset for attribute ipolydat                                  
+ 
+*                                                                               
+* -----------                                                                   
+* DEFINITIONS                                                                   
+* -----------                                                                   
+define/xmin/0.                                                                  
+define/xmax/1000.                                                               
+define/ymin/0.                                                                  
+define/ymax/1000.                                                               
+*                                                                               
+define/sf/4000.                                                                 
+define/sbi/3550.                                                                
+define/aq_base/2950.                                                            
+*                                                                               
+define/sed_mid/3800.                                                            
+define/sed_bot/3575.                                                            
+define/aq0-300_top/3525.                                                        
+define/aq0-300_bot/3325.                                                        
+define/aq300-600_top/3175.                                                      
+define/aq300-600_bot/3025.                                                      
+define/base_top/2875.                                                           
+define/base_mid1/2100.                                                          
+define/base_mid2/1400.                                                          
+define/base_bot/0.                                                              
+*                                                                               
+*                                                                               
+* ---------                                                                     
+* POINTSETS                                                                     
+* ---------                                                                     
+* Sediment main                                                                 
+createpts/xyz/3 3 2/xmin ymin sf/xmax ymax sed_mid/1 1 1                        
+  RZ GENERATED POINTS                    1 TO                   18              
+*                                                                               
+* Sediment bottom                                                               
+createpts/xyz/5 5 1/xmin ymin sed_bot/xmax ymax sed_bot/1 1 1                   
+  RZ GENERATED POINTS                   19 TO                   43              
+*                                                                               
+* Aquifer 0-300m                                                                
+createpts/xyz/5 5 3/xmin ymin aq0-300_top/xmax ymax aq0-300_bot/1 1 1           
+  RZ GENERATED POINTS                   44 TO                  118              
+*                                                                               
+* Aquifer 300-600m                                                              
+createpts/xyz/5 5 2/xmin ymin aq300-600_top/xmax ymax aq300-600_bot/1 1 1       
+  RZ GENERATED POINTS                  119 TO                  168              
+*                                                                               
+* Basement top                                                                  
+createpts/xyz/3 3 1/xmin ymin base_top/xmax ymax base_top/1 1 1                 
+  RZ GENERATED POINTS                  169 TO                  177              
+*                                                                               
+* Basement mid1                                                                 
+createpts/xyz/3 3 1/xmin ymin base_mid1/xmax ymax base_mid1/1 1 1               
+  RZ GENERATED POINTS                  178 TO                  186              
+*                                                                               
+* Basement mid2                                                                 
+createpts/xyz/2 2 1/xmin ymin base_mid2/xmax ymax base_mid2/1 1 1               
+  RZ GENERATED POINTS                  187 TO                  190              
+*                                                                               
+* Basement bottom                                                               
+createpts/xyz/2 2 1/xmin ymin base_bot/xmax ymax base_bot/1 1 1                 
+  RZ GENERATED POINTS                  191 TO                  194              
+*                                                                               
+*                                                                               
+* --------                                                                      
+* SURFACES                                                                      
+* --------                                                                      
+surface/s_sf/intrface/plane/0.,0.,sf/100.,0.,sf/100.,100.,sf/                   
+  The unit vector for s_sf     is  0.0000000i   0.0000000j   1.0000000k         
+surface/s_sbi/intrface/plane/0.,0.,sbi/100.,0.,sbi/100.,100.,sbi/               
+  The unit vector for s_sbi    is  0.0000000i   0.0000000j   1.0000000k         
+surface/s_aq_base/intrface/plane/0.,0.,aq_base/100.,0.,aq_base/100.,100.,aq_base
+/                                                                               
+  The unit vector for s_aq_bas is  0.0000000i   0.0000000j   1.0000000k         
+*                                                                               
+*                                                                               
+* -------                                                                       
+* REGIONS                                                                       
+* -------                                                                       
+region/r_sed/gt s_sbi and le s_sf                                               
+region/r_aq/lt s_sbi and gt s_aq_base                                           
+region/r_base/lt s_aq_base                                                      
+*                                                                               
+*                                                                               
+* ---------                                                                     
+* M-REGIONS                                                                     
+* ---------                                                                     
+* SEDIMENT                                                                      
+mregion/m_sed/r_sed                                                             
+mregion/m_aq/r_aq                                                               
+mregion/m_base/r_base                                                           
+*                                                                               
+*                                                                               
+* -------                                                                       
+* CLEANUP                                                                       
+* -------                                                                       
+filter/1 0 0/2.0                                                                
+ 
+FILTER:User specified value =    0.200000000000E+01                             
+ 
+FILTER:Dudding      0 duplicate points.                                         
+rmpoint/compress                                                                
+         0 points removed and          0 elements removed.                      
+   The new point count is       194.                                            
+   The new element count is         0.                                          
+setpts                                                                          
+ FOR imt=   1 NAME= m_sed    THERE ARE              43 POINTS                   
+ FOR imt=   2 NAME= m_aq     THERE ARE             125 POINTS                   
+ FOR imt=   3 NAME= m_base   THERE ARE              26 POINTS                   
+*                                                                               
+connect/noadd                                                                   
+ Coordinates of enclosing tetrahedron are:                                      
+          -0.20000D+04   -0.75000D+03   -0.30000D+04                            
+           0.50000D+03   -0.75000D+03    0.17000D+05                            
+           0.30000D+04   -0.75000D+03   -0.30000D+04                            
+           0.50000D+03    0.42500D+04    0.20000D+04                            
+ 
+ The mesh is now complete!                                                      
+ 
+settets                                                                         
+ Multimaterial tet:          6 itet=        31        51        52        27    
+ Multimaterial tet:         11 itet=        24        44        45        20    
+ Multimaterial tet:         13 itet=        50        49        44        24    
+ Multimaterial tet:         15 itet=       156       161       173       160    
+ Multimaterial tet:         31 itet=       176       161       162       166    
+ Multimaterial tet:         36 itet=       160       173       172       176    
+ Multimaterial tet:         51 itet=        37        62        31        61    
+ Multimaterial tet:         54 itet=        30        54        24        29    
+ Multimaterial tet:         57 itet=        51        21        46        47    
+ Multimaterial tet:         59 itet=        51        50        26        30    
+ Multimaterial tet:         65 itet=        68        43        67        37    
+ Multimaterial tet:         67 itet=        55        50        51        30    
+ Multimaterial tet:         69 itet=        55        50        30        24    
+ Multimaterial tet:         70 itet=        61        41        67        66    
+ Multimaterial tet:         72 itet=        55        34        54        30    
+ Multimaterial tet:         76 itet=        52        27        21        47    
+ Multimaterial tet:         77 itet=        60        34        64        59    
+ Multimaterial tet:         86 itet=       171       153       174       152    
+ Multimaterial tet:         90 itet=       174       153       158       157    
+ Multimaterial tet:         92 itet=        43        42        67        37    
+ Multimaterial tet:        100 itet=        24        25        20        50    
+ Multimaterial tet:        102 itet=       149       169       145       144    
+ Multimaterial tet:        104 itet=       176       160       166       165    
+ Multimaterial tet:        105 itet=       159       160       172       175    
+ Multimaterial tet:        122 itet=       173       151       156       150    
+ Multimaterial tet:        125 itet=       170       151       173       150    
+ Multimaterial tet:        128 itet=        57        37        58        62    
+ Multimaterial tet:        134 itet=        26        25        50        20    
+ Multimaterial tet:        135 itet=        30        34        54        29    
+ Multimaterial tet:        144 itet=        60        54        55        34    
+ 
+There are    150  multimaterial tets.                                           
+resetpts/itp                                                                    
+geniee                                                                          
+finish                                                                          
+*                                                                               
+dump/gmv/flat_box.gmv/1km_mesh                                                  
+cmo/modatt/-def-/-def-/ioflag/x                                                 
+finish                                                                          
+dump/fehm/flat_box/1km_mesh/ascii                                               
+*** Write FEHMN GEOM AND ZONE FILES ***                                         
+*********dump_material_lists********                                            
+Minimum material ID value =      1                                              
+Maximum material ID value =      3                                              
+Total possible materials  =      3                                              
+Material           1 has        43 nodes. #nodes/nnodes is   0.221649500000     
+Material           2 has       125 nodes. #nodes/nnodes is   0.644329900000     
+Material           3 has        26 nodes. #nodes/nnodes is   0.134020610000     
+*********dump_interface_list********                                            
+Interface material         1 has        44 nodes.                               
+Interface material         2 has        56 nodes.                               
+Interface material         3 has        39 nodes.                               
+*********dump_multi_material_list********                                       
+Material         1 has        79 multi-material connections.                    
+Material         2 has       128 multi-material connections.                    
+Material         3 has        49 multi-material connections.                    
+log/tty/off                                                                     
+finish                                                                          
+*********dump_outside_list********                                              
+Voronoi Areas used for outside faces.                                           
+ 
+assign_quadrant_id epsilon for zero:   1.0000000E-15                            
+cmo/addatt/1km_mesh/top/vint/scalar/nnodes/linear/permanent/afgx/-5.0/          
+finish                                                                          
+Face top           1 has         9 nodes.                                       
+top        Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.2000000E+06   0.2000000E+06   0.1000000E+07            
+cmo/addatt/1km_mesh/bottom/vint/scalar/nnodes/linear/permanent/afgx/-5.0/       
+finish                                                                          
+Face bottom        2 has         4 nodes.                                       
+bottom     Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.1400000E+07   0.1400000E+07   0.1000000E+07            
+cmo/addatt/1km_mesh/left_w/vint/scalar/nnodes/linear/permanent/afgx/-5.0/       
+finish                                                                          
+Face left_w        3 has        46 nodes.                                       
+left_w     Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.4000000E+07   0.2602579E+07   0.7500000E+06            
+cmo/addatt/1km_mesh/right_e/vint/scalar/nnodes/linear/permanent/afgx/-5.0/      
+finish                                                                          
+Face right_e       5 has        46 nodes.                                       
+right_e    Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.4000000E+07   0.2602579E+07   0.7500000E+06            
+cmo/addatt/1km_mesh/back_n/vint/scalar/nnodes/linear/permanent/afgx/-5.0/       
+finish                                                                          
+Face back_n        6 has        46 nodes.                                       
+back_n     Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.2602579E+07   0.4000000E+07   0.7500000E+06            
+cmo/addatt/1km_mesh/front_s/vint/scalar/nnodes/linear/permanent/afgx/-5.0/      
+finish                                                                          
+Face front_s       4 has        46 nodes.                                       
+front_s    Sum Voronoi      Area_x          Area_y          Area_z              
+                       0.2602579E+07   0.4000000E+07   0.7500000E+06            
+cmo/DELATT//top                                                                 
+finish                                                                          
+cmo/DELATT//bottom                                                              
+finish                                                                          
+cmo/DELATT//left_w                                                              
+finish                                                                          
+cmo/DELATT//right_e                                                             
+finish                                                                          
+cmo/DELATT//back_n                                                              
+finish                                                                          
+cmo/DELATT//front_s                                                             
+finish                                                                          
+log/tty/on                                                                      
+finish                                                                          
+*********dump_parent_list********                                               
+ 
+*** Construct and Compress Sparse Matrix:3D ***                                 
+   *** Compress Area Coefficient Values ***                                     
+AMatbld3d_stor: *****Zero Negative Coefficients ******                          
+AMatbld3d_stor: Number of 'zero' (< 10e-8*max) coefs       0                    
+AMatbld3d_stor: npoints =      194  n connections =       1340                  
+AMatbld3d_stor: Number of written coefs =        42                             
+AMatbld3d_stor: Maximum num. connections to a node =         15                 
+AMatbld3d_stor: Volume min =   1.1718750E+06                                    
+AMatbld3d_stor: Volume max =   2.4017857E+08                                    
+AMatbld3d_stor: Total Volume:   4.0000000E+09                                   
+AMatbld3d_stor: abs(Aij/xij) min =   0.0000000E+00                              
+AMatbld3d_stor: abs(Aij/xij) max =   1.2500000E+03                              
+AMatbld3d_stor: (Aij/xij) max =   0.0000000E+00                                 
+AMatbld3d_stor: (Aij/xij) min =  -1.2500000E+03                                 
+Compression used for graph and coefficient values                               
+The area coefficient values were written as scalar area/distance                
+ascii STOR file written with name flat_box.stor                                 
+ 
+*** SPARSE COEFFICIENT MATRIX _astor SUCCESSFUL ***                             
+ 
+*                                                                               
+finish                                                                          
+LaGriT successfully completed                                                   
