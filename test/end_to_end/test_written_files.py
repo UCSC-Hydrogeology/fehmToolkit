@@ -197,4 +197,4 @@ def test_generate_hydrostatic_pressure(tmp_path, end_to_end_fixture_dir, mesh_na
 
     fixture_pressure = read_pressure(fixture_file)
     output_pressure = read_pressure(output_file)
-    assert_array_almost_equal(fixture_pressure, output_pressure, 2)
+    assert_array_almost_equal(fixture_pressure, output_pressure, 1)
