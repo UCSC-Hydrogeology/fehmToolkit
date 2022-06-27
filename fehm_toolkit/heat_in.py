@@ -121,7 +121,10 @@ def _get_2d_axis_or_none(plot_data: pd.DataFrame) -> str:
 
 
 def get_heatflux_models_by_kind() -> dict[str, Callable]:
-    return {'crustal_age': _crustal_age_heatflux}
+    return {
+        'crustal_age': _crustal_age_heatflux,
+        'constant_MW_per_m2': _constant_MW_per_m2,
+    }
 
 
 def _crustal_age_heatflux(node: Node, params: dict) -> float:
@@ -130,6 +133,10 @@ def _crustal_age_heatflux(node: Node, params: dict) -> float:
     age_ma = 1 / (params['spread_rate_mm_per_year'] * 1E3) * distance_from_ridge_m
     heatflux_per_m2 = params['coefficient_MW'] / age_ma ** 0.5
     return -abs(node.outside_area.z * heatflux_per_m2)
+
+
+def _constant_MW_per_m2(node: Node, params: dict) -> float:
+    return -abs(node.outside_area.z * params['constant'])
 
 
 if __name__ == '__main__':

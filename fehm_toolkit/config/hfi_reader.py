@@ -25,6 +25,17 @@ def read_legacy_hfi_config(hfi_file: Path) -> dict:
             },
         }
 
+    constant = _get_constant_or_none(processed_text)
+    if constant is not None:
+        return {
+            'heatflux': {
+                'model_kind': 'constant_MW_per_m2',
+                'model_params': {
+                    'constant': constant,
+                }
+            }
+        }
+
     raise NotImplementedError(f'No model matched for {hfi_file}. File format not supported.')
 
 
@@ -88,3 +99,10 @@ def _read_and_process_hfi(hfi_file: Path) -> str:
         raise NotImplementedError(f'File ({hfi_file}) read no text, file format not supported.')
 
     return processed_text
+
+
+def _get_constant_or_none(processed_text: str) -> float:
+    match = re.search(fr'HFLX=@\(x,y,z\)({NUMERIC_PATTERN})(?:;|\n)', processed_text)
+    if match is None:
+        return None
+    return float(match.group(1))

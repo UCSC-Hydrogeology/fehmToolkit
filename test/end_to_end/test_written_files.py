@@ -17,119 +17,69 @@ from fehm_toolkit.utilities import (
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.parametrize(
-    'model_name, model_root',
-    (
-        # TODO(dustin): replace these with small custom grids
-        ('np2d_cond', 'cond'),
-        ('np2d_p11', 'run'),
-        ('jdf2d_p12', 'p12'),
-        ('jdf3d_p12d_g981', 'p12d_g981'),
-        ('jdf3d_p12', 'p12'),
-        ('jdf3d_conduit_p12', 'p12'),
-        ('np3d_cond', 'run'),
-    )
-)
-def test_heat_in_against_fixture(tmpdir, matlab_fixture_dir, model_name, model_root):
-    model_dir = matlab_fixture_dir / model_name
+@pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
+def test_heat_in_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
+    output_file = tmp_path / 'output.hflx'
+
     generate_input_heatflux_file(
-        config_file=model_dir / f'{model_root}.hfi',
-        fehm_file=model_dir / f'{model_root}.fehm',
-        outside_zone_file=model_dir / f'{model_root}_outside.zone',
-        area_file=model_dir / f'{model_root}.area',
-        output_file=tmpdir / 'output.hflx',
+        config_file=model_dir / 'cond.hfi',
+        fehm_file=model_dir / 'cond.fehm',
+        outside_zone_file=model_dir / 'cond_outside.zone',
+        area_file=model_dir / 'cond.area',
+        output_file=output_file,
     )
 
-    with open(model_dir / f'{model_root}.hflx') as fixture_file:
-        expected = fixture_file.read()
-
-    with open(tmpdir / 'output.hflx') as output_file:
-        actual = output_file.read()
-
-    assert actual == expected
+    fixture_file = model_dir / 'cond.hflx'
+    assert output_file.read_text() == fixture_file.read_text()
 
 
-@pytest.mark.parametrize(
-    'model_name, model_root',
-    (
-        # TODO(dustin): replace these with small custom grids
-        ('np2d_cond', 'cond'),
-        ('np2d_p11', 'run'),
-        ('jdf3d_p12d_g981', 'p12d_g981'),
-
-        # Fails on ppor file due to bugs in fixture version which have been addressed
-        # jdf runs also fail on cond due to small expected variation in ctr2tcon calculation
-        # ('np3d_cond', 'run'),
-        # ('jdf2d_p12', 'p12'),
-        # ('jdf3d_p12', 'p12'),
-    )
-)
-def test_rock_properties_against_fixture(tmpdir, matlab_fixture_dir, model_name, model_root):
-    logger.info(f'Generating rock properties files ({model_name}).')
-    model_dir = matlab_fixture_dir / model_name
+@pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
+def test_rock_properties_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
+    logger.info(f'Generating rock properties files ({mesh_name}).')
+    model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     generate_rock_properties_files(
-        config_file=model_dir / f'{model_root}.rpi',
-        fehm_file=model_dir / f'{model_root}.fehm',
-        outside_zone_file=model_dir / f'{model_root}_outside.zone',
-        material_zone_file=model_dir / f'{model_root}_material.zone',
-        cond_output_file=tmpdir / 'output.cond',
-        perm_output_file=tmpdir / 'output.perm',
-        ppor_output_file=tmpdir / 'output.ppor',
-        rock_output_file=tmpdir / 'output.rock',
+        config_file=model_dir / 'cond.rpi',
+        fehm_file=model_dir / 'cond.fehm',
+        outside_zone_file=model_dir / 'cond_outside.zone',
+        material_zone_file=model_dir / 'cond_material.zone',
+        cond_output_file=tmp_path / 'output.cond',
+        perm_output_file=tmp_path / 'output.perm',
+        ppor_output_file=tmp_path / 'output.ppor',
+        rock_output_file=tmp_path / 'output.rock',
     )
 
     for output_extension in ('cond', 'perm', 'ppor', 'rock'):
-        if model_name == 'jdf3d_p12d_g981' and output_extension == 'cond':
-            logger.info('Skipping file check (%s, %s), small variation expected.', model_name, output_extension)
-            continue
-
         logger.info(f'Comparing output for {output_extension} file.')
-        with open(model_dir / f'{model_root}.{output_extension}') as fixture_file:
-            expected = fixture_file.read()
-
-        with open(tmpdir / f'output.{output_extension}') as output_file:
-            actual = output_file.read()
-
-        equal = actual == expected
-        assert equal
+        output_file = tmp_path / f'output.{output_extension}'
+        fixture_file = model_dir / f'cond.{output_extension}'
+        assert output_file.read_text() == fixture_file.read_text()
 
 
-@pytest.mark.parametrize(
-    'model_name, model_root',
-    (
-        # TODO(dustin): replace these with small custom grids
-        ('np2d_cond', 'cond'),
-        ('np2d_p11', 'run'),
-        ('jdf3d_p12d_g981', 'p12d_g981'),
-        ('jdf3d_deep_p11ani', 'p11d600efto_GBv10BBv10_g981'),
-        ('np3d_cond', 'run'),
-        ('np3d_p11', 'run'),
-    )
-)
-def test_append_zones_against_fixture(tmpdir, matlab_fixture_dir, model_name, model_root):
-    model_dir = matlab_fixture_dir / model_name
+@pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
+def test_append_zones_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
+    output_file = tmp_path / 'output.zone'
     combined_zones = append_zones(
         zone_keys_to_add=('top', 'bottom'),
-        add_zones_from_file=model_dir / f'{model_root}_outside.zone',
-        add_zones_to_file=model_dir / f'{model_root}_material.zone',
+        add_zones_from_file=model_dir / 'cond_outside.zone',
+        add_zones_to_file=model_dir / 'cond_material.zone',
     )
-    write_zones(combined_zones, tmpdir / 'output.zone', include_zone_names=False)
+    write_zones(combined_zones, output_file, include_zone_names=False)
 
-    # Zone file manually fixed with ending newline and longer spacing on node counts for appended zones
-    with open(model_dir / f'{model_root}.zone_fixed') as fixture_file:
-        expected = fixture_file.read()
-
-    with open(tmpdir / 'output.zone') as output_file:
-        actual = output_file.read()
-
-    assert actual == expected
+    fixture_file = model_dir / 'cond.zone'
+    assert output_file.read_text() == fixture_file.read_text()
 
 
-def test_create_restart_from_avs_against_fixture(tmp_path, matlab_fixture_dir):
-    model_dir = matlab_fixture_dir / 'jdf2d_p12'
+@pytest.mark.parametrize('mesh_name, model_name, avs_number', (
+    ('flat_box', 'p12', 11),
+    ('outcrop_2d', 'p13', 2),
+))
+def test_create_restart_from_avs_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name, avs_number):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
     state, metadata = create_restart_from_avs(
-        avs_file=model_dir / 'p12.00014_sca_node.avs',
-        base_restart_file=model_dir / 'p12.ini',
+        avs_file=model_dir / f'{model_name}.{avs_number:05d}_sca_node.avs',
+        base_restart_file=model_dir / f'{model_name}.ini',
     )
     output_file = tmp_path / 'test.fin'
     fixture_file = model_dir / 'avs2fin_fixture.fin'
@@ -140,18 +90,19 @@ def test_create_restart_from_avs_against_fixture(tmp_path, matlab_fixture_dir):
 
 
 @pytest.mark.parametrize(
-    'model_name, model_root', (
-        # TODO(dustin): replace these with small custom grids
-        ('np2d_cond', 'cond'),
-        ('jdf2d_p12', 'p12'),
+    'mesh_name, model_name', (
+        ('flat_box', 'cond'),
+        ('outcrop_2d', 'cond'),
+        ('outcrop_2d', 'p13'),
+        ('warped_box', 'cond'),
     )
 )
-def test_create_restart_from_restart_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
-    model_dir = matlab_fixture_dir / model_name
-    state, metadata = create_restart_from_restart(model_dir / f'{model_root}.fin', reset_model_time=True)
+def test_create_restart_from_restart_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
+    state, metadata = create_restart_from_restart(model_dir / f'{model_name}.fin', reset_model_time=True)
 
     output_file = tmp_path / 'test.fin'
-    fixture_file = model_dir / 'fin2ini_fixture_1.ini'
+    fixture_file = model_dir / 'fin2ini_fixture.ini'
 
     write_restart(state, metadata, output_file=output_file)
 
@@ -159,21 +110,20 @@ def test_create_restart_from_restart_against_fixture(tmp_path, matlab_fixture_di
 
 
 @pytest.mark.parametrize(
-    'model_name, model_root', (
-        # TODO(dustin): replace these with small custom grids
-        ('np2d_cond', 'cond'),
-        ('jdf2d_p12', 'p12'),
+    'mesh_name, model_name', (
+        ('flat_box', 'cond'),
+        ('outcrop_2d', 'cond'),
     )
 )
-def test_create_restart_from_pressure_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
-    model_dir = matlab_fixture_dir / model_name
+def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
     state, metadata = create_restart_from_restart(
-        base_restart_file=model_dir / f'{model_root}.fin',
+        base_restart_file=model_dir / f'{model_name}.fin',
         reset_model_time=True,
-        pressure_file=model_dir / f'{model_root}.iap'
+        pressure_file=model_dir / f'{model_name}.iap'
     )
 
-    output_file = tmp_path / 'test.fin'
+    output_file = tmp_path / 'test.ini'
     fixture_file = model_dir / 'iap2ini_fixture.ini'
 
     write_restart(state, metadata, output_file=output_file)
@@ -182,20 +132,23 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, matlab_fixture_d
 
 
 @pytest.mark.parametrize(
-    'model_name, model_root', (
-        ('np2d_cond', 'cond'),
-        ('jdf3d_p12d_g981', 'p12d_g981'),
+    'mesh_name, model_name', (
+        ('flat_box', 'cond'),
+        ('flat_box', 'p12'),
+        ('outcrop_2d', 'cond'),
+        ('outcrop_2d', 'p13'),
+        ('warped_box', 'cond'),
     )
 )
-def test_write_modified_fehm_input_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
-    model_dir = matlab_fixture_dir / model_name
+def test_write_modified_fehm_input_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
     output_file = tmp_path / 'test.dat'
     file_extensions = {'perm', 'rock', 'cond', 'ppor', 'hflx', 'flow'}
 
     write_modified_fehm_input_file(
-        base_control_file=model_dir / f'{model_root}.dat',
+        base_fehm_input_file=model_dir / f'{model_name}.dat',
         out_file=output_file,
-        file_mapping={f'{model_root}.{ext}': f'test.{ext}' for ext in file_extensions},
+        file_mapping={f'{model_name}.{ext}': f'test.{ext}' for ext in file_extensions},
     )
 
     fixture_file = model_dir / 'datcopy_fixture.dat'
@@ -203,17 +156,20 @@ def test_write_modified_fehm_input_against_fixture(tmp_path, matlab_fixture_dir,
 
 
 @pytest.mark.parametrize(
-    'model_name, model_root', (
-        ('np2d_cond', 'cond'),
-        ('jdf3d_p12d_g981', 'p12d_g981'),
+    'mesh_name, model_name', (
+        ('flat_box', 'cond'),
+        ('flat_box', 'p12'),
+        ('outcrop_2d', 'cond'),
+        ('outcrop_2d', 'p13'),
+        ('warped_box', 'cond'),
     )
 )
-def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, matlab_fixture_dir, model_name, model_root):
-    model_dir = matlab_fixture_dir / model_name
+def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
     output_file = tmp_path / 'test.dat'
 
     write_modified_fehm_input_file(
-        base_control_file=model_dir / f'{model_root}.dat',
+        base_fehm_input_file=model_dir / f'{model_name}.dat',
         out_file=output_file,
         initial_timestep_days=7300,
         initial_simulation_time_days=1234,
@@ -223,35 +179,21 @@ def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, matlab_
     assert output_file.read_text() == fixture_file.read_text()
 
 
-@pytest.mark.parametrize(
-    'model_name, model_root, fixture_filename', (
-        # ('jdf2d_p12', 'p12', 'rerun_2022.iap'),
-        # ('np2d_cond', 'cond', 'cond.iap'),
-        ('jdf3d_p12d_g981', 'p12d_g981', 'rerun_2022.iap'),
-    )
-)
-def test_generate_hydrostatic_pressure(tmp_path, matlab_fixture_dir, model_name, model_root, fixture_filename):
-    model_dir = matlab_fixture_dir / model_name
+@pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
+def test_generate_hydrostatic_pressure(tmp_path, end_to_end_fixture_dir, mesh_name):
+    model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'test.iap'
 
     generate_hydrostatic_pressure_files(
-        config_file=model_dir / f'{model_root}.ipi',
-        fehm_file=model_dir / f'{model_root}.fehm',
-        outside_zone_file=model_dir / f'{model_root}_outside.zone',
-        restart_file=model_dir / f'{model_root}.fin',
-        water_properties_file=matlab_fixture_dir / 'fehm_tutorial' / 'tutWork' / 'cond' / 'cond.wpi',
+        config_file=model_dir / 'cond.ipi',
+        fehm_file=model_dir / 'cond.fehm',
+        outside_zone_file=model_dir / 'cond_outside.zone',
+        restart_file=model_dir / 'cond.fin',
+        water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
         pressure_output_file=output_file,
     )
-    fixture_file = model_dir / fixture_filename
-
-    from pathlib import Path  # remove this block when done with debugging 
-    desktop_output = Path("/Users/dustin/Desktop/ipres/") / model_name / 'test.iap'
-    desktop_output.write_text(output_file.read_text())
-    desktop_initial = Path("/Users/dustin/Desktop/ipres/") / model_name / f'{model_root}.iap'
-    desktop_initial.write_text(fixture_file.read_text())
+    fixture_file = model_dir / 'cond.iap'
 
     fixture_pressure = read_pressure(fixture_file)
     output_pressure = read_pressure(output_file)
-
-    import ipdb; ipdb.set_trace()  # breakpoint 8c8549b1 //
-    assert_array_almost_equal(fixture_pressure, output_pressure, 1)
+    assert_array_almost_equal(fixture_pressure, output_pressure, 2)
