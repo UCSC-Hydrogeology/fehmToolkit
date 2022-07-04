@@ -5,9 +5,8 @@ from typing import Callable, Optional, Sequence
 
 import numpy as np
 from scipy import interpolate
-import yaml
 
-from .config import ModelConfig, PressureConfig
+from .config import ModelConfig, PressureConfig, RunConfig
 from .fehm_objects import Grid, State
 from .file_interface import read_grid, read_nist_lookup_table, read_restart, write_pressure
 from .file_interface.legacy_config import read_legacy_ipi_config
@@ -280,15 +279,13 @@ def _get_coordinate_and_temperature_arrays(
     return np.array(coordinates), np.array(temperatures)
 
 
-def _read_pressure_config(config_file: Path):
-    with open(config_file) as f:
-        config = yaml.load(f, Loader=yaml.Loader)
-
-    if not isinstance(config, dict):
+def _read_pressure_config(config_file: Path) -> PressureConfig:
+    try:
+        config = RunConfig.from_yaml(config_file)
+        return config.pressure_config
+    except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
         logger.info(f'Format for {config_file} is not YAML, trying legacy reader.')
         return read_legacy_ipi_config(config_file)
-
-    return config.pressure_config
 
 
 def _read_density_lookup(water_properties_file: Path):
