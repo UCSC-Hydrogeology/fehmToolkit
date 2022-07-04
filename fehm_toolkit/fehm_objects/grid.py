@@ -45,6 +45,11 @@ class Grid:
     def nodes(self) -> Iterable[Node]:
         return self._nodes_by_number.values()
 
+    def validate_contains_node_numbers(self, node_numbers: Iterable[int]) -> bool:
+        missing_nodes = set(node_numbers) - self._nodes_by_number.keys()
+        if missing_nodes:
+            raise ValueError(f'Grid does not contain nodes: {missing_nodes}.')
+
     @property
     def n_elements(self) -> int:
         return len(self._elements_by_number)

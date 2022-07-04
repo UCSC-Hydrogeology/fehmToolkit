@@ -5,7 +5,7 @@ import pytest
 
 from fehm_toolkit.file_interface import read_pressure, write_restart, write_zones
 from fehm_toolkit.heat_in import generate_input_heatflux_file
-from fehm_toolkit.hydrostatic_pressure import generate_hydrostatic_pressure_files
+from fehm_toolkit.hydrostatic_pressure import generate_hydrostatic_pressure_file
 from fehm_toolkit.rock_properties import generate_rock_properties_files
 from fehm_toolkit.utilities import (
     append_zones,
@@ -184,16 +184,17 @@ def test_generate_hydrostatic_pressure(tmp_path, end_to_end_fixture_dir, mesh_na
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'test.iap'
 
-    generate_hydrostatic_pressure_files(
+    generate_hydrostatic_pressure_file(
         config_file=model_dir / 'cond.ipi',
         fehm_file=model_dir / 'cond.fehm',
+        material_zone_file=model_dir / 'cond_material.zone',
         outside_zone_file=model_dir / 'cond_outside.zone',
         restart_file=model_dir / 'cond.fin',
         water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
-        pressure_output_file=output_file,
+        output_file=output_file,
     )
     fixture_file = model_dir / 'cond.iap'
 
     fixture_pressure = read_pressure(fixture_file)
     output_pressure = read_pressure(output_file)
-    assert_array_almost_equal(fixture_pressure, output_pressure, 2)
+    assert_array_almost_equal(fixture_pressure, output_pressure, 1)
