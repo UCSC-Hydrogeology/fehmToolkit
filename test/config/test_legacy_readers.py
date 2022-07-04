@@ -1,11 +1,11 @@
 from fehm_toolkit.config import (
     ModelConfig,
     PropertyConfig,
-    read_legacy_rpi_config,
 )
 from fehm_toolkit.file_interface.legacy_config import (
     read_legacy_hfi_config,
     read_legacy_ipi_config,
+    read_legacy_rpi_config,
 )
 
 
@@ -63,624 +63,58 @@ def test_read_legacy_ipi_config_np(fixture_dir):
 
 def test_read_legacy_rpi_config_jdf(fixture_dir):
     config = read_legacy_rpi_config(fixture_dir / 'legacy_jdf.rpi')
-    assert config == {
-        "rock_properties":
-        {
-            "zone_assignment_order": [1, 2, 3, 4, 5],
-            "zone_configs_by_zone": {
-                1: {
-                    "porosity":
-                    {
-                        "model_kind": "depth_exponential_with_maximum",
-                        "model_params":
-                        {
-                            "porosity_a": 0.84,
-                            "porosity_b": -0.125
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "ctr2tcon",
-                        "model_params":
-                        {
-                            "node_depth_columns":
-                            [
-                                [
-                                    0,
-                                    100,
-                                    200,
-                                    300,
-                                    425,
-                                    450
-                                ],
-                                [
-                                    0,
-                                    200,
-                                    425,
-                                    450
-                                ],
-                                [
-                                    0,
-                                    425,
-                                    450
-                                ]
-                            ],
-                            "ctr_model":
-                            {
-                                "model_kind": "polynomial",
-                                "model_params":
-                                {
-                                    "x^0": 0,
-                                    "x^1": 0.603,
-                                    "x^2": 0.000531,
-                                    "x^3": -6.84E-7
-                                }
-                            }
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "void_ratio_power_law",
-                        "model_params":
-                        {
-                            "A": 3.66E-18,
-                            "B": 1.68
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "overburden",
-                        "model_params":
-                        {
-                            "a": 0.09,
-                            "grav": 9.81,
-                            "rhow": 1000.0,
-                            "min_overburden": 25.0
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2650.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                2: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.1
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-12
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                3: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.1
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-12
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                4: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.1
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-12
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                5: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.05
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-18
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                }
-            }
-        }
-    }
+    assert config.zone_assignment_order == [1, 2, 3, 4, 5]
+    for property_config in (
+        config.compressibility_configs + config.conductivity_configs + config.permeability_configs
+        + config.grain_density_configs + config.specific_heat_configs + config.porosity_configs
+    ):
+        assert isinstance(property_config, PropertyConfig)
+        for zone in property_config.zones:
+            assert zone in config.zone_assignment_order
+
+    assert config.permeability_configs == [
+        PropertyConfig(
+            property_model=ModelConfig(
+                kind='void_ratio_power_law',
+                params={'A': 3.66E-18, 'B': 1.68},
+            ),
+            zones=[1],
+        ),
+        PropertyConfig(
+            property_model=ModelConfig(kind='constant', params={'constant': 1E-12}),
+            zones=[2, 3, 4],
+        ),
+        PropertyConfig(
+            property_model=ModelConfig(kind='constant', params={'constant': 1E-18}),
+            zones=[5],
+        ),
+    ]
 
 
 def test_read_legacy_rpi_config_np(fixture_dir):
     config = read_legacy_rpi_config(fixture_dir / 'legacy_np.rpi')
-    assert config == {
-        "rock_properties":
-        {
-            "zone_assignment_order": [1, 2, 3, 4, 5, 6],
-            "zone_configs_by_zone": {
-                1: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.62
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.6
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "void_ratio_power_law",
-                        "model_params":
-                        {
-                            "A": 1.1E-17,
-                            "B": 2.2
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "overburden",
-                        "model_params":
-                        {
-                            "a": 0.09,
-                            "grav": 9.81,
-                            "rhow": 1000.0,
-                            "min_overburden": 25.0
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2650.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                2: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.1
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-15
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                3: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.08
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-15
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                4: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.05
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-15
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                5: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.02
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-17
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                },
-                6: {
-                    "porosity":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 0.01
-                        }
-                    },
-                    "conductivity":
-                    {
-                        "model_kind": "porosity_weighted",
-                        "model_params":
-                        {
-                            "water_conductivity": 0.62,
-                            "rock_conductivity": 2.05
-                        }
-                    },
-                    "permeability":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 1E-17
-                        }
-                    },
-                    "compressibility":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 6E-10
-                        }
-                    },
-                    "grain_density":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 2700.0
-                        }
-                    },
-                    "specific_heat":
-                    {
-                        "model_kind": "constant",
-                        "model_params":
-                        {
-                            "constant": 800.0
-                        }
-                    }
-                }
-            }
-        }
-    }
+    assert config.zone_assignment_order == [1, 2, 3, 4, 5, 6]
+    for property_config in (
+        config.compressibility_configs + config.conductivity_configs + config.permeability_configs
+        + config.grain_density_configs + config.specific_heat_configs + config.porosity_configs
+    ):
+        assert isinstance(property_config, PropertyConfig)
+        for zone in property_config.zones:
+            assert zone in config.zone_assignment_order
+
+    assert config.conductivity_configs == [
+        PropertyConfig(
+            property_model=ModelConfig(
+                kind='porosity_weighted',
+                params={'water_conductivity': 0.62, 'rock_conductivity': 2.60},
+            ),
+            zones=[1],
+        ),
+        PropertyConfig(
+            property_model=ModelConfig(
+                kind='porosity_weighted',
+                params={'water_conductivity': 0.62, 'rock_conductivity': 2.05},
+            ),
+            zones=[2, 3, 4, 5, 6],
+        ),
+    ]
