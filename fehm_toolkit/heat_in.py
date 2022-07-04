@@ -7,9 +7,10 @@ from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-from .config import read_legacy_hfi_config
+from .config import HeatFluxConfig, RunConfig
 from .fehm_objects import Grid, Node
 from .file_interface import read_grid, write_compact_node_data
+from .file_interface.legacy_config import read_legacy_hfi_config
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +25,18 @@ def generate_input_heatflux_file(
     plot_result: bool = False,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    config = read_legacy_hfi_config(config_file)  # TODO(dustin): add support for other config file formats
+    try:
+        config = RunConfig.from_yaml(config_file)
+        heat_flux_config = config.heat_flux_config
+    except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
+        logger.info('Invalid yaml, trying legacy reader.')
+        heat_flux_config = read_legacy_hfi_config(config_file)
 
     logger.info('Parsing grid into memory')
     grid = read_grid(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
 
     logger.info('Computing boundary heat flux')
-    heatflux_by_node = compute_boundary_heatflux(grid, config)
+    heatflux_by_node = compute_boundary_heatflux(grid, heat_flux_config)
 
     logger.info(f'Writing heat flux to disk: {output_file}')
     write_compact_node_data(
@@ -44,17 +50,16 @@ def generate_input_heatflux_file(
         plot_heatflux(heatflux_by_node, grid)
 
 
-def compute_boundary_heatflux(grid: Grid, config: dict) -> dict[int, float]:
-    heatflux_config = config['heatflux']
+def compute_boundary_heatflux(grid: Grid, heat_flux_config: HeatFluxConfig) -> dict[int, float]:
     heatflux_models = get_heatflux_models_by_kind()
 
     try:
-        model = heatflux_models[heatflux_config['model_kind']]
+        model = heatflux_models[heat_flux_config.heat_flux_model.kind]
     except KeyError:
-        raise NotImplementedError(f'No model defined for kind "{heatflux_config["model_kind"]}"')
+        raise NotImplementedError(f'No model defined for kind {heat_flux_config.heat_flux_model.kind}')
 
     input_nodes = grid.get_nodes_in_outside_zone('bottom')
-    return {node.number: model(node, heatflux_config['model_params']) for node in input_nodes}
+    return {node.number: model(node, heat_flux_config.heat_flux_model.params) for node in input_nodes}
 
 
 def plot_heatflux(heatflux_by_node: dict[int, float], grid: Grid):
