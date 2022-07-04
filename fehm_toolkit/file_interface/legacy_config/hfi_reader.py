@@ -1,6 +1,8 @@
 from pathlib import Path
 import re
 
+from fehm_toolkit.config import HeatFluxConfig, ModelConfig
+
 CRUSTAL_AGE_MODEL_KIND = 'crustal_age'
 
 CRUSTAL_AGE_MODEL_SIGNATURE = 'HFLX=@(x,y,z)A./AGE(x).^(.5)'
@@ -8,7 +10,7 @@ AGE_SIGN_PATTERN = r'AGE=@\(x\)\(1\.\/\(SPREADRATE\.\*1E3\)\)\.\*\((-?)x\+X0\)'
 NUMERIC_PATTERN = r'(?:(?:\d+\.\d+)|(?:\.{0,1}\d+))(?:(?:e|E)-{0,1}\d+){0,1}'
 
 
-def read_legacy_hfi_config(hfi_file: Path) -> dict:
+def read_legacy_hfi_config(hfi_file: Path) -> HeatFluxConfig:
     """Read legacy heatflux in files (.hfi)
 
     This assumes a fairly specific format for these files, supporting only a few files with a specific structure.
@@ -17,24 +19,18 @@ def read_legacy_hfi_config(hfi_file: Path) -> dict:
 
     is_crustal_age_model = CRUSTAL_AGE_MODEL_SIGNATURE in processed_text
     if is_crustal_age_model:
-        params = _get_crustal_age_model_parameters(processed_text, hfi_file)
-        return {
-            'heatflux': {
-                'model_kind': CRUSTAL_AGE_MODEL_KIND,
-                'model_params': params,
-            },
-        }
+        return HeatFluxConfig(
+            heat_flux_model=ModelConfig(
+                kind=CRUSTAL_AGE_MODEL_KIND,
+                params=_get_crustal_age_model_parameters(processed_text, hfi_file),
+            )
+        )
 
     constant = _get_constant_or_none(processed_text)
     if constant is not None:
-        return {
-            'heatflux': {
-                'model_kind': 'constant_MW_per_m2',
-                'model_params': {
-                    'constant': constant,
-                }
-            }
-        }
+        return HeatFluxConfig(
+            heat_flux_model=ModelConfig(kind='constant_MW_per_m2', params={'constant': constant})
+        )
 
     raise NotImplementedError(f'No model matched for {hfi_file}. File format not supported.')
 
