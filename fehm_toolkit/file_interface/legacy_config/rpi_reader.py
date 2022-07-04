@@ -3,11 +3,13 @@ from pathlib import Path
 import re
 from typing import Callable, Optional
 
+from fehm_toolkit.config import RockPropertiesConfig
+
 PROPERTY_KINDS = {'porosity', 'conductivity', 'permeability', 'compressibility'}
 NUMERIC_PATTERN = r'-{0,1}(?:(?:\d+\.\d+)|(?:\.{0,1}\d+))(?:(?:e|E)-{0,1}\d+){0,1}'
 
 
-def read_legacy_rpi_config(rpi_file: Path) -> dict:
+def read_legacy_rpi_config(rpi_file: Path) -> RockPropertiesConfig:
     """Read legacy rock properties file (.rpi)
 
     This assumes a fairly specific format for these files, supporting only a few specific files and structure for
@@ -15,50 +17,43 @@ def read_legacy_rpi_config(rpi_file: Path) -> dict:
     """
     blocks_by_property = _read_and_process_rpi(rpi_file)
 
-    config = {'rock_properties': defaultdict(list)}
+    config = defaultdict(list)
     for property_kind, property_block in blocks_by_property.items():
         for zone_block in property_block.split('stop\n'):
-            config_zone_block = _parse_zone_block(zone_block)
-            config['rock_properties'][property_kind].append(config_zone_block)
+            property_config = _parse_zone_block(zone_block)
+            config[f'{property_kind}_configs'].append(property_config)
 
             grain_density = _match_grain_density(zone_block)
             if grain_density is not None:
-                config['rock_properties']['grain_density'].append({
+                property_config = {
+                    'property_model': {'kind': 'constant', 'params': {'constant': grain_density}},
                     'zones': _match_zones(zone_block),
-                    'model_kind': 'constant',
-                    'model_params': {'constant': grain_density},
-                })
+                }
+                config['grain_density_configs'].append(property_config)
 
             specific_heat = _match_specific_heat(zone_block)
             if specific_heat is not None:
-                config['rock_properties']['specific_heat'].append({
+                property_config = {
+                    'property_model': {'kind': 'constant', 'params': {'constant': specific_heat}},
                     'zones': _match_zones(zone_block),
-                    'model_kind': 'constant',
-                    'model_params': {'constant': specific_heat},
-                })
+                }
+                config['specific_heat_configs'].append(property_config)
 
-    return convert_to_zone_lookup_format(config)
+            for zone in property_config['zones']:
+                if zone not in config['zone_assignment_order']:
+                    config['zone_assignment_order'].append(zone)
+
+    return RockPropertiesConfig.from_dict(config)
 
 
-def convert_to_zone_lookup_format(config):
-    reformatted_properties = defaultdict(dict)
+def get_zone_order_by_appearance(config: dict):
     zone_order = []
-    for property_kind, block_configs in config['rock_properties'].items():
+    for property_kind, block_configs in config.items():
         for block_config in block_configs:
             for zone in block_config['zones']:
-                reformatted_properties[zone][property_kind] = {
-                    'model_kind': block_config['model_kind'],
-                    'model_params': block_config['model_params'],
-                }
                 if zone not in zone_order:
                     zone_order.append(zone)
-
-    return {
-        'rock_properties': {
-            'zone_assignment_order': zone_order,
-            'zone_configs_by_zone': reformatted_properties,
-        },
-    }
+    return zone_order
 
 
 def _read_and_process_rpi(rpi_file: Path) -> dict[str, str]:
@@ -95,7 +90,10 @@ def _parse_zone_block(block: str) -> dict:
         if re.search(model['signature'], block):
             parser = model['parser']
             params = parser(block)
-            return {'zones': zones, 'model_kind': model['model_kind'], 'model_params': params}
+            return {
+                'property_model': {'kind': model['model_kind'], 'params': params},
+                'zones': zones,
+            }
 
     raise NotImplementedError(f'No model kind matched for block:\n{block}.')
 
