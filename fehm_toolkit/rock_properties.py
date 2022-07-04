@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .config import ModelConfig, RockPropertiesConfig, RunConfig
-from .fehm_objects import Node, Zone
+from .fehm_objects import Node, Grid, Zone
 from .file_interface import read_grid, write_compact_node_data
 from .file_interface.legacy_config import read_legacy_rpi_config
 from .property_models import get_rock_property_model
@@ -39,20 +39,8 @@ def generate_rock_properties_files(
         material_zone_file=material_zone_file,
         read_elements=False,
     )
-    _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
 
-    model_lookup_by_zone_and_property = rock_properties_config.create_model_lookup_by_zone_and_property()
-    property_lookups = {}
-    for zone in rock_properties_config.zone_assignment_order:
-        logger.info('Computing properties for zone (%d)', zone)
-        model_config_by_property_kind = model_lookup_by_zone_and_property[zone]
-        zone_properties = compute_rock_properties(
-            model_config_by_property_kind,
-            nodes=grid.get_nodes_in_material_zone(zone),
-        )
-        property_lookups = _update_with_zone_properties(property_lookups, zone_properties)
-
-    _validate_all_nodes_covered(property_lookups, grid.n_nodes)
+    property_lookups = compute_rock_properties(grid, rock_properties_config)
 
     logger.info('Writing property file (rock): %s', rock_output_file)
     output_by_node = {
@@ -74,7 +62,25 @@ def generate_rock_properties_files(
         write_compact_node_data(property_lookups[property_kind], output_file, header=header, footer='\n')
 
 
-def compute_rock_properties(
+def compute_rock_properties(grid: Grid, rock_properties_config: RockPropertiesConfig) -> dict[str, dict[int, float]]:
+    _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
+
+    model_lookup_by_zone_and_property = rock_properties_config.create_model_lookup_by_zone_and_property()
+    property_lookups = {}
+    for zone in rock_properties_config.zone_assignment_order:
+        logger.info('Computing properties for zone (%d)', zone)
+        model_config_by_property_kind = model_lookup_by_zone_and_property[zone]
+        zone_properties = _compute_rock_properties_for_zone(
+            model_config_by_property_kind,
+            nodes=grid.get_nodes_in_material_zone(zone),
+        )
+        property_lookups = _update_with_zone_properties(property_lookups, zone_properties)
+
+    _validate_all_nodes_covered(property_lookups, grid.n_nodes)
+    return property_lookups
+
+
+def _compute_rock_properties_for_zone(
     model_config_by_property_kind: dict[str, ModelConfig],
     nodes: Iterable[Node],
 ) -> dict[str, dict[int, float]]:
