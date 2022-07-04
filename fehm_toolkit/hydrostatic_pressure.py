@@ -100,7 +100,7 @@ def compute_hydrostatic_pressure(
         n_columns = _get_n_columns(pressure_config.interpolation_model.params)
         logger.info(f'Calculating explicit pressures for {n_columns} sampled columns.')
 
-        target_points, P_cube = calculate_hydrostatic_pressure_for_column(
+        target_points, P_cube = _calculate_explicit_target_pressures(
             x=x_targets,
             y=y_targets,
             z=z_targets,
