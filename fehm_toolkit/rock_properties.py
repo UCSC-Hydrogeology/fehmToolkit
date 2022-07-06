@@ -3,9 +3,10 @@ import logging
 from pathlib import Path
 from typing import Iterable
 
-from .config import read_legacy_rpi_config
-from .fehm_objects import Node, Zone
+from .config import ModelConfig, RockPropertiesConfig, RunConfig
+from .fehm_objects import Node, Grid, Zone
 from .file_interface import read_grid, write_compact_node_data
+from .file_interface.legacy_config import read_legacy_rpi_config
 from .property_models import get_rock_property_model
 
 logger = logging.getLogger(__name__)
@@ -25,8 +26,11 @@ def generate_rock_properties_files(
     rock_output_file: Path,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    config = read_legacy_rpi_config(config_file)  # TODO(dustin): add support for other config file formats
-    rock_properties_config = config['rock_properties']
+    try:
+        config = RunConfig.from_yaml(config_file)
+        rock_properties_config = config.heat_flux_config
+    except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
+        rock_properties_config = read_legacy_rpi_config(config_file)
 
     logger.info('Parsing grid into memory')
     grid = read_grid(
@@ -35,16 +39,8 @@ def generate_rock_properties_files(
         material_zone_file=material_zone_file,
         read_elements=False,
     )
-    _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
 
-    property_lookups = {}
-    for zone in rock_properties_config['zone_assignment_order']:
-        logger.info('Computing properties for zone (%d)', zone)
-        zone_config = rock_properties_config['zone_configs_by_zone'][zone]
-        zone_properties = compute_rock_properties(zone_config, nodes=grid.get_nodes_in_material_zone(zone))
-        property_lookups = _update_with_zone_properties(property_lookups, zone_properties)
-
-    _validate_all_nodes_covered(property_lookups, grid.n_nodes)
+    property_lookups = compute_rock_properties(grid, rock_properties_config)
 
     logger.info('Writing property file (rock): %s', rock_output_file)
     output_by_node = {
@@ -66,13 +62,34 @@ def generate_rock_properties_files(
         write_compact_node_data(property_lookups[property_kind], output_file, header=header, footer='\n')
 
 
-def compute_rock_properties(rock_properties_config: dict, nodes: Iterable[Node]) -> dict[str, dict[int, float]]:
+def compute_rock_properties(grid: Grid, rock_properties_config: RockPropertiesConfig) -> dict[str, dict[int, float]]:
+    _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
+
+    model_lookup_by_zone_and_property = rock_properties_config.create_model_lookup_by_zone_and_property()
+    property_lookups = {}
+    for zone in rock_properties_config.zone_assignment_order:
+        logger.info('Computing properties for zone (%d)', zone)
+        model_config_by_property_kind = model_lookup_by_zone_and_property[zone]
+        zone_properties = _compute_rock_properties_for_zone(
+            model_config_by_property_kind,
+            nodes=grid.get_nodes_in_material_zone(zone),
+        )
+        property_lookups = _update_with_zone_properties(property_lookups, zone_properties)
+
+    _validate_all_nodes_covered(property_lookups, grid.n_nodes)
+    return property_lookups
+
+
+def _compute_rock_properties_for_zone(
+    model_config_by_property_kind: dict[str, ModelConfig],
+    nodes: Iterable[Node],
+) -> dict[str, dict[int, float]]:
     zone_properties = {}
-    for property_kind, property_config in rock_properties_config.items():
-        rock_property_model = get_rock_property_model(property_kind, property_config['model_kind'])
+    for property_kind, model_config in model_config_by_property_kind.items():
+        rock_property_model = get_rock_property_model(property_kind, model_config.kind)
 
         zone_properties[property_kind] = {
-            node.number: rock_property_model(node.depth, rock_properties_config, property_kind)
+            node.number: rock_property_model(node.depth, model_config_by_property_kind, property_kind)
             for node in nodes
         }
     return zone_properties
@@ -87,9 +104,11 @@ def _update_with_zone_properties(property_lookups: dict, zone_properties: dict) 
     return combined
 
 
-def _validate_config_all_zones_covered(config: dict, zones: tuple[Zone]):
-    config_zones = config['zone_configs_by_zone'].keys()
-    assignment_zones = set(config['zone_assignment_order'])
+def _validate_config_all_zones_covered(config: RockPropertiesConfig, zones: tuple[Zone]):
+    model_lookup_by_zone_and_property = config.create_model_lookup_by_zone_and_property()
+    config_zones = model_lookup_by_zone_and_property.keys()
+
+    assignment_zones = set(config.zone_assignment_order)
     mismatched_assignment_zones = config_zones ^ assignment_zones
     if mismatched_assignment_zones:
         raise ValueError(f'Zones in zone_assignment_order do not match those in config {mismatched_assignment_zones}')
@@ -98,7 +117,7 @@ def _validate_config_all_zones_covered(config: dict, zones: tuple[Zone]):
     if mismatched_zones:
         raise ValueError(f'Config zones do not match zones in grid {mismatched_zones}')
 
-    for zone, zone_config in config['zone_configs_by_zone'].items():
+    for zone, zone_config in model_lookup_by_zone_and_property.items():
         mismatched_property_kinds = zone_config.keys() ^ PROPERTY_KINDS
         if mismatched_property_kinds:
             raise ValueError(f'Mismatched property kinds in zone {zone}: {mismatched_property_kinds}')
