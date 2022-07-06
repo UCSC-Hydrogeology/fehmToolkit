@@ -1,10 +1,18 @@
-from fehm_toolkit.config import read_legacy_hfi_config, read_legacy_ipi_config, read_legacy_rpi_config
+from fehm_toolkit.config import (
+    ModelConfig,
+    PropertyConfig,
+    read_legacy_ipi_config,
+    read_legacy_rpi_config,
+)
+from fehm_toolkit.file_interface.legacy_config import (
+    read_legacy_hfi_config,
+)
 
 
 def test_read_legacy_hfi_config_jdf(fixture_dir):
     config = read_legacy_hfi_config(fixture_dir / 'legacy_jdf.hfi')
-    params = config['heatflux']['model_params']
-    assert params == {
+    model_config = config.heat_flux_model
+    assert model_config.params == {
         'crustal_age_sign': 1,
         'spread_rate_mm_per_year': 28.57,
         'coefficient_MW': 0.367E-6,
@@ -14,8 +22,8 @@ def test_read_legacy_hfi_config_jdf(fixture_dir):
 
 def test_read_legacy_hfi_config_np(fixture_dir):
     config = read_legacy_hfi_config(fixture_dir / 'legacy_np.hfi')
-    params = config['heatflux']['model_params']
-    assert params == {
+    model_config = config.heat_flux_model
+    assert model_config.params == {
         'crustal_age_sign': -1,
         'spread_rate_mm_per_year': 17,
         'coefficient_MW': 0.5E-6,
