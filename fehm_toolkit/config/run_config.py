@@ -31,4 +31,5 @@ class RunConfig:
     @classmethod
     def from_yaml(cls, config_file: Path):
         with open(config_file) as f:
-            return yaml.load(f, Loader=yaml.Loader)
+            raw_config = yaml.load(f, Loader=yaml.Loader)
+            return cls.from_dict(raw_config)

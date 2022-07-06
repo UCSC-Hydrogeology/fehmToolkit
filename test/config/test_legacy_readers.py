@@ -1,11 +1,11 @@
 from fehm_toolkit.config import (
     ModelConfig,
     PropertyConfig,
-    read_legacy_ipi_config,
     read_legacy_rpi_config,
 )
 from fehm_toolkit.file_interface.legacy_config import (
     read_legacy_hfi_config,
+    read_legacy_ipi_config,
 )
 
 
@@ -33,24 +33,32 @@ def test_read_legacy_hfi_config_np(fixture_dir):
 
 def test_read_legacy_ipi_config_jdf(fixture_dir):
     config = read_legacy_ipi_config(fixture_dir / 'legacy_jdf.ipi')
-    params = config['hydrostatic_pressure']['model_params']
-    assert params == {
-        'z_interval_m': 5,
-        'reference_z': 4450,
-        'reference_pressure_MPa': 25,
-        'reference_temperature_degC': 2,
-    }
+    assert config.pressure_model == ModelConfig(
+        kind='depth',
+        params={
+            'z_interval_m': 5,
+            'reference_z': 4450,
+            'reference_pressure_MPa': 25,
+            'reference_temperature_degC': 2,
+        }
+    )
+    assert config.interpolation_model == ModelConfig(kind='none', params={})
+    assert config.sampling_model is None
 
 
 def test_read_legacy_ipi_config_np(fixture_dir):
     config = read_legacy_ipi_config(fixture_dir / 'legacy_np.ipi')
-    params = config['hydrostatic_pressure']['model_params']
-    assert params == {
-        'z_interval_m': 5,
-        'reference_z': 4174.31,
-        'reference_pressure_MPa': 45.289,
-        'reference_temperature_degC': 2,
-    }
+    assert config.pressure_model == ModelConfig(
+        kind='depth',
+        params={
+            'z_interval_m': 5,
+            'reference_z': 4174.31,
+            'reference_pressure_MPa': 45.289,
+            'reference_temperature_degC': 2,
+        }
+    )
+    assert config.interpolation_model == ModelConfig(kind='none', params={})
+    assert config.sampling_model is None
 
 
 def test_read_legacy_rpi_config_jdf(fixture_dir):
