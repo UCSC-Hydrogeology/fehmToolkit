@@ -16,7 +16,7 @@ files:
   output: cond.out
   store: cond.stor
   history: cond.hist
-  water_properties: ../../nist120-1800.out
+  water_properties: ../../end_to_end/fixtures/nist120-1800.out
   check: cond.chk
   error: cond.err
 
@@ -31,25 +31,23 @@ heat_flux:
 
 rock_properties:
   zone_assignment_order: [1, 2, 3]
-  property_configs: 
-    - property_kind: compressibility
-      property_model:
-        kind: overburden_compressibility
+  compressibility_configs:
+    - property_model:
+        kind: overburden
         params:
           a: 0.09
           grav: 9.81
           min_overburden: 25.0
           rhow: 1000.0
       zones: [1]
-    - property_kind: compressibility
-      property_model:
+    - property_model:
         kind: constant
         params:
           constant: 6.0e-10
       zones: [2, 3]
 
-    - property_kind: conductivity
-      property_model:
+  conductivity_configs:
+    - property_model:
         kind: ctr2tcon
         params:
           ctr_model:
@@ -62,63 +60,58 @@ rock_properties:
           node_depth_columns:
           - [0, 200, 425, 450]
       zones: [1]
-    - property_kind: conductivity
-      property_model:
-        kind: porosity_weighted_conductivity
+    - property_model:
+        kind: porosity_weighted
         params:
           rock_conductivity: 2.05
           water_conductivity: 0.62
       zones: [2, 3]
 
-    - property_kind: permeability
-      property_model:
+  permeability_configs:
+    - property_model:
         kind: void_ratio_power_law
         params:
           A: 3.66e-18
           B: 1.68
       zones: [1]
-    - property_kind: permeability
-      property_model:
+    - property_model:
         kind: constant
         params:
           constant: 1.0e-12
       zones: [2]
-    - property_kind: permeability
-      property_model:
+    - property_model:
         kind: constant
         params:
           constant: 1.0e-18
       zones: [3]
 
-    - property_kind: grain_density
-      property_model:
+  grain_density_configs:
+    - property_model:
         kind: constant
         params:
           constant: 2650
       zones: [1, 2, 3]
 
-    - property_kind: specific_heat
-      property_model:
+  specific_heat_configs:
+    - property_model:
         kind: constant
         params:
           constant: 800
       zones: [1, 2, 3]
 
-    - property_kind: porosity
-      property_model:
-        kind: sediment_porosity_depth_power_law
+  porosity_configs:
+    - property_model:
+        kind: depth_power_law
         params:
           porosity_a: 0.84
           porosity_b: -0.125
       zones: [1]
-    - property_kind: porosity
-      property_model:
+    - property_model:
         kind: constant
         params:
           constant: 0.1
       zones: [2]
-    - property_kind: porosity
-      property_model:
+    - property_model:
         kind: constant
         params:
           constant: 0.05
