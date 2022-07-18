@@ -63,7 +63,7 @@ def create_run_from_mesh(
     material_zone_file = material_zone_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['material_zone']}")
     outside_zone_file = outside_zone_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['outside_zone']}")
 
-    file_pairs_by_file_type = _gather_source_run_file_pairs(
+    file_pairs_by_file_type = _gather_file_pairs_to_copy(
         run_directory,
         run_root,
         grid_file=grid_file,
@@ -74,8 +74,8 @@ def create_run_from_mesh(
         water_properties_file=water_properties_file,
     )
     create_run_with_source_files(run_directory, file_pairs_by_file_type)
-    template_run_config = generate_template_run_config(file_pairs_by_file_type, run_root)
-    write_template_run_config(run_directory, template_run_config)
+    run_files_by_key = _get_run_files_by_key(file_pairs_by_file_type, run_root)
+    create_template_run_config(run_directory, run_files_by_key)
 
     # TODO(dustin): create .files
     # TODO(dustin): create .dat
@@ -96,12 +96,16 @@ def create_run_with_source_files(run_directory: Path, file_pairs_by_file_type: d
         shutil.copy(source_file, run_file)
 
 
-def generate_template_run_config(file_pairs_by_file_type: dict[str, tuple[Path, Path]], run_root: Optional[str]):
-    files_config = _get_run_files_by_key(run_root)
-    files_config.update({file_key: run_file for file_key, (source_file, run_file) in file_pairs_by_file_type.items()})
+def create_template_run_config(run_directory: Path, run_files_by_key: dict[str, Path]):
+    template_run_config = _generate_template_run_config(run_files_by_key)
+    config_file = run_directory / CONFIG_NAME
+    with open(config_file, 'w') as f:
+        yaml.dump(template_run_config, f, Dumper=yaml.Dumper)
 
+
+def _generate_template_run_config(run_files_by_key: dict[str, Path]) -> dict:
     run_config_template = build_template_from_type(RunConfig)
-    run_config_template['files_config'] = files_config
+    run_config_template['files_config'] = run_files_by_key
     return run_config_template
 
 
@@ -130,13 +134,7 @@ def _get_type_name(base_type: Type):
         return str(base_type)
 
 
-def write_template_run_config(run_directory: Path, template_run_config: dict):
-    config_file = run_directory / CONFIG_NAME
-    with open(config_file, 'w') as f:
-        yaml.dump(template_run_config, f, Dumper=yaml.Dumper)
-
-
-def _gather_source_run_file_pairs(
+def _gather_file_pairs_to_copy(
     run_directory: Path,
     run_root: Optional[str],
     *,
@@ -167,13 +165,24 @@ def _gather_source_run_file_pairs(
     }
 
 
-def _get_run_files_by_key(run_root: Optional[str]):
-    if run_root:
-        files_by_key = {field.name: f"{run_root}{EXT_BY_FILE[field.name]}" for field in dataclasses.fields(FilesConfig)}
-    else:
-        files_by_key = {field.name: f'{field.name}.txt' for field in dataclasses.fields(FilesConfig)}
+def _get_run_files_by_key(
+    file_pairs_by_file_type: dict[str, tuple[Path, Path]],
+    run_root: Optional[str],
+) -> dict[str, Path]:
+    files_by_key = {}
+    for field in dataclasses.fields(FilesConfig):
+        if field.name == 'initial_conditions':
+            continue
 
-    del files_by_key['initial_conditions']
+        if field.name in file_pairs_by_file_type:
+            (source_file, run_file) = file_pairs_by_file_type[field.name]
+        elif run_root:
+            run_file = f"{run_root}{EXT_BY_FILE[field.name]}"
+        else:
+            run_file = f'{field.name}.txt'
+
+        files_by_key[field.name] = run_file
+
     return files_by_key
 
 
