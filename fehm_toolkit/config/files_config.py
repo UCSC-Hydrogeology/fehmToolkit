@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 
 @dataclass
@@ -8,8 +9,6 @@ class FilesConfig:
     material_zone: Path
     outside_zone: Path
     area: Path
-    initial_conditions: Path
-    final_conditions: Path
     rock_properties: Path
     conductivity: Path
     pore_pressure: Path
@@ -25,6 +24,8 @@ class FilesConfig:
     water_properties: Path
     check: Path
     error: Path
+    final_conditions: Path
+    initial_conditions: Optional[Path] = None
 
     @classmethod
     def from_dict(cls, dct):
