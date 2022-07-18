@@ -35,6 +35,16 @@ EXT_BY_FILE = {
     'final_conditions': '.fin',
     'initial_conditions': '.ini',
 }
+FILES_INDEX_KEY_MAPPING = {
+    #root?
+    'output': 'outpu',
+    'grid': 'grida',
+    'store': 'storo',
+    'final_conditions': 'rsto',
+    'material_zone': 'zone',
+    'water_properties': 'look',
+    'history': 'hist',
+}
 
 
 def create_run_from_mesh(
@@ -76,8 +86,7 @@ def create_run_from_mesh(
     create_run_with_source_files(run_directory, file_pairs_by_file_type)
     run_files_by_key = _get_run_files_by_key(file_pairs_by_file_type, run_root)
     create_template_run_config(run_directory, run_files_by_key)
-
-    # TODO(dustin): create .files
+    create_files_index(run_files_by_key)
     # TODO(dustin): create .dat
 
 
@@ -132,6 +141,10 @@ def _get_type_name(base_type: Type):
         return base_type.__name__
     except AttributeError:
         return str(base_type)
+
+
+def create_files_index(run_files_by_key: dict[str, Path]):
+    pass
 
 
 def _gather_file_pairs_to_copy(
