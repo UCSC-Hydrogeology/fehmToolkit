@@ -30,4 +30,7 @@ class FilesConfig:
 
     @classmethod
     def from_dict(cls, dct):
-        return cls(**{k: Path(v) if v is not None else v for k, v in dct.items()})
+        return cls(**{
+            k: Path(v) if k != 'run_root' and v is not None else v
+            for k, v in dct.items()
+        })

@@ -24,6 +24,7 @@ def config_dict(fixture_dir):
 @pytest.fixture
 def files_config_dict():
     return {
+      'run_root': 'run_root',
       'material_zone': 'run_root.zone',
       'outside_zone': 'run_root.zone',
       'area': 'run_root.area',
@@ -149,10 +150,14 @@ def test_read_config(config_dict):
 
 def test_files_config(files_config_dict):
     config = FilesConfig.from_dict(files_config_dict)
+    assert config.run_root == 'run_root'
     assert config.material_zone == Path('run_root.zone')
     assert config.area == Path('run_root.area')
     assert config.water_properties == Path('../../end_to_end/fixtures/nist120-1800.out')
-    for v in asdict(config).values():
+    for k, v in asdict(config).items():
+        if k == 'run_root':
+            assert isinstance(v, str)
+            continue
         assert isinstance(v, Path)
 
 
