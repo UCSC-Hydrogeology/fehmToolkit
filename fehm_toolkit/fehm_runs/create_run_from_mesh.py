@@ -8,6 +8,7 @@ from typing import _UnionGenericAlias, GenericAlias, Optional, Type, Union
 import yaml
 
 from fehm_toolkit.config import FilesConfig, RunConfig
+from fehm_toolkit.file_interface import write_files_index
 
 
 logger = logging.getLogger(__name__)
@@ -34,19 +35,6 @@ EXT_BY_FILE = {
     'error': '.err',
     'final_conditions': '.fin',
     'initial_conditions': '.ini',
-}
-FILES_INDEX_KEY_MAPPING = {
-    'run_root': 'root',
-    'input': 'input',
-    'output': 'outpu',
-    'grid': 'grida',
-    'store': 'storo',
-    'final_conditions': 'rsto',
-    'error': 'error',
-    'check': 'check',
-    'material_zone': 'zone',
-    'water_properties': 'look',
-    'history': 'hist',
 }
 
 
@@ -89,7 +77,7 @@ def create_run_from_mesh(
     create_run_with_source_files(run_directory, file_pairs_by_file_type)
     template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
     create_template_run_config(run_directory, template_files_config)
-    create_files_index(run_directory, files_config=FilesConfig.from_dict(template_files_config))
+    create_files_index(run_directory, template_files_config)
     # TODO(dustin): create .dat
 
 
@@ -146,12 +134,9 @@ def _get_type_name(base_type: Type):
         return str(base_type)
 
 
-def create_files_index(run_directory: Path, files_config: FilesConfig):
-    index_file = run_directory / files_config.files
-    with open(index_file, 'w') as f:
-        for config_key, files_index_key in FILES_INDEX_KEY_MAPPING.items():
-            f.write(f'{files_index_key}: {getattr(files_config, config_key)}\n')
-        f.write('\nall')
+def create_files_index(run_directory: Path, template_files_config: dict):
+    files_config = FilesConfig.from_dict(template_files_config)
+    write_files_index(files_config, output_file=run_directory / files_config.files)
 
 
 def _gather_file_pairs_to_copy(
