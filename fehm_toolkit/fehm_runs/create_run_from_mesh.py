@@ -3,11 +3,12 @@ import dataclasses
 import logging
 from pathlib import Path
 import shutil
-from typing import _UnionGenericAlias, GenericAlias, Optional, Type
+from typing import _UnionGenericAlias, GenericAlias, Optional, Type, Union
 
 import yaml
 
 from fehm_toolkit.config import FilesConfig, RunConfig
+from fehm_toolkit.file_interface import write_files_index
 
 
 logger = logging.getLogger(__name__)
@@ -74,10 +75,9 @@ def create_run_from_mesh(
         water_properties_file=water_properties_file,
     )
     create_run_with_source_files(run_directory, file_pairs_by_file_type)
-    run_files_by_key = _get_run_files_by_key(file_pairs_by_file_type, run_root)
-    create_template_run_config(run_directory, run_files_by_key)
-
-    # TODO(dustin): create .files
+    template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
+    create_template_run_config(run_directory, template_files_config)
+    create_files_index(run_directory, template_files_config)
     # TODO(dustin): create .dat
 
 
@@ -96,16 +96,16 @@ def create_run_with_source_files(run_directory: Path, file_pairs_by_file_type: d
         shutil.copy(source_file, run_file)
 
 
-def create_template_run_config(run_directory: Path, run_files_by_key: dict[str, Path]):
-    template_run_config = _generate_template_run_config(run_files_by_key)
+def create_template_run_config(run_directory: Path, template_files_config: dict[str, Union[str, Path]]):
+    template_run_config = _generate_template_run_config(template_files_config)
     config_file = run_directory / CONFIG_NAME
     with open(config_file, 'w') as f:
         yaml.dump(template_run_config, f, Dumper=yaml.Dumper)
 
 
-def _generate_template_run_config(run_files_by_key: dict[str, Path]) -> dict:
+def _generate_template_run_config(template_files_config: dict[str, Union[str, Path]]) -> dict:
     run_config_template = build_template_from_type(RunConfig)
-    run_config_template['files_config'] = run_files_by_key
+    run_config_template['files_config'] = template_files_config
     return run_config_template
 
 
@@ -132,6 +132,11 @@ def _get_type_name(base_type: Type):
         return base_type.__name__
     except AttributeError:
         return str(base_type)
+
+
+def create_files_index(run_directory: Path, template_files_config: dict):
+    files_config = FilesConfig.from_dict(template_files_config)
+    write_files_index(files_config, output_file=run_directory / files_config.files)
 
 
 def _gather_file_pairs_to_copy(
@@ -165,25 +170,27 @@ def _gather_file_pairs_to_copy(
     }
 
 
-def _get_run_files_by_key(
+def _get_template_files_config(
     file_pairs_by_file_type: dict[str, tuple[Path, Path]],
     run_root: Optional[str],
 ) -> dict[str, Path]:
-    files_by_key = {}
+    template_files_config = {'run_root': run_root or 'run'}
     for field in dataclasses.fields(FilesConfig):
         if field.name == 'initial_conditions':
             continue
 
         if field.name in file_pairs_by_file_type:
             (source_file, run_file) = file_pairs_by_file_type[field.name]
+        elif field.name == 'run_root':
+            field_value = run_root
         elif run_root:
-            run_file = f"{run_root}{EXT_BY_FILE[field.name]}"
+            field_value = f"{run_root}{EXT_BY_FILE[field.name]}"
         else:
-            run_file = f'{field.name}.txt'
+            field_value = f'{field.name}.txt'
 
-        files_by_key[field.name] = run_file
+        template_files_config[field.name] = field_value
 
-    return files_by_key
+    return template_files_config
 
 
 def _find_unique_match(directory: Path, pattern: str) -> Path:
