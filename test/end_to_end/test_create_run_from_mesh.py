@@ -1,5 +1,5 @@
 from fehm_toolkit.config import FilesConfig
-from fehm_toolkit.fehm_runs.create_run_from_mesh import create_run_from_mesh, create_files_index
+from fehm_toolkit.fehm_runs.create_run_from_mesh import create_run_from_mesh, create_template_input_file
 
 
 def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
@@ -19,6 +19,7 @@ def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
         'flat_box.stor',
         'flat_box.fehmn',
         'files.txt',
+        'input.txt',
     }
 
 
@@ -40,6 +41,7 @@ def test_create_run_from_mesh_flat_box_infer_run_root(tmp_path, end_to_end_fixtu
         'new_run.stor',
         'new_run.fehm',
         'new_run.files',
+        'new_run.dat',
     }
 
 
@@ -67,4 +69,46 @@ def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixtur
         'new_run.stor',
         'new_run.fehm',
         'new_run.files',
+        'new_run.dat',
     }
+
+
+def test_create_template_input_file(tmp_path):
+    output_file = tmp_path / 'test.dat'
+    files_config = FilesConfig(
+        run_root='run_root',
+        material_zone='material_zone.txt',
+        outside_zone='outside_zone.txt',
+        area='area.txt',
+        rock_properties='rock_properties.txt',
+        conductivity='conductivity.txt',
+        pore_pressure='pore_pressure.txt',
+        permeability='permeability.txt',
+        heat_flux='heat_flux.txt',
+        flow='flow.txt',
+        files='files.txt',
+        grid='grid.txt',
+        input='input.txt',
+        output='output.txt',
+        store='store.txt',
+        history='history.txt',
+        water_properties='water_properties.txt',
+        check='check.txt',
+        error='error.txt',
+        final_conditions='final_conditions.txt',
+    )
+    create_template_input_file(files_config, output_file=output_file)
+    assert output_file.read_text() == (
+        '"Template conductive run - ALL COMMENTS MUST BE REPLACED with real config!"\n'
+        'init\n    # init config goes here (pres macro may be used instead)\n'
+        'sol\n    -1    -1\n'
+        'ctrl\n    # ctrl config goes here\n'
+        'time\n    # time config goes here\n'
+        'hflx\n    # hflx config for fixed temperature zones goes here\n'
+        f'hflx\nfile\n{files_config.heat_flux}\n'
+        f'rock\nfile\n{files_config.rock_properties}\n'
+        f'cond\nfile\n{files_config.conductivity}\n'
+        f'perm\nfile\n{files_config.permeability}\n'
+        f'ppor\nfile\n{files_config.pore_pressure}\n'
+        'stop\n'
+    )
