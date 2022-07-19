@@ -76,9 +76,19 @@ def create_run_from_mesh(
     )
     create_run_with_source_files(run_directory, file_pairs_by_file_type)
     template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
-    create_template_run_config(run_directory, template_files_config)
-    create_files_index(run_directory, template_files_config)
-    # TODO(dustin): create .dat
+    create_template_run_config(template_files_config, output_file=run_directory / CONFIG_NAME)
+
+    files_config = FilesConfig.from_dict(template_files_config)
+    write_files_index(files_config, output_file=run_directory / files_config.files)
+    create_template_input_file(files_config, output_file=run_directory / files_config.input)
+    logger.info(
+        'Suggested next steps:\n'
+        f'Update {run_directory / CONFIG_NAME} with desired configuration'
+        '* Run heat_in to generate heat flux file'
+        '* Run rock_properties to generate physical properties files'
+        f'* Update {files_config.input} with desired configuration'
+        f'* Run FEHM'
+    )
 
 
 def create_run_with_source_files(run_directory: Path, file_pairs_by_file_type: dict[str, tuple[Path, Path]]):
@@ -96,10 +106,11 @@ def create_run_with_source_files(run_directory: Path, file_pairs_by_file_type: d
         shutil.copy(source_file, run_file)
 
 
-def create_template_run_config(run_directory: Path, template_files_config: dict[str, Union[str, Path]]):
+def create_template_run_config(template_files_config: dict[str, Union[str, Path]], output_file: Path):
+    logger.info(f'Writing run config file to {output_file}. This file is incomplete and must be modified!')
+
     template_run_config = _generate_template_run_config(template_files_config)
-    config_file = run_directory / CONFIG_NAME
-    with open(config_file, 'w') as f:
+    with open(output_file, 'w') as f:
         yaml.dump(template_run_config, f, Dumper=yaml.Dumper)
 
 
@@ -134,9 +145,21 @@ def _get_type_name(base_type: Type):
         return str(base_type)
 
 
-def create_files_index(run_directory: Path, template_files_config: dict):
-    files_config = FilesConfig.from_dict(template_files_config)
-    write_files_index(files_config, output_file=run_directory / files_config.files)
+def create_template_input_file(files_config: FilesConfig, output_file: Path):
+    logger.info(f'Writing template input file to {output_file}. This file is incomplete and must be modified!')
+    with open(output_file, 'w') as f:
+        f.write('"Template conductive run - ALL COMMENTS MUST BE REPLACED with real config!"\n')
+        f.write('init\n    # init config goes here (pres macro may be used instead)\n')
+        f.write('sol\n    -1    -1\n')
+        f.write('ctrl\n    # ctrl config goes here\n')
+        f.write('time\n    # time config goes here\n')
+        f.write('hflx\n    # hflx config for fixed temperature zones goes here\n')
+        f.write(f'hflx\nfile\n{files_config.heat_flux}\n')
+        f.write(f'rock\nfile\n{files_config.rock_properties}\n')
+        f.write(f'cond\nfile\n{files_config.conductivity}\n')
+        f.write(f'perm\nfile\n{files_config.permeability}\n')
+        f.write(f'ppor\nfile\n{files_config.pore_pressure}\n')
+        f.write('stop\n')
 
 
 def _gather_file_pairs_to_copy(
