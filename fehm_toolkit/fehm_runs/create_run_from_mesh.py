@@ -202,6 +202,10 @@ def _get_template_files_config(
         if field.name == 'initial_conditions':
             continue
 
+        if field.name == 'files':  # FEHM expects a specific name for this file
+            template_files_config[field.name] = 'fehmn.files'
+            continue
+
         if field.name in file_pairs_by_file_type:
             (source_file, run_file) = file_pairs_by_file_type[field.name]
         elif field.name == 'run_root':
