@@ -166,7 +166,7 @@ def test_run_config_writes_relative_files(tmp_path, config_dict):
     assert raw_config['files_config']['files'] == 'fehmn.files'
     assert raw_config['files_config']['area'] == 'cond.area'
     assert raw_config['files_config']['water_properties'] == os.path.join(
-        ['..', '..', 'end_to_end', 'fixtures/nist120-1800.out']
+        '..', '..', 'end_to_end', 'fixtures/nist120-1800.out'
     )
 
 
