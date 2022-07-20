@@ -1,4 +1,4 @@
-files:
+files_config:
   material_zone: cond.zone
   outside_zone: cond_outside.zone
   area: cond.area
@@ -20,7 +20,7 @@ files:
   check: cond.chk
   error: cond.err
 
-heat_flux:
+heat_flux_config:
   heat_flux_model:
     kind: crustal_age
     params:
@@ -29,7 +29,7 @@ heat_flux:
       coefficient_MW: 0.367E-6
       boundary_distance_to_ridge_m: 60000
 
-rock_properties:
+rock_properties_config:
   zone_assignment_order: [1, 2, 3]
   property_configs: 
     - property_kind: compressibility
@@ -124,7 +124,7 @@ rock_properties:
           constant: 0.05
       zones: [3]
 
-pressure:
+pressure_config:
   pressure_model:
     kind: depth
     params:
