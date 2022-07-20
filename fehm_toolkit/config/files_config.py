@@ -14,8 +14,6 @@ class FilesConfig:
     conductivity: Path
     pore_pressure: Path
     permeability: Path
-    heat_flux: Path
-    flow: Path
     files: Path
     grid: Path
     input: Path
@@ -26,6 +24,8 @@ class FilesConfig:
     check: Path
     error: Path
     final_conditions: Path
+    flow: Optional[Path] = None
+    heat_flux: Optional[Path] = None
     initial_conditions: Optional[Path] = None
 
     @classmethod

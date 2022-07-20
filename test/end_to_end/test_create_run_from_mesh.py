@@ -18,7 +18,7 @@ def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
         'flat_box_outside_vor.area',
         'flat_box.stor',
         'flat_box.fehmn',
-        'files.txt',
+        'fehmn.files',
         'input.txt',
     }
 
@@ -40,7 +40,7 @@ def test_create_run_from_mesh_flat_box_infer_run_root(tmp_path, end_to_end_fixtu
         'new_run.area',
         'new_run.stor',
         'new_run.fehm',
-        'new_run.files',
+        'fehmn.files',
         'new_run.dat',
     }
 
@@ -68,7 +68,7 @@ def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixtur
         'new_run.area',
         'new_run.stor',
         'new_run.fehm',
-        'new_run.files',
+        'fehmn.files',
         'new_run.dat',
     }
 
@@ -86,7 +86,7 @@ def test_create_template_input_file(tmp_path):
         permeability='permeability.txt',
         heat_flux='heat_flux.txt',
         flow='flow.txt',
-        files='files.txt',
+        files='fehmn.files',
         grid='grid.txt',
         input='input.txt',
         output='output.txt',
