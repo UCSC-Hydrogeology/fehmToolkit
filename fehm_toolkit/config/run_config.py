@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import dataclasses
 from pathlib import Path
 from typing import Optional
 
@@ -10,7 +10,7 @@ from .pressure_config import PressureConfig
 from .rock_properties_config import RockPropertiesConfig
 
 
-@dataclass
+@dataclasses.dataclass
 class RunConfig:
     """Configuration defining a run and its components."""
     files_config: FilesConfig
@@ -32,3 +32,9 @@ class RunConfig:
         with open(config_file) as f:
             raw_config = yaml.load(f, Loader=yaml.Loader)
             return cls.from_dict(raw_config)
+
+    def to_yaml(self, config_file: Path):
+        run_config_dict = dataclasses.asdict(self)
+        run_config_dict['files_config'] = {k: str(v) for k, v in run_config_dict['files_config'].items()}
+        with open(config_file, 'w') as f:
+            yaml.dump(run_config_dict, f, Dumper=yaml.Dumper)

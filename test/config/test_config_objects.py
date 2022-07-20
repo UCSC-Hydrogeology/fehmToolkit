@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import os
 from pathlib import Path
 
 import pytest
@@ -146,6 +147,27 @@ def test_read_config(config_dict):
     assert isinstance(config.heat_flux_config, HeatFluxConfig)
     assert isinstance(config.pressure_config, PressureConfig)
     assert isinstance(config.rock_properties_config, RockPropertiesConfig)
+
+
+def test_run_config_writes_relative_files(tmp_path, config_dict):
+    # Get config file in temp directory as-is
+    config_file = tmp_path / 'config.yaml'
+    with open(config_file, 'w') as f:
+        yaml.dump(config_dict, f, Dumper=yaml.Dumper)
+
+    # Writeback config using RunConfig object
+    test_config_file = tmp_path / 'test_config.yaml'
+    config = RunConfig.from_yaml(config_file)
+    config.to_yaml(test_config_file)
+    with open(test_config_file) as f:
+        raw_config = yaml.load(f, Loader=yaml.Loader)
+
+    assert raw_config['files_config']['run_root'] == 'cond'
+    assert raw_config['files_config']['files'] == 'fehmn.files'
+    assert raw_config['files_config']['area'] == 'cond.area'
+    assert raw_config['files_config']['water_properties'] == os.path.join(
+        '..', '..', 'end_to_end', 'fixtures', 'nist120-1800.out'
+    )
 
 
 def test_files_config(files_config_dict):
