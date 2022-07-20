@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import os
 from pathlib import Path
 
 import pytest
@@ -164,7 +165,9 @@ def test_run_config_writes_relative_files(tmp_path, config_dict):
     assert raw_config['files_config']['run_root'] == 'cond'
     assert raw_config['files_config']['files'] == 'fehmn.files'
     assert raw_config['files_config']['area'] == 'cond.area'
-    assert raw_config['files_config']['water_properties'] == '../../end_to_end/fixtures/nist120-1800.out'
+    assert raw_config['files_config']['water_properties'] == os.path.join(
+        ['..', '..', 'end_to_end', 'fixtures/nist120-1800.out']
+    )
 
 
 def test_files_config(files_config_dict):
