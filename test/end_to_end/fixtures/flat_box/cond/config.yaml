@@ -10,7 +10,7 @@ files:
   permeability: cond.perm
   heat_flux: cond.hflx
   flow: cond.flow
-  files: cond.files
+  files: fehmn.files
   grid: cond.fehm
   input: cond.dat
   output: cond.out
