@@ -83,11 +83,11 @@ def create_run_from_mesh(
     create_template_input_file(files_config, output_file=run_directory / files_config.input)
     logger.info(
         'Suggested next steps:\n'
-        f'Update {run_directory / CONFIG_NAME} with desired configuration'
-        '* Run heat_in to generate heat flux file'
-        '* Run rock_properties to generate physical properties files'
-        f'* Update {files_config.input} with desired configuration'
-        f'* Run FEHM'
+        f'Update {run_directory / CONFIG_NAME} with desired configuration\n'
+        '* Run heat_in to generate heat flux file\n'
+        '* Run rock_properties to generate physical properties files\n'
+        f'* Update {files_config.input} with desired configuration\n'
+        f'* Run FEHM\n'
     )
 
 
