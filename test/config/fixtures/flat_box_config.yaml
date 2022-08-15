@@ -1,4 +1,5 @@
 files:
+  run_root: cond
   material_zone: cond.zone
   outside_zone: cond_outside.zone
   area: cond.area

@@ -6,6 +6,7 @@ from typing import Optional
 @dataclass
 class FilesConfig:
     """Files configuration defining paths for model run."""
+    run_root: Path
     material_zone: Path
     outside_zone: Path
     area: Path
@@ -29,4 +30,7 @@ class FilesConfig:
 
     @classmethod
     def from_dict(cls, dct):
-        return cls(**{k: Path(v) for k, v in dct.items()})
+        return cls(**{
+            k: Path(v) if k != 'run_root' and v is not None else v
+            for k, v in dct.items()
+        })

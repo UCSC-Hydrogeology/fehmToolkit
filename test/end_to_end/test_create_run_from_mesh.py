@@ -1,4 +1,5 @@
-from fehm_toolkit.fehm_runs.create_run_from_mesh import create_run_from_mesh
+from fehm_toolkit.config import FilesConfig
+from fehm_toolkit.fehm_runs.create_run_from_mesh import create_run_from_mesh, create_files_index
 
 
 def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
@@ -17,6 +18,7 @@ def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
         'flat_box_outside_vor.area',
         'flat_box.stor',
         'flat_box.fehmn',
+        'files.txt',
     }
 
 
@@ -37,6 +39,7 @@ def test_create_run_from_mesh_flat_box_infer_run_root(tmp_path, end_to_end_fixtu
         'new_run.area',
         'new_run.stor',
         'new_run.fehm',
+        'new_run.files',
     }
 
 
@@ -63,4 +66,5 @@ def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixtur
         'new_run.area',
         'new_run.stor',
         'new_run.fehm',
+        'new_run.files',
     }

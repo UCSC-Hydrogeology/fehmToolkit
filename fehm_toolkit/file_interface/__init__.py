@@ -1,6 +1,7 @@
 from .avs import read_avs
 from .compact_node_data import write_compact_node_data
 from .fehm import read_fehm
+from .files_index import write_files_index
 from .fluid_properties import read_nist_lookup_table
 from .grid import read_grid
 from .pressure import read_pressure, write_pressure
