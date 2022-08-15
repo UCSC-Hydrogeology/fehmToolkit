@@ -20,12 +20,11 @@ class RunConfig:
 
     @classmethod
     def from_dict(cls, dct: dict):
-
         return cls(
-            files_config=FilesConfig.from_dict(dct['files']),
-            heat_flux_config=HeatFluxConfig.from_dict(dct['heat_flux']),
-            rock_properties_config=RockPropertiesConfig.from_dict(dct['rock_properties']),
-            pressure_config=PressureConfig.from_dict(dct['pressure']) if dct.get('pressure') else None,
+            files_config=FilesConfig.from_dict(dct['files_config']),
+            heat_flux_config=HeatFluxConfig.from_dict(dct['heat_flux_config']),
+            rock_properties_config=RockPropertiesConfig.from_dict(dct['rock_properties_config']),
+            pressure_config=PressureConfig.from_dict(dct['pressure_config']) if dct.get('pressure_config') else None,
         )
 
     @classmethod
