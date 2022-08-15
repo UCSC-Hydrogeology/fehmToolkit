@@ -7,12 +7,9 @@ from fehm_toolkit.file_interface import read_pressure, write_restart, write_zone
 from fehm_toolkit.heat_in import generate_input_heatflux_file
 from fehm_toolkit.hydrostatic_pressure import generate_hydrostatic_pressure_file
 from fehm_toolkit.rock_properties import generate_rock_properties_files
-from fehm_toolkit.utilities import (
-    append_zones,
-    create_restart_from_avs,
-    create_restart_from_restart,
-    write_modified_fehm_input_file,
-)
+from fehm_toolkit.utilities.append_zones import append_zones
+from fehm_toolkit.utilities.create_restart import create_restart_from_avs, create_restart_from_restart
+from fehm_toolkit.utilities.modify_fehm_input_file import write_modified_fehm_input_file
 
 logger = logging.getLogger(__name__)
 
