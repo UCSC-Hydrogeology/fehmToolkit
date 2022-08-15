@@ -1,5 +1,5 @@
 from fehm_toolkit.config import RunConfig
-from fehm_toolkit.utilities import create_run_config_for_legacy_directory
+from fehm_toolkit.utilities.create_run_config_for_legacy_directory import create_run_config_for_legacy_directory
 
 
 def test_create_run_config_for_legacy_directory_infer_some(tmp_path, end_to_end_fixture_dir):

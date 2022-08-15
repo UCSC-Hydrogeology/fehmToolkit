@@ -1,10 +1,7 @@
 import argparse
-import dataclasses
 import logging
 from pathlib import Path
 from typing import Optional
-
-import yaml
 
 from fehm_toolkit.config import FilesConfig, RunConfig
 from fehm_toolkit.file_interface.legacy_config import (
@@ -74,13 +71,14 @@ def create_run_config_for_legacy_directory(
         rock_properties_config=read_legacy_rpi_config(rpi_file),
         files_config=files_config,
     )
+    logger.info('Writing config file to %s', directory / config_file)
     run_config.to_yaml(config_file)
 
 
 def _find_unique_match(directory: Path, pattern: str, allow_none: bool = False) -> Path:
     matches = list(directory.glob(pattern))
     if not matches and allow_none:
-        logger.info('No file found for "%s"', pattern)
+        logger.info('No file found for optional file "%s", skipping...', pattern)
         return None
     if len(matches) != 1:
         raise ValueError(f'Found {len(matches)} matches for "{pattern}" in {directory}, please specify explicitly.')
