@@ -40,6 +40,9 @@ def create_run_config_for_legacy_directory(
     hfi_file = _find_unique_match(directory, '*.hfi')
     ipi_file = _find_unique_match(directory, '*.ipi')
     rpi_file = _find_unique_match(directory, '*.rpi')
+    if not directory.is_dir():
+        raise ValueError(f'{directory.absolute()} is not a directory.')
+
     run_root = hfi_file.stem if hfi_file.stem == ipi_file.stem == rpi_file.stem else 'run'
 
     files_config = FilesConfig(
