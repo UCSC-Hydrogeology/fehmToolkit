@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 def create_run_config_for_legacy_directory(
     directory: Path,
     config_file: Path,
+    hfi_file: Optional[Path] = None,
+    rpi_file: Optional[Path] = None,
+    ipi_file: Optional[Path] = None,
     material_zone_file: Optional[Path] = None,
     outside_zone_file: Optional[Path] = None,
     area_file: Optional[Path] = None,
@@ -37,12 +40,12 @@ def create_run_config_for_legacy_directory(
     heat_flux_file: Optional[Path] = None,
     initial_conditions_file: Optional[Path] = None,
 ):
-    hfi_file = _find_unique_match(directory, '*.hfi')
-    ipi_file = _find_unique_match(directory, '*.ipi')
-    rpi_file = _find_unique_match(directory, '*.rpi')
     if not directory.is_dir():
         raise ValueError(f'{directory.absolute()} is not a directory.')
 
+    hfi_file = hfi_file or _find_unique_match(directory, '*.hfi')
+    ipi_file = ipi_file or _find_unique_match(directory, '*.ipi')
+    rpi_file = rpi_file or _find_unique_match(directory, '*.rpi')
     run_root = hfi_file.stem if hfi_file.stem == ipi_file.stem == rpi_file.stem else 'run'
 
     files_config = FilesConfig(
@@ -111,6 +114,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('directory', type=Path, help='Path to directory with legacy configuration files.')
     parser.add_argument('--config_file', type=Path, help='Output configuration file location (default: config.yaml).')
+    parser.add_argument('--hfi_file', type=Path, help='Optional location of legacy heat flux configuration file.')
+    parser.add_argument('--rpi_file', type=Path, help='Optional location of legacy rock properties configuration file.')
+    parser.add_argument('--ipi_file', type=Path, help='Optional location of legacy pressure configuration file.')
     parser.add_argument('--material_zone_file', type=Path, help='Optional location of material_zone file.')
     parser.add_argument('--outside_zone_file', type=Path, help='Optional location of outside_zone file.')
     parser.add_argument('--area_file', type=Path, help='Optional location of area file.')
@@ -136,6 +142,9 @@ if __name__ == '__main__':
     create_run_config_for_legacy_directory(
         args.directory,
         config_file=args.config_file or args.directory / 'config.yaml',
+        hfi_file=args.hfi_file,
+        rpi_file=args.rpi_file,
+        ipi_file=args.ipi_file,
         material_zone_file=args.material_zone_file,
         outside_zone_file=args.outside_zone_file,
         area_file=args.area_file,
