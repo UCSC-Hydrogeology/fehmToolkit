@@ -1,12 +1,12 @@
-from dataclasses import dataclass
+import dataclasses
 from pathlib import Path
 from typing import Optional
 
 
-@dataclass
+@dataclasses.dataclass
 class FilesConfig:
     """Files configuration defining paths for model run."""
-    run_root: Path
+    run_root: str
     material_zone: Path
     outside_zone: Path
     area: Path
@@ -34,3 +34,18 @@ class FilesConfig:
             k: Path(v) if k != 'run_root' and v is not None else v
             for k, v in dct.items()
         })
+
+    def validate(self):
+        self._assert_specified_paths_exist()
+
+    def _assert_specified_paths_exist(self):
+        does_not_exist = set()
+        for key, path in dataclasses.asdict(self).items():
+            if key == 'run_root':
+                continue
+            if path is not None and not path.exists():
+                does_not_exist.add(path)
+        if does_not_exist:
+            raise AssertionError(
+                f'FileConfig contains specified paths that do not exist: {[p.absolute() for p in does_not_exist]}'
+            )
