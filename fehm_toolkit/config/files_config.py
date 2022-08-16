@@ -1,4 +1,5 @@
 import dataclasses
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -33,6 +34,12 @@ class FilesConfig:
         return cls(**{
             k: Path(v) if k != 'run_root' and v is not None else v
             for k, v in dct.items()
+        })
+
+    def relative_to(self, base: Path):
+        return FilesConfig(**{
+            k: Path(os.path.relpath(v, start=base)) if k != 'run_root' and v is not None else v
+            for k, v in dataclasses.asdict(self).items()
         })
 
     def validate(self):
