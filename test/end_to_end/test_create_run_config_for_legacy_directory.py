@@ -14,8 +14,7 @@ def test_create_run_config_for_legacy_directory_flat_box(tmp_path, end_to_end_fi
         final_conditions_file=run_directory / 'p12.fin',  # specified to avoid other test fixtures in folder
         water_properties_file=run_directory / '../../nist120-1800.out',
     )
-    RunConfig.from_yaml(output_file)  # loading ensures correct structure
-    assert output_file.read_text() == fixture_file.read_text()
+    assert RunConfig.from_yaml(output_file) == RunConfig.from_yaml(fixture_file)
 
 
 def test_create_run_config_for_legacy_directory_outcrop_2d(tmp_path, end_to_end_fixture_dir):
@@ -32,4 +31,4 @@ def test_create_run_config_for_legacy_directory_outcrop_2d(tmp_path, end_to_end_
         water_properties_file=run_directory / '../../nist120-1800.out',
     )
     RunConfig.from_yaml(output_file)  # loading ensures correct structure
-    assert output_file.read_text() == fixture_file.read_text()
+    assert RunConfig.from_yaml(output_file) == RunConfig.from_yaml(fixture_file)
