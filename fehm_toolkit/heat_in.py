@@ -10,7 +10,6 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 from .config import HeatFluxConfig, RunConfig
 from .fehm_objects import Grid, Node
 from .file_interface import read_grid, write_compact_node_data
-from .file_interface.legacy_config import read_legacy_hfi_config
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 def generate_input_heatflux_file(
     *,
     config_file: Path,
-    fehm_file: Path,
+    grid_file: Path,
     outside_zone_file: Path,
     area_file: Path,
     output_file: Path,
@@ -28,7 +27,7 @@ def generate_input_heatflux_file(
     config = RunConfig.from_yaml(config_file)
 
     logger.info('Parsing grid into memory')
-    grid = read_grid(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
+    grid = read_grid(grid_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
 
     logger.info('Computing boundary heat flux')
     heatflux_by_node = compute_boundary_heatflux(grid, config.heat_flux_config)
@@ -143,7 +142,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--fehm_file', type=Path, help='Path to main grid (.fehm) file.')
+    parser.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm) file.')
     parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
     parser.add_argument('--area_file', type=Path, help='Path to boundary area (.area) file.')
     parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
@@ -153,7 +152,7 @@ if __name__ == '__main__':
 
     generate_input_heatflux_file(
         config_file=args.config_file,
-        fehm_file=args.fehm_file,
+        grid_file=args.grid_file,
         outside_zone_file=args.outside_zone_file,
         area_file=args.area_file,
         output_file=args.output_file,

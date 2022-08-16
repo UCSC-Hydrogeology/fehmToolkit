@@ -20,7 +20,7 @@ RANDOM_SAMPLE_SEED = 12
 def generate_hydrostatic_pressure_file(
     *,
     config_file: Path,
-    fehm_file: Path,
+    grid_file: Path,
     material_zone_file: Path,
     outside_zone_file: Path,
     restart_file: Path,
@@ -35,7 +35,7 @@ def generate_hydrostatic_pressure_file(
 
     logger.info('Reading node data into memory')
     grid = read_grid(
-        fehm_file,
+        grid_file,
         material_zone_file=material_zone_file,
         outside_zone_file=outside_zone_file,
         read_elements=False,
@@ -382,7 +382,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.ipi) file.')
-    parser.add_argument('--fehm_file', type=Path, help='Path to main grid (.fehm) file.')
+    parser.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm) file.')
     parser.add_argument('--material_zone_file', type=Path, help='Path to material (_material.zone) file.')
     parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
     parser.add_argument('--restart_file', type=Path, help='Path to restart (.fin/.ini) file.')
@@ -392,7 +392,7 @@ if __name__ == '__main__':
 
     generate_hydrostatic_pressure_file(
         config_file=args.config_file,
-        fehm_file=args.fehm_file,
+        grid_file=args.grid_file,
         material_zone_file=args.material_zone_file,
         outside_zone_file=args.outside_zone_file,
         restart_file=args.restart_file,
