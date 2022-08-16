@@ -28,7 +28,7 @@ def generate_rock_properties_files(
     logger.info(f'Reading configuration file: {config_file}')
     try:
         config = RunConfig.from_yaml(config_file)
-        rock_properties_config = config.heat_flux_config
+        rock_properties_config = config.rock_properties_config
     except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
         rock_properties_config = read_legacy_rpi_config(config_file)
 
