@@ -1,0 +1,88 @@
+files_config:
+  area: cond.area
+  check: cond.chk
+  conductivity: cond.cond
+  error: fehmn.err
+  files: fehmn.files
+  final_conditions: cond.fin
+  flow: None
+  grid: cond.fehm
+  heat_flux: cond.hflx
+  history: cond.hist
+  initial_conditions: None
+  input: cond.dat
+  material_zone: cond.zone
+  output: cond.out
+  outside_zone: cond_outside.zone
+  permeability: cond.perm
+  pore_pressure: cond.ppor
+  rock_properties: cond.rock
+  run_root: cond
+  store: cond.stor
+  water_properties: ../../nist120-1800.out
+heat_flux_config:
+  heat_flux_model:
+    kind: crustal_age
+    params:
+      boundary_distance_to_ridge_m: 40000.0
+      coefficient_MW: 3.67e-07
+      crustal_age_sign: 1
+      spread_rate_mm_per_year: 10.0
+pressure_config:
+  interpolation_model:
+    kind: none
+    params: {}
+  pressure_model:
+    kind: depth
+    params:
+      reference_pressure_MPa: 21.0
+      reference_temperature_degC: 3.0
+      reference_z: 20.0
+      z_interval_m: 1.0
+  sampling_model: null
+rock_properties_config:
+  compressibility_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 6.0e-10
+    zones:
+    - 1
+  conductivity_configs:
+  - property_model:
+      kind: porosity_weighted
+      params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+    zones:
+    - 1
+  grain_density_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 2700.0
+    zones:
+    - 1
+  permeability_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.0e-11
+    zones:
+    - 1
+  porosity_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.2
+    zones:
+    - 1
+  specific_heat_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 800.0
+    zones:
+    - 1
+  zone_assignment_order:
+  - 1
