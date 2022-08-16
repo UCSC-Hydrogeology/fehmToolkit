@@ -26,11 +26,7 @@ def generate_rock_properties_files(
     rock_output_file: Path,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    try:
-        config = RunConfig.from_yaml(config_file)
-        rock_properties_config = config.rock_properties_config
-    except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
-        rock_properties_config = read_legacy_rpi_config(config_file)
+    config = RunConfig.from_yaml(config_file)
 
     logger.info('Parsing grid into memory')
     grid = read_grid(
@@ -40,7 +36,7 @@ def generate_rock_properties_files(
         read_elements=False,
     )
 
-    property_lookups = compute_rock_properties(grid, rock_properties_config)
+    property_lookups = compute_rock_properties(grid, config.rock_properties_config)
 
     logger.info('Writing property file (rock): %s', rock_output_file)
     output_by_node = {
