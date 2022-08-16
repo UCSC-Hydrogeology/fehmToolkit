@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('directory', type=Path, help='Path to directory with legacy configuration files.')
-    parser.add_argument('--config_file', type=Path, help='Output file location (default: config.yaml).')
+    parser.add_argument('--config_file', type=Path, help='Output configuration file location (default: config.yaml).')
     parser.add_argument('--material_zone_file', type=Path, help='Optional location of material_zone file.')
     parser.add_argument('--outside_zone_file', type=Path, help='Optional location of outside_zone file.')
     parser.add_argument('--area_file', type=Path, help='Optional location of area file.')
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 
     create_run_config_for_legacy_directory(
         args.directory,
-        config_file=args.output_file or args.directory / 'config.yaml',
+        config_file=args.config_file or args.directory / 'config.yaml',
         material_zone_file=args.material_zone_file,
         outside_zone_file=args.outside_zone_file,
         area_file=args.area_file,
