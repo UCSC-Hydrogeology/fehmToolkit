@@ -74,7 +74,7 @@ def create_run_config_for_legacy_directory(
         rock_properties_config=read_legacy_rpi_config(rpi_file),
         files_config=files_config,
     )
-    logger.info('Writing config file to %s', directory / config_file)
+    logger.info('Writing config file to %s', config_file)
     run_config.to_yaml(config_file)
 
 
