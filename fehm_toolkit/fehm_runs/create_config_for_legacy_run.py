@@ -14,7 +14,7 @@ from fehm_toolkit.file_interface.legacy_config import (
 logger = logging.getLogger(__name__)
 
 
-def create_run_config_for_legacy_directory(
+def create_config_for_legacy_run(
     directory: Path,
     config_file: Path,
     hfi_file: Optional[Path] = None,
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('--initial_conditions_file', type=Path, help='Optional location of initial_conditions file.')
     args = parser.parse_args()
 
-    create_run_config_for_legacy_directory(
+    create_config_for_legacy_run(
         args.directory,
         config_file=args.config_file or args.directory / 'config.yaml',
         hfi_file=args.hfi_file,
