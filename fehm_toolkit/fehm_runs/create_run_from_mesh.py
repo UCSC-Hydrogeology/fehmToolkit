@@ -8,7 +8,7 @@ from typing import _UnionGenericAlias, GenericAlias, Optional, Type, Union
 import yaml
 
 from fehm_toolkit.config import FilesConfig, RunConfig
-from fehm_toolkit.file_interface import write_files_index
+from fehm_toolkit.file_interface import get_unique_file, write_files_index
 
 
 logger = logging.getLogger(__name__)
@@ -58,20 +58,14 @@ def create_run_from_mesh(
     if not water_properties_file.exists() or water_properties_file.is_dir():
         raise ValueError(f'water_properties_file: {water_properties_file} does not exist or is a directory.')
 
-    grid_file = grid_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['grid']}*")
-    store_file = store_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['store']}")
-    area_file = area_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['area']}")
-    material_zone_file = material_zone_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['material_zone']}")
-    outside_zone_file = outside_zone_file or _find_unique_match(mesh_directory, f"*{EXT_BY_FILE['outside_zone']}")
-
     file_pairs_by_file_type = _gather_file_pairs_to_copy(
         run_directory,
         run_root,
-        grid_file=grid_file,
-        store_file=store_file,
-        material_zone_file=material_zone_file,
-        outside_zone_file=outside_zone_file,
-        area_file=area_file,
+        grid_file=grid_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['grid']}*"),
+        store_file=store_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['store']}"),
+        material_zone_file=material_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['material_zone']}"),
+        outside_zone_file=outside_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['outside_zone']}"),
+        area_file=area_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['area']}"),
         water_properties_file=water_properties_file,
     )
     create_run_with_source_files(run_directory, file_pairs_by_file_type)
@@ -218,13 +212,6 @@ def _get_template_files_config(
         template_files_config[field.name] = field_value
 
     return template_files_config
-
-
-def _find_unique_match(directory: Path, pattern: str) -> Path:
-    matches = list(directory.glob(pattern))
-    if len(matches) != 1:
-        raise ValueError(f'Could not find a unique match for "{pattern}" in {directory}, please specify explicitly.')
-    return matches[0]
 
 
 if __name__ == '__main__':
