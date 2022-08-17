@@ -7,9 +7,9 @@ from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-from .config import HeatFluxConfig, RunConfig
-from .fehm_objects import Grid, Node
-from .file_interface import read_grid, write_compact_node_data
+from fehm_toolkit.config import HeatFluxConfig, RunConfig
+from fehm_toolkit.fehm_objects import Grid, Node
+from fehm_toolkit.file_interface import read_grid, write_compact_node_data
 
 logger = logging.getLogger(__name__)
 

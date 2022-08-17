@@ -6,9 +6,9 @@ from typing import Callable, Optional, Sequence
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, RegularGridInterpolator
 
-from .config import ModelConfig, PressureConfig, RunConfig
-from .fehm_objects import Grid, State
-from .file_interface import read_grid, read_nist_lookup_table, read_restart, write_pressure
+from fehm_toolkit.config import ModelConfig, PressureConfig, RunConfig
+from fehm_toolkit.fehm_objects import Grid, State
+from fehm_toolkit.file_interface import read_grid, read_nist_lookup_table, read_restart, write_pressure
 
 logger = logging.getLogger(__name__)
 

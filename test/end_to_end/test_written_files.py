@@ -4,9 +4,9 @@ from numpy.testing import assert_array_almost_equal
 import pytest
 
 from fehm_toolkit.file_interface import read_pressure, write_restart, write_zones
-from fehm_toolkit.heat_in import generate_input_heatflux_file
-from fehm_toolkit.hydrostatic_pressure import generate_hydrostatic_pressure_file
-from fehm_toolkit.rock_properties import generate_rock_properties_files
+from fehm_toolkit.preprocessors.heat_in import generate_input_heatflux_file
+from fehm_toolkit.preprocessors.hydrostatic_pressure import generate_hydrostatic_pressure_file
+from fehm_toolkit.preprocessors.rock_properties import generate_rock_properties_files
 from fehm_toolkit.file_manipulation.append_zones import append_zones
 from fehm_toolkit.file_manipulation.create_restart import create_restart_from_avs, create_restart_from_restart
 from fehm_toolkit.file_manipulation.modify_fehm_input_file import write_modified_fehm_input_file

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from fehm_toolkit.hydrostatic_pressure import build_z_column_around_reference
+from fehm_toolkit.preprocessors.hydrostatic_pressure import build_z_column_around_reference
 
 
 @pytest.mark.parametrize('reference_z, z_interval_m, z_targets, expected', (
