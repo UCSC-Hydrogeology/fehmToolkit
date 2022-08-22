@@ -25,18 +25,13 @@ def generate_input_heatflux_file(
     plot_result: bool = False,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    try:
-        config = RunConfig.from_yaml(config_file)
-        heat_flux_config = config.heat_flux_config
-    except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
-        logger.info('Invalid yaml, trying legacy reader.')
-        heat_flux_config = read_legacy_hfi_config(config_file)
+    config = RunConfig.from_yaml(config_file)
 
     logger.info('Parsing grid into memory')
     grid = read_grid(fehm_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
 
     logger.info('Computing boundary heat flux')
-    heatflux_by_node = compute_boundary_heatflux(grid, heat_flux_config)
+    heatflux_by_node = compute_boundary_heatflux(grid, config.heat_flux_config)
 
     logger.info(f'Writing heat flux to disk: {output_file}')
     write_compact_node_data(

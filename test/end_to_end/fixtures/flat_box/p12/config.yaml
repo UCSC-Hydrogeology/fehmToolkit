@@ -1,24 +1,24 @@
 files_config:
-  area: cond.area
-  check: cond.chk
-  conductivity: cond.cond
+  area: p12.area
+  check: p12.chk
+  conductivity: p12.cond
   error: fehmn.err
   files: fehmn.files
-  final_conditions: cond.fin
-  flow: None
-  grid: cond.fehm
-  heat_flux: cond.hflx
-  history: cond.hist
-  initial_conditions: None
-  input: cond.dat
-  material_zone: cond.zone
-  output: cond.out
-  outside_zone: cond_outside.zone
-  permeability: cond.perm
-  pore_pressure: cond.ppor
-  rock_properties: cond.rock
-  run_root: cond
-  store: cond.stor
+  final_conditions: p12.fin
+  flow: p12.flow
+  grid: p12.fehm
+  heat_flux: p12.hflx
+  history: p12.hist
+  initial_conditions: p12.ini
+  input: p12.dat
+  material_zone: p12.zone
+  output: p12.out
+  outside_zone: p12_outside.zone
+  permeability: p12.perm
+  pore_pressure: p12.ppor
+  rock_properties: p12.rock
+  run_root: p12
+  store: p12.stor
   water_properties: ../../nist120-1800.out
 heat_flux_config:
   heat_flux_model:

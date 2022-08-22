@@ -9,7 +9,6 @@ from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, Regul
 from .config import ModelConfig, PressureConfig, RunConfig
 from .fehm_objects import Grid, State
 from .file_interface import read_grid, read_nist_lookup_table, read_restart, write_pressure
-from .file_interface.legacy_config import read_legacy_ipi_config
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,7 @@ def generate_hydrostatic_pressure_file(
     output_file: Path,
 ):
     logger.info(f'Reading configuration file: {config_file}')
-    pressure_config = _read_pressure_config(config_file)
+    config = RunConfig.from_yaml(config_file)
 
     logger.info('Reading water properties lookup')
     density_lookup_MPa_degC = _read_density_lookup(water_properties_file)
@@ -46,7 +45,7 @@ def generate_hydrostatic_pressure_file(
     pressure_by_node = compute_hydrostatic_pressure(
         grid=grid,
         state=state,
-        pressure_config=pressure_config,
+        pressure_config=config.pressure_config,
         density_lookup_MPa_degC=density_lookup_MPa_degC,
     )
 
@@ -292,15 +291,6 @@ def _get_coordinate_and_temperature_arrays(
         temperatures.append(state.temperature[number - 1])
 
     return np.array(coordinates), np.array(temperatures)
-
-
-def _read_pressure_config(config_file: Path) -> PressureConfig:
-    try:
-        config = RunConfig.from_yaml(config_file)
-        return config.pressure_config
-    except Exception:  # TODO(Dustin): build sepearate tool to combine legacy configs, assume yaml format in utilities.
-        logger.info(f'Format for {config_file} is not YAML, trying legacy reader.')
-        return read_legacy_ipi_config(config_file)
 
 
 def _read_density_lookup(water_properties_file: Path) -> LinearNDInterpolator:
