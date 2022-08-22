@@ -73,8 +73,8 @@ def create_run_from_mesh(
     create_template_run_config(template_files_config, output_file=run_directory / CONFIG_NAME)
 
     files_config = FilesConfig.from_dict(template_files_config)
-    write_files_index(files_config, output_file=run_directory / files_config.files)
-    create_template_input_file(files_config, output_file=run_directory / files_config.input)
+    write_files_index(files_config, output_file=run_directory / files_config.files.name)
+    create_template_input_file(files_config, output_file=run_directory / files_config.input.name)
     logger.info(
         'Suggested next steps:\n'
         f'Update {run_directory / CONFIG_NAME} with desired configuration\n'
