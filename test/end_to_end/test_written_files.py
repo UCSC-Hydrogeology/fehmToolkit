@@ -1,9 +1,12 @@
 import logging
+import os
 from pathlib import Path
+import shutil
 
 from numpy.testing import assert_array_almost_equal
 import pytest
 
+from fehm_toolkit.config import RunConfig
 from fehm_toolkit.file_interface import read_pressure, write_restart, write_zones
 from fehm_toolkit.preprocessors import (
     generate_input_heatflux_file,
@@ -21,17 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
-def test_heat_in_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
+def test_heat_in_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
-    output_file = tmp_path / 'output.hflx'
+    tmp_model_dir = tmp_path / 'model_dir'
 
-    generate_input_heatflux_file(
-        config_file=model_dir / 'config.yaml',
-        grid_file=model_dir / 'cond.fehm',
-        outside_zone_file=model_dir / 'cond_outside.zone',
-        area_file=model_dir / 'cond.area',
-        output_file=output_file,
-    )
+    shutil.copytree(model_dir, tmp_model_dir)
+    output_file = RunConfig.from_yaml(tmp_model_dir / 'config.yaml').files_config.heat_flux
+    os.remove(output_file)
+
+    generate_input_heatflux_file(tmp_model_dir / 'config.yaml')
 
     fixture_file = model_dir / 'cond.hflx'
     assert output_file.read_text() == fixture_file.read_text()
