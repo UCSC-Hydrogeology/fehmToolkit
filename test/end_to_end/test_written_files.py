@@ -209,15 +209,7 @@ def test_generate_hydrostatic_pressure(tmp_path: Path, end_to_end_fixture_dir: P
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'test.iap'
 
-    generate_hydrostatic_pressure_file(
-        config_file=model_dir / 'config.yaml',
-        grid_file=model_dir / 'cond.fehm',
-        material_zone_file=model_dir / 'cond_material.zone',
-        outside_zone_file=model_dir / 'cond_outside.zone',
-        restart_file=model_dir / 'cond.fin',
-        water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
-        output_file=output_file,
-    )
+    generate_hydrostatic_pressure_file(model_dir / 'config.yaml', output_file=output_file)
     fixture_file = model_dir / 'cond.iap'
 
     fixture_pressure = read_pressure(fixture_file)

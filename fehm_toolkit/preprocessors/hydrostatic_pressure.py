@@ -17,30 +17,21 @@ GRAVITY_ACCELERATION_M_S2 = -9.80665
 RANDOM_SAMPLE_SEED = 12
 
 
-def generate_hydrostatic_pressure_file(
-    *,
-    config_file: Path,
-    grid_file: Path,
-    material_zone_file: Path,
-    outside_zone_file: Path,
-    restart_file: Path,
-    water_properties_file: Path,
-    output_file: Path,
-):
+def generate_hydrostatic_pressure_file(config_file: Path, output_file: Path):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
 
     logger.info('Reading water properties lookup')
-    density_lookup_MPa_degC = _read_density_lookup(water_properties_file)
+    density_lookup_MPa_degC = _read_density_lookup(config.files_config.water_properties)
 
     logger.info('Reading node data into memory')
     grid = read_grid(
-        grid_file,
-        material_zone_file=material_zone_file,
-        outside_zone_file=outside_zone_file,
+        config.files_config.grid,
+        material_zone_file=config.files_config.material_zone,
+        outside_zone_file=config.files_config.outside_zone,
         read_elements=False,
     )
-    state, restart_metadata = read_restart(restart_file)
+    state, restart_metadata = read_restart(config.files_config.final_conditions)
 
     pressure_by_node = compute_hydrostatic_pressure(
         grid=grid,
@@ -381,21 +372,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s (%(levelname)s) %(message)s')
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.ipi) file.')
-    parser.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm) file.')
-    parser.add_argument('--material_zone_file', type=Path, help='Path to material (_material.zone) file.')
-    parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
-    parser.add_argument('--restart_file', type=Path, help='Path to restart (.fin/.ini) file.')
-    parser.add_argument('--water_properties_file', type=Path, help='Path to NIST lookup table (.out/.wpi).')
-    parser.add_argument('--output_file', type=Path, help='Path for heatflux output to be written.')
+    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml) file.')
+    parser.add_argument('--output_file', type=Path, help='Path for pressure output (.iap) to be written.')
     args = parser.parse_args()
 
-    generate_hydrostatic_pressure_file(
-        config_file=args.config_file,
-        grid_file=args.grid_file,
-        material_zone_file=args.material_zone_file,
-        outside_zone_file=args.outside_zone_file,
-        restart_file=args.restart_file,
-        water_properties_file=args.water_properties_file,
-        output_file=args.output_file,
-    )
+    generate_hydrostatic_pressure_file(args.config_file, output_file=args.output_file)

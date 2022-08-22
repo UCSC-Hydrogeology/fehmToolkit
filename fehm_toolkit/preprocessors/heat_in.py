@@ -141,7 +141,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
+    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
     parser.add_argument('--plot_result', action='store_true', help='Flag to optionally plot the heatflux.')
     args = parser.parse_args()
 
