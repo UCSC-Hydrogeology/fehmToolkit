@@ -173,9 +173,9 @@ def test_run_config_writes_relative_files(tmp_path, config_dict):
 def test_files_config(files_config_dict):
     config = FilesConfig.from_dict(files_config_dict)
     assert config.run_root == 'run_root'
-    assert config.material_zone == Path('run_root.zone')
-    assert config.area == Path('run_root.area')
-    assert config.water_properties == Path('../../end_to_end/fixtures/nist120-1800.out')
+    assert config.material_zone == Path.cwd() / 'run_root.zone'
+    assert config.area == Path.cwd() / 'run_root.area'
+    assert config.water_properties == Path.cwd() / '../../end_to_end/fixtures/nist120-1800.out'
     for k, v in asdict(config).items():
         if k == 'run_root':
             assert isinstance(v, str)
