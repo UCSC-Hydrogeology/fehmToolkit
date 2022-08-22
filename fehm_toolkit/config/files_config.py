@@ -30,10 +30,15 @@ class FilesConfig:
     initial_conditions: Optional[Path] = None
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict, files_relative_to: Optional[Path] = None):
+        if files_relative_to is None:
+            files_relative_to = Path.cwd()
+        if not files_relative_to.is_dir():
+            files_relative_to = files_relative_to.parent
+
         return cls(**{
-            k: Path(v) if k != 'run_root' and v is not None else v
-            for k, v in dct.items()
+            key: files_relative_to / file_name if key != 'run_root' and file_name is not None else file_name
+            for key, file_name in dct.items()
         })
 
     def relative_to(self, base: Path):
