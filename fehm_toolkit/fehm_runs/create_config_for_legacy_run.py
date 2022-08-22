@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from fehm_toolkit.config import FilesConfig, RunConfig
+from fehm_toolkit.file_interface import get_unique_file
 from fehm_toolkit.file_interface.legacy_config import (
     read_legacy_hfi_config,
     read_legacy_ipi_config,
@@ -13,7 +14,7 @@ from fehm_toolkit.file_interface.legacy_config import (
 logger = logging.getLogger(__name__)
 
 
-def create_run_config_for_legacy_directory(
+def create_config_for_legacy_run(
     directory: Path,
     config_file: Path,
     hfi_file: Optional[Path] = None,
@@ -43,33 +44,33 @@ def create_run_config_for_legacy_directory(
     if not directory.is_dir():
         raise ValueError(f'{directory.absolute()} is not a directory.')
 
-    hfi_file = hfi_file or _find_unique_match(directory, '*.hfi')
-    ipi_file = ipi_file or _find_unique_match(directory, '*.ipi')
-    rpi_file = rpi_file or _find_unique_match(directory, '*.rpi')
+    hfi_file = hfi_file or get_unique_file(directory, '*.hfi')
+    ipi_file = ipi_file or get_unique_file(directory, '*.ipi')
+    rpi_file = rpi_file or get_unique_file(directory, '*.rpi')
     run_root = hfi_file.stem if hfi_file.stem == ipi_file.stem == rpi_file.stem else 'run'
 
     files_config = FilesConfig(
         run_root=run_root,
         material_zone=material_zone_file or _find_material_zone_file(directory),
-        outside_zone=outside_zone_file or _find_unique_match(directory, '*_outside.zone'),
-        area=area_file or _find_unique_match(directory, '*.area'),
-        rock_properties=rock_properties_file or _find_unique_match(directory, '*.rock'),
-        conductivity=conductivity_file or _find_unique_match(directory, '*.cond'),
-        pore_pressure=pore_pressure_file or _find_unique_match(directory, '*.ppor'),
-        permeability=permeability_file or _find_unique_match(directory, '*.perm'),
-        files=files_file or _find_unique_match(directory, '*.files'),
-        grid=grid_file or _find_unique_match(directory, '*.fehm*'),
-        input=input_file or _find_unique_match(directory, '*.dat'),
-        output=output_file or _find_unique_match(directory, '*.out'),
-        store=store_file or _find_unique_match(directory, '*.stor'),
-        history=history_file or _find_unique_match(directory, '*.hist'),
-        water_properties=water_properties_file or _find_unique_match(directory, '*.wpi'),
-        check=check_file or _find_unique_match(directory, '*.chk'),
-        error=error_file or _find_unique_match(directory, '*.err'),
-        final_conditions=final_conditions_file or _find_unique_match(directory, '*.fin'),
-        flow=flow_file or _find_unique_match(directory, '*.flow', allow_none=True),
-        heat_flux=heat_flux_file or _find_unique_match(directory, '*.hflx', allow_none=True),
-        initial_conditions=initial_conditions_file or _find_unique_match(directory, '*.ini', allow_none=True),
+        outside_zone=outside_zone_file or get_unique_file(directory, '*_outside.zone'),
+        area=area_file or get_unique_file(directory, '*.area'),
+        rock_properties=rock_properties_file or get_unique_file(directory, '*.rock'),
+        conductivity=conductivity_file or get_unique_file(directory, '*.cond'),
+        pore_pressure=pore_pressure_file or get_unique_file(directory, '*.ppor'),
+        permeability=permeability_file or get_unique_file(directory, '*.perm'),
+        files=files_file or get_unique_file(directory, '*.files'),
+        grid=grid_file or get_unique_file(directory, '*.fehm*'),
+        input=input_file or get_unique_file(directory, '*.dat'),
+        output=output_file or get_unique_file(directory, '*.out'),
+        store=store_file or get_unique_file(directory, '*.stor'),
+        history=history_file or get_unique_file(directory, '*.hist'),
+        water_properties=water_properties_file or get_unique_file(directory, '*.wpi'),
+        check=check_file or get_unique_file(directory, '*.chk'),
+        error=error_file or get_unique_file(directory, '*.err'),
+        final_conditions=final_conditions_file or get_unique_file(directory, '*.fin'),
+        flow=flow_file or get_unique_file(directory, '*.flow', optional=True),
+        heat_flux=heat_flux_file or get_unique_file(directory, '*.hflx', optional=True),
+        initial_conditions=initial_conditions_file or get_unique_file(directory, '*.ini', optional=True),
     )
     files_config.validate()
     files_config = files_config.relative_to(directory)
@@ -82,16 +83,6 @@ def create_run_config_for_legacy_directory(
     )
     logger.info('Writing config file to %s', config_file)
     run_config.to_yaml(config_file)
-
-
-def _find_unique_match(directory: Path, pattern: str, allow_none: bool = False) -> Path:
-    matches = list(directory.glob(pattern))
-    if not matches and allow_none:
-        logger.info('No file found for optional file "%s", skipping...', pattern)
-        return None
-    if len(matches) != 1:
-        raise ValueError(f'Found {len(matches)} matches for "{pattern}" in {directory}, please specify explicitly.')
-    return matches[0]
 
 
 def _find_material_zone_file(directory: Path) -> Path:
@@ -142,7 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('--initial_conditions_file', type=Path, help='Optional location of initial_conditions file.')
     args = parser.parse_args()
 
-    create_run_config_for_legacy_directory(
+    create_config_for_legacy_run(
         args.directory,
         config_file=args.config_file or args.directory / 'config.yaml',
         hfi_file=args.hfi_file,
