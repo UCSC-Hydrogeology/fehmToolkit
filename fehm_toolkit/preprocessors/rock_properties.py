@@ -13,31 +13,21 @@ logger = logging.getLogger(__name__)
 PROPERTY_KINDS = ('grain_density', 'specific_heat', 'porosity', 'conductivity', 'permeability', 'compressibility')
 
 
-def generate_rock_properties_files(
-    *,
-    config_file: Path,
-    grid_file: Path,
-    outside_zone_file: Path,
-    material_zone_file: Path,
-    cond_output_file: Path,
-    perm_output_file: Path,
-    ppor_output_file: Path,
-    rock_output_file: Path,
-):
+def generate_rock_properties_files(config_file: Path):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
 
     logger.info('Parsing grid into memory')
     grid = read_grid(
-        grid_file,
-        outside_zone_file=outside_zone_file,
-        material_zone_file=material_zone_file,
+        config.files_config.grid,
+        outside_zone_file=config.files_config.outside_zone,
+        material_zone_file=config.files_config.material_zone,
         read_elements=False,
     )
 
     property_lookups = compute_rock_properties(grid, config.rock_properties_config)
 
-    logger.info('Writing property file (rock): %s', rock_output_file)
+    logger.info('Writing property file (rock): %s', config.files_config.rock_properties)
     output_by_node = {
         node.number: (
             property_lookups['grain_density'][node.number],
@@ -46,19 +36,19 @@ def generate_rock_properties_files(
         )
         for node in grid.nodes
     }
-    write_compact_node_data(output_by_node, rock_output_file, header='rock\n', footer='\n')
+    write_compact_node_data(output_by_node, config.files_config.rock_properties, header='rock\n', footer='\n')
 
     for property_kind, header, output_file in (
-        ('conductivity', 'cond\n', cond_output_file),
-        ('permeability', 'perm\n', perm_output_file),
-        ('compressibility', 'ppor\n   1\n', ppor_output_file),
+        ('conductivity', 'cond\n', config.files_config.conductivity),
+        ('permeability', 'perm\n', config.files_config.permeability),
+        ('compressibility', 'ppor\n   1\n', config.files_config.pore_pressure),
     ):
         logger.info('Writing property file (%s): %s', header, output_file)
         write_compact_node_data(property_lookups[property_kind], output_file, header=header, footer='\n')
 
 
 def compute_rock_properties(grid: Grid, rock_properties_config: RockPropertiesConfig) -> dict[str, dict[int, float]]:
-    _validate_config_all_zones_covered(rock_properties_config, zones=grid.material_zones)
+    _validate_config_all_zones_exist(rock_properties_config, zones=grid.material_zones)
 
     model_lookup_by_zone_and_property = rock_properties_config.create_model_lookup_by_zone_and_property()
     property_lookups = {}
@@ -99,7 +89,7 @@ def _update_with_zone_properties(property_lookups: dict, zone_properties: dict) 
     return combined
 
 
-def _validate_config_all_zones_covered(config: RockPropertiesConfig, zones: tuple[Zone]):
+def _validate_config_all_zones_exist(config: RockPropertiesConfig, zones: tuple[Zone]):
     model_lookup_by_zone_and_property = config.create_model_lookup_by_zone_and_property()
     config_zones = model_lookup_by_zone_and_property.keys()
 
@@ -108,9 +98,9 @@ def _validate_config_all_zones_covered(config: RockPropertiesConfig, zones: tupl
     if mismatched_assignment_zones:
         raise ValueError(f'Zones in zone_assignment_order do not match those in config {mismatched_assignment_zones}')
 
-    mismatched_zones = config_zones ^ {zone.number for zone in zones}  # symmetric difference
+    mismatched_zones = config_zones - {zone.number for zone in zones}
     if mismatched_zones:
-        raise ValueError(f'Config zones do not match zones in grid {mismatched_zones}')
+        raise ValueError(f'Config zones do not exist in grid {mismatched_zones}')
 
     for zone, zone_config in model_lookup_by_zone_and_property.items():
         mismatched_property_kinds = zone_config.keys() ^ PROPERTY_KINDS
@@ -130,23 +120,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm) file.')
-    parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
-    parser.add_argument('--material_zone_file', type=Path, help='Path to material zone (_material.zone) file.')
-    parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
-    parser.add_argument('--cond_output_file', type=Path, help='Path for COND output to be written.')
-    parser.add_argument('--perm_output_file', type=Path, help='Path for PERM output to be written.')
-    parser.add_argument('--ppor_output_file', type=Path, help='Path for PPOR output to be written.')
-    parser.add_argument('--rock_output_file', type=Path, help='Path for ROCK output to be written.')
+    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml) file.')
     args = parser.parse_args()
 
-    generate_rock_properties_files(
-        config_file=args.config_file,
-        grid_file=args.grid_file,
-        outside_zone_file=args.outside_zone_file,
-        material_zone_file=args.material_zone_file,
-        cond_output_file=args.cond_output_file,
-        perm_output_file=args.perm_output_file,
-        ppor_output_file=args.ppor_output_file,
-        rock_output_file=args.rock_output_file,
-    )
+    generate_rock_properties_files(args.config_file)

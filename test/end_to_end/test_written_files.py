@@ -42,20 +42,17 @@ def test_heat_in_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, m
 def test_rock_properties_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     logger.info(f'Generating rock properties files ({mesh_name}).')
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
-    generate_rock_properties_files(
-        config_file=model_dir / 'config.yaml',
-        grid_file=model_dir / 'cond.fehm',
-        outside_zone_file=model_dir / 'cond_outside.zone',
-        material_zone_file=model_dir / 'cond_material.zone',
-        cond_output_file=tmp_path / 'output.cond',
-        perm_output_file=tmp_path / 'output.perm',
-        ppor_output_file=tmp_path / 'output.ppor',
-        rock_output_file=tmp_path / 'output.rock',
-    )
+
+    tmp_model_dir = tmp_path / 'model_dir'
+    shutil.copytree(model_dir, tmp_model_dir)
+    for output_extension in ('cond', 'perm', 'ppor', 'rock'):
+        os.remove(tmp_model_dir / f'cond.{output_extension}')
+
+    generate_rock_properties_files(tmp_model_dir / 'config.yaml')
 
     for output_extension in ('cond', 'perm', 'ppor', 'rock'):
         logger.info(f'Comparing output for {output_extension} file.')
-        output_file = tmp_path / f'output.{output_extension}'
+        output_file = tmp_model_dir / f'cond.{output_extension}'
         fixture_file = model_dir / f'cond.{output_extension}'
         assert output_file.read_text() == fixture_file.read_text()
 
