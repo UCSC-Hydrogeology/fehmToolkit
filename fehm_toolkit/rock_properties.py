@@ -6,7 +6,6 @@ from typing import Iterable
 from .config import ModelConfig, RockPropertiesConfig, RunConfig
 from .fehm_objects import Node, Grid, Zone
 from .file_interface import read_grid, write_compact_node_data
-from .file_interface.legacy_config import read_legacy_rpi_config
 from .property_models import get_rock_property_model
 
 logger = logging.getLogger(__name__)
@@ -17,7 +16,7 @@ PROPERTY_KINDS = ('grain_density', 'specific_heat', 'porosity', 'conductivity', 
 def generate_rock_properties_files(
     *,
     config_file: Path,
-    fehm_file: Path,
+    grid_file: Path,
     outside_zone_file: Path,
     material_zone_file: Path,
     cond_output_file: Path,
@@ -30,7 +29,7 @@ def generate_rock_properties_files(
 
     logger.info('Parsing grid into memory')
     grid = read_grid(
-        fehm_file,
+        grid_file,
         outside_zone_file=outside_zone_file,
         material_zone_file=material_zone_file,
         read_elements=False,
@@ -131,7 +130,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--fehm_file', type=Path, help='Path to main grid (.fehm) file.')
+    parser.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm) file.')
     parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
     parser.add_argument('--material_zone_file', type=Path, help='Path to material zone (_material.zone) file.')
     parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
@@ -143,7 +142,7 @@ if __name__ == '__main__':
 
     generate_rock_properties_files(
         config_file=args.config_file,
-        fehm_file=args.fehm_file,
+        grid_file=args.grid_file,
         outside_zone_file=args.outside_zone_file,
         material_zone_file=args.material_zone_file,
         cond_output_file=args.cond_output_file,

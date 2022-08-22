@@ -21,7 +21,7 @@ def test_heat_in_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
 
     generate_input_heatflux_file(
         config_file=model_dir / 'config.yaml',
-        fehm_file=model_dir / 'cond.fehm',
+        grid_file=model_dir / 'cond.fehm',
         outside_zone_file=model_dir / 'cond_outside.zone',
         area_file=model_dir / 'cond.area',
         output_file=output_file,
@@ -37,7 +37,7 @@ def test_rock_properties_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     generate_rock_properties_files(
         config_file=model_dir / 'config.yaml',
-        fehm_file=model_dir / 'cond.fehm',
+        grid_file=model_dir / 'cond.fehm',
         outside_zone_file=model_dir / 'cond_outside.zone',
         material_zone_file=model_dir / 'cond_material.zone',
         cond_output_file=tmp_path / 'output.cond',
@@ -183,7 +183,7 @@ def test_generate_hydrostatic_pressure(tmp_path, end_to_end_fixture_dir, mesh_na
 
     generate_hydrostatic_pressure_file(
         config_file=model_dir / 'config.yaml',
-        fehm_file=model_dir / 'cond.fehm',
+        grid_file=model_dir / 'cond.fehm',
         material_zone_file=model_dir / 'cond_material.zone',
         outside_zone_file=model_dir / 'cond_outside.zone',
         restart_file=model_dir / 'cond.fin',
