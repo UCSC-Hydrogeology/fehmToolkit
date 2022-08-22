@@ -71,6 +71,9 @@ def create_run_config_for_legacy_directory(
         heat_flux=heat_flux_file or _find_unique_match(directory, '*.hflx', allow_none=True),
         initial_conditions=initial_conditions_file or _find_unique_match(directory, '*.ini', allow_none=True),
     )
+    files_config.validate()
+    files_config = files_config.relative_to(directory)
+
     run_config = RunConfig(
         heat_flux_config=read_legacy_hfi_config(hfi_file),
         pressure_config=read_legacy_ipi_config(ipi_file),

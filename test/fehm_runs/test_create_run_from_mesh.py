@@ -54,5 +54,8 @@ def test_build_template_from_run_config():
     template = build_template_from_type(RunConfig)
     assert template.keys() == {'files_config', 'heat_flux_config', 'rock_properties_config', 'pressure_config'}
     assert template['heat_flux_config'] == {'heat_flux_model': {'kind': 'replace__str', 'params': {}}}
-    for value in template['files_config'].values():
-        assert value in ('replace__Path', 'replace__Path|NoneType')
+    for key, value in template['files_config'].items():
+        if key == 'run_root':
+            assert value == 'replace__str'
+        else:
+            assert value in ('replace__Path', 'replace__Path|NoneType')
