@@ -8,6 +8,7 @@ from .preprocessors import (
     generate_input_heat_flux,
     generate_rock_properties,
 )
+from .file_manipulation import append_zones
 
 
 def entry_point():
@@ -81,6 +82,29 @@ def entry_point():
     pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
     pressure.set_defaults(func=generate_hydrostatic_pressure)
 
+    zones = subparsers.add_parser(
+        'append_zones',
+        help='Append zones from one zone file to another, overwriting the target',
+    )
+    zones.add_argument('add_zones_from_file', type=Path, help='Source file for new zones to add')
+    zones.add_argument('add_zones_to_file', type=Path, help='Target file that new zones will be added to')
+    zones.add_argument(
+        'zone_keys_to_add', type=int_or_string, nargs='+', help='Space-separated list of zone names or numbers',
+    )
+    zones.set_defaults(func=append_zones)
+
     args = vars(parser.parse_args())
+
+    if 'func' not in args:
+        parser.print_help()
+        return
+
     func = args.pop('func')
     func(**args)
+
+
+def int_or_string(arg):
+    try:
+        return int(arg)  # try convert to int
+    except ValueError:
+        return arg

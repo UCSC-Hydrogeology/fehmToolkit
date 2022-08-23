@@ -61,13 +61,13 @@ def test_rock_properties_against_fixture(tmp_path: Path, end_to_end_fixture_dir:
 def test_append_zones_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'output.zone'
-    combined_zones = append_zones(
-        zone_keys_to_add=('top', 'bottom'),
-        add_zones_from_file=model_dir / 'cond_outside.zone',
-        add_zones_to_file=model_dir / 'cond_material.zone',
-    )
-    write_zones(combined_zones, output_file, include_zone_names=False)
+    shutil.copy(model_dir / 'cond_material.zone', output_file)
 
+    append_zones(
+        add_zones_from_file=model_dir / 'cond_outside.zone',
+        add_zones_to_file=output_file,
+        zone_keys_to_add=('top', 'bottom'),
+    )
     fixture_file = model_dir / 'cond.zone'
     assert output_file.read_text() == fixture_file.read_text()
 
