@@ -77,7 +77,7 @@ def create_run_from_mesh(
     create_template_input_file(files_config, output_file=run_directory / files_config.input.name)
     logger.info(
         'Suggested next steps:\n'
-        f'Update {run_directory / CONFIG_NAME} with desired configuration\n'
+        f'* Update {run_directory / CONFIG_NAME} with desired configuration\n'
         '* Run heat_in to generate heat flux file\n'
         '* Run rock_properties to generate physical properties files\n'
         f'* Update {files_config.input} with desired configuration\n'
@@ -212,31 +212,3 @@ def _get_template_files_config(
         template_files_config[field.name] = field_value
 
     return template_files_config
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s (%(levelname)s) %(message)s')
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('mesh_directory', type=Path, help='Path to mesh directory containing source files.')
-    parser.add_argument('run_directory', type=Path, help='Path to destination run directory, to be created.')
-    parser.add_argument('water_properties_file', type=Path, help='Path to NIST lookup table (.out/.wpi).')
-    parser.add_argument('--run_root', type=str, help='Common root to be used to name run files.')
-    parser.add_argument('--grid_file', type=Path, help='Path to main grid [.fehm(n)] file.')
-    parser.add_argument('--store_file', type=Path, help='Path to FEHM storage coeffieicents (.stor) file.')
-    parser.add_argument('--material_zone_file', type=Path, help='Path to material (_material.zone) file.')
-    parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
-    parser.add_argument('--area_file', type=Path, help='Path to boundary area (.area) file.')
-    args = parser.parse_args()
-
-    create_run_from_mesh(
-        mesh_directory=args.mesh_directory,
-        run_directory=args.run_directory,
-        water_properties_file=args.water_properties_file,
-        run_root=args.run_root,
-        grid_file=args.grid_file,
-        store_file=args.store_file,
-        material_zone_file=args.material_zone_file,
-        outside_zone_file=args.outside_zone_file,
-        area_file=args.area_file,
-    )

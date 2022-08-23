@@ -1,4 +1,3 @@
-import argparse
 import logging
 from pathlib import Path
 from typing import Optional
@@ -16,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 def create_config_for_legacy_run(
     directory: Path,
-    config_file: Path,
     hfi_file: Optional[Path] = None,
     rpi_file: Optional[Path] = None,
     ipi_file: Optional[Path] = None,
@@ -80,8 +78,8 @@ def create_config_for_legacy_run(
         rock_properties_config=read_legacy_rpi_config(rpi_file),
         files_config=files_config,
     )
-    logger.info('Writing config file to %s', config_file)
-    run_config.to_yaml(config_file)
+    logger.info('Writing config file to %s', directory / 'config.yaml')
+    run_config.to_yaml(directory / 'config.yaml')
 
 
 def _find_material_zone_file(directory: Path) -> Path:
@@ -99,63 +97,3 @@ def _find_material_zone_file(directory: Path) -> Path:
         raise ValueError('Could not find unique material zone file.')
 
     return material_zone_file
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('directory', type=Path, help='Path to directory with legacy configuration files.')
-    parser.add_argument('--config_file', type=Path, help='Output configuration file location (default: config.yaml).')
-    parser.add_argument('--hfi_file', type=Path, help='Optional location of legacy heat flux configuration file.')
-    parser.add_argument('--rpi_file', type=Path, help='Optional location of legacy rock properties configuration file.')
-    parser.add_argument('--ipi_file', type=Path, help='Optional location of legacy pressure configuration file.')
-    parser.add_argument('--material_zone_file', type=Path, help='Optional location of material_zone file.')
-    parser.add_argument('--outside_zone_file', type=Path, help='Optional location of outside_zone file.')
-    parser.add_argument('--area_file', type=Path, help='Optional location of area file.')
-    parser.add_argument('--rock_properties_file', type=Path, help='Optional location of rock_properties file.')
-    parser.add_argument('--conductivity_file', type=Path, help='Optional location of conductivity file.')
-    parser.add_argument('--pore_pressure_file', type=Path, help='Optional location of pore_pressure file.')
-    parser.add_argument('--permeability_file', type=Path, help='Optional location of permeability file.')
-    parser.add_argument('--files_file', type=Path, help='Optional location of files file.')
-    parser.add_argument('--grid_file', type=Path, help='Optional location of grid file.')
-    parser.add_argument('--input_file', type=Path, help='Optional location of input file.')
-    parser.add_argument('--output_file', type=Path, help='Optional location of output file.')
-    parser.add_argument('--store_file', type=Path, help='Optional location of store file.')
-    parser.add_argument('--history_file', type=Path, help='Optional location of history file.')
-    parser.add_argument('--water_properties_file', type=Path, help='Optional location of water_properties file.')
-    parser.add_argument('--check_file', type=Path, help='Optional location of check file.')
-    parser.add_argument('--error_file', type=Path, help='Optional location of error file.')
-    parser.add_argument('--final_conditions_file', type=Path, help='Optional location of final_conditions file.')
-    parser.add_argument('--flow_file', type=Path, help='Optional location of flow file.')
-    parser.add_argument('--heat_flux_file', type=Path, help='Optional location of heat_flux file.')
-    parser.add_argument('--initial_conditions_file', type=Path, help='Optional location of initial_conditions file.')
-    args = parser.parse_args()
-
-    create_config_for_legacy_run(
-        args.directory,
-        config_file=args.config_file or args.directory / 'config.yaml',
-        hfi_file=args.hfi_file,
-        rpi_file=args.rpi_file,
-        ipi_file=args.ipi_file,
-        material_zone_file=args.material_zone_file,
-        outside_zone_file=args.outside_zone_file,
-        area_file=args.area_file,
-        rock_properties_file=args.rock_properties_file,
-        conductivity_file=args.conductivity_file,
-        pore_pressure_file=args.pore_pressure_file,
-        permeability_file=args.permeability_file,
-        files_file=args.files_file,
-        grid_file=args.grid_file,
-        input_file=args.input_file,
-        output_file=args.output_file,
-        store_file=args.store_file,
-        history_file=args.history_file,
-        water_properties_file=args.water_properties_file,
-        check_file=args.check_file,
-        error_file=args.error_file,
-        final_conditions_file=args.final_conditions_file,
-        flow_file=args.flow_file,
-        heat_flux_file=args.heat_flux_file,
-        initial_conditions_file=args.initial_conditions_file,
-    )
