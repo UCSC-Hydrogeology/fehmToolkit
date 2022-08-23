@@ -1,3 +1,3 @@
-from .heat_in import generate_input_heatflux_file
-from .hydrostatic_pressure import generate_hydrostatic_pressure_file
-from .rock_properties import generate_rock_properties_files
+from .heat_in import generate_input_heat_flux
+from .hydrostatic_pressure import generate_hydrostatic_pressure
+from .rock_properties import generate_rock_properties

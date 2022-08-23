@@ -1,4 +1,3 @@
-import argparse
 import logging
 from pathlib import Path
 from typing import Iterable
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 PROPERTY_KINDS = ('grain_density', 'specific_heat', 'porosity', 'conductivity', 'permeability', 'compressibility')
 
 
-def generate_rock_properties_files(config_file: Path):
+def generate_rock_properties(config_file: Path):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
 
@@ -114,13 +113,3 @@ def _validate_all_nodes_covered(property_lookups: dict, n_nodes: int):
         missing_nodes = expected_nodes - values_by_node.keys()
         if missing_nodes:
             raise ValueError(f'Computed {property_kind} missing values for nodes: {missing_nodes}')
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml) file.')
-    args = parser.parse_args()
-
-    generate_rock_properties_files(args.config_file)

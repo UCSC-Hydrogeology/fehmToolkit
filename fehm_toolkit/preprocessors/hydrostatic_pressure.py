@@ -1,4 +1,3 @@
-import argparse
 import logging
 from pathlib import Path
 from typing import Callable, Optional, Sequence
@@ -17,7 +16,7 @@ GRAVITY_ACCELERATION_M_S2 = -9.80665
 RANDOM_SAMPLE_SEED = 12
 
 
-def generate_hydrostatic_pressure_file(config_file: Path, output_file: Path):
+def generate_hydrostatic_pressure(config_file: Path, output_file: Path):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
 
@@ -366,14 +365,3 @@ def _validate_pressure_config(config: PressureConfig, node_coordinates: np.ndarr
                 f'Number of sample dimensions ({sample_xy_dimensions}) '
                 f'inconsistent with grid dimensions ({node_xy_dimensions}).'
             )
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s (%(levelname)s) %(message)s')
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml) file.')
-    parser.add_argument('--output_file', type=Path, help='Path for pressure output (.iap) to be written.')
-    args = parser.parse_args()
-
-    generate_hydrostatic_pressure_file(args.config_file, output_file=args.output_file)
