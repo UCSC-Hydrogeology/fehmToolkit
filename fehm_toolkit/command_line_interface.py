@@ -21,6 +21,13 @@ def entry_point():
     create_run.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
     create_run.add_argument('run_directory', type=Path, help='Destination run directory to be created')
     create_run.add_argument('water_properties_file', type=Path, help='NIST lookup table (.out/.wpi)')
+    create_run.add_argument(
+        '--append_outside_zones',
+        type=int_or_string,
+        nargs='+',
+        help='Outside zones to append to material zone file.',
+        default=('top', 'bottom'),
+    )
     create_run.add_argument('--run_root', type=str, help='Common root to be used to name run files')
     create_run.add_argument('--grid_file', type=Path, help='Main grid (.fehm[n]) file')
     create_run.add_argument('--store_file', type=Path, help='FEHM storage coefficients (.stor) file')
