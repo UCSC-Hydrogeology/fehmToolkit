@@ -3,6 +3,11 @@ import logging
 from pathlib import Path
 
 from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh
+from .preprocessors import (
+    generate_hydrostatic_pressure,
+    generate_input_heat_flux,
+    generate_rock_properties,
+)
 
 
 def entry_point():
@@ -11,23 +16,23 @@ def entry_point():
     parser = argparse.ArgumentParser(prog='fehmtk', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(help='FEHM toolkit commands')
 
-    create_run = subparsers.add_parser('create_run_from_mesh', help='Generate a new run directory from a LaGriT mesh')
-    create_run.add_argument('mesh_directory', type=Path, help='Path to mesh directory containing source files')
-    create_run.add_argument('run_directory', type=Path, help='Path to destination run directory to be created')
-    create_run.add_argument('water_properties_file', type=Path, help='Path to NIST lookup table (.out/.wpi)')
+    create_run = subparsers.add_parser('create_run_from_mesh', help='Create a new run directory from a LaGriT mesh')
+    create_run.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
+    create_run.add_argument('run_directory', type=Path, help='Destination run directory to be created')
+    create_run.add_argument('water_properties_file', type=Path, help='NIST lookup table (.out/.wpi)')
     create_run.add_argument('--run_root', type=str, help='Common root to be used to name run files')
-    create_run.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm[n]) file')
-    create_run.add_argument('--store_file', type=Path, help='Path to FEHM storage coefficients (.stor) file')
-    create_run.add_argument('--material_zone_file', type=Path, help='Path to material (_material.zone) file')
-    create_run.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file')
-    create_run.add_argument('--area_file', type=Path, help='Path to boundary area (.area) file')
+    create_run.add_argument('--grid_file', type=Path, help='Main grid (.fehm[n]) file')
+    create_run.add_argument('--store_file', type=Path, help='FEHM storage coefficients (.stor) file')
+    create_run.add_argument('--material_zone_file', type=Path, help='Material (_material.zone) file')
+    create_run.add_argument('--outside_zone_file', type=Path, help='Boundary (_outside.zone) file')
+    create_run.add_argument('--area_file', type=Path, help='Boundary area (.area) file')
     create_run.set_defaults(func=create_run_from_mesh)
 
     create_config = subparsers.add_parser(
         'create_config_for_legacy_run',
-        help='Generate a config.yaml file from legacy configuration files (e.g. .hfi/.rpi/.ipi)',
+        help='Create config.yaml file from legacy configuration files (e.g. .hfi/.rpi/.ipi)',
     )
-    create_config.add_argument('directory', type=Path, help='Path to directory with legacy configuration files')
+    create_config.add_argument('directory', type=Path, help='Directory with legacy configuration files')
     create_config.add_argument('--hfi_file', type=Path, help='Legacy heat flux configuration file')
     create_config.add_argument('--rpi_file', type=Path, help='Legacy rock properties configuration file')
     create_config.add_argument('--ipi_file', type=Path, help='Legacy pressure configuration file')
@@ -52,6 +57,29 @@ def entry_point():
     create_config.add_argument('--heat_flux_file', type=Path, help='Heat flux file')
     create_config.add_argument('--initial_conditions_file', type=Path, help='Initial_conditions file')
     create_config.set_defaults(func=create_config_for_legacy_run)
+
+    rock_properties = subparsers.add_parser(
+        'generate_rock_properties',
+        help='Generate rock properties for run based on configuration'
+    )
+    rock_properties.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    rock_properties.set_defaults(func=generate_rock_properties)
+
+    heat_in = subparsers.add_parser(
+        'generate_input_heat_flux',
+        help='Generate input heat flux based on run configuration'
+    )
+    heat_in.add_argument('config_file', type=Path, help='Run configuration (.yaml/.hfi) file')
+    heat_in.add_argument('--plot_result', action='store_true', help='Flag to plot the heat flux')
+    heat_in.set_defaults(func=generate_input_heat_flux)
+
+    pressure = subparsers.add_parser(
+        'generate_hydrostatic_pressure',
+        help='Generate hydrostatic pressures for run by bootstrapping down the column',
+    )
+    pressure.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
+    pressure.set_defaults(func=generate_hydrostatic_pressure)
 
     args = vars(parser.parse_args())
     func = args.pop('func')
