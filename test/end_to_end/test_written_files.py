@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from numpy.testing import assert_array_almost_equal
 import pytest
@@ -37,7 +38,7 @@ def test_heat_in_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
-def test_rock_properties_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
+def test_rock_properties_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     logger.info(f'Generating rock properties files ({mesh_name}).')
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     generate_rock_properties_files(
@@ -59,7 +60,7 @@ def test_rock_properties_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
-def test_append_zones_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name):
+def test_append_zones_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'output.zone'
     combined_zones = append_zones(
@@ -77,7 +78,13 @@ def test_append_zones_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_nam
     ('flat_box', 'p12', 11),
     ('outcrop_2d', 'p13', 2),
 ))
-def test_create_restart_from_avs_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name, avs_number):
+def test_create_restart_from_avs_against_fixture(
+    tmp_path: Path,
+    end_to_end_fixture_dir: Path,
+    mesh_name: str,
+    model_name: str,
+    avs_number: int,
+):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
     state, metadata = create_restart_from_avs(
         avs_file=model_dir / f'{model_name}.{avs_number:05d}_sca_node.avs',
@@ -99,7 +106,12 @@ def test_create_restart_from_avs_against_fixture(tmp_path, end_to_end_fixture_di
         ('warped_box', 'cond'),
     )
 )
-def test_create_restart_from_restart_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+def test_create_restart_from_restart_against_fixture(
+    tmp_path: Path,
+    end_to_end_fixture_dir: Path,
+    mesh_name: str,
+    model_name: str,
+):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
     state, metadata = create_restart_from_restart(model_dir / f'{model_name}.fin', reset_model_time=True)
 
@@ -142,7 +154,12 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixtu
         ('warped_box', 'cond'),
     )
 )
-def test_write_modified_fehm_input_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+def test_write_modified_fehm_input_against_fixture(
+    tmp_path: Path,
+    end_to_end_fixture_dir: Path,
+    mesh_name: str,
+    model_name: str,
+):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
     output_file = tmp_path / 'test.dat'
     file_extensions = {'perm', 'rock', 'cond', 'ppor', 'hflx', 'flow'}
@@ -166,7 +183,12 @@ def test_write_modified_fehm_input_against_fixture(tmp_path, end_to_end_fixture_
         ('warped_box', 'cond'),
     )
 )
-def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
+def test_write_modified_fehm_input_with_timing_against_fixture(
+    tmp_path: Path,
+    end_to_end_fixture_dir: Path,
+    mesh_name: str,
+    model_name: str,
+):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
     output_file = tmp_path / 'test.dat'
 
@@ -182,7 +204,7 @@ def test_write_modified_fehm_input_with_timing_against_fixture(tmp_path, end_to_
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
-def test_generate_hydrostatic_pressure(tmp_path, end_to_end_fixture_dir, mesh_name):
+def test_generate_hydrostatic_pressure(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'test.iap'
 

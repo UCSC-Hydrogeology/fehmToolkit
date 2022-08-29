@@ -73,7 +73,6 @@ def create_config_for_legacy_run(
         initial_conditions=initial_conditions_file or get_unique_file(directory, '*.ini', optional=True),
     )
     files_config.validate()
-    files_config = files_config.relative_to(directory)
 
     run_config = RunConfig(
         heat_flux_config=read_legacy_hfi_config(hfi_file),

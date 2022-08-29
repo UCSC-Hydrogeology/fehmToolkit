@@ -19,9 +19,9 @@ class RunConfig:
     pressure_config: Optional[PressureConfig] = None
 
     @classmethod
-    def from_dict(cls, dct: dict):
+    def from_dict(cls, dct: dict, files_relative_to: Optional[Path] = None):
         return cls(
-            files_config=FilesConfig.from_dict(dct['files_config']),
+            files_config=FilesConfig.from_dict(dct['files_config'], files_relative_to),
             heat_flux_config=HeatFluxConfig.from_dict(dct['heat_flux_config']),
             rock_properties_config=RockPropertiesConfig.from_dict(dct['rock_properties_config']),
             pressure_config=PressureConfig.from_dict(dct['pressure_config']) if dct.get('pressure_config') else None,
@@ -31,10 +31,14 @@ class RunConfig:
     def from_yaml(cls, config_file: Path):
         with open(config_file) as f:
             raw_config = yaml.load(f, Loader=yaml.Loader)
-            return cls.from_dict(raw_config)
+        return cls.from_dict(raw_config, files_relative_to=config_file)
 
     def to_yaml(self, config_file: Path):
+        files_config_relative_to_output = self.files_config.relative_to(config_file.parent)
+
         run_config_dict = dataclasses.asdict(self)
-        run_config_dict['files_config'] = {k: str(v) for k, v in run_config_dict['files_config'].items()}
+        run_config_dict['files_config'] = {
+            k: str(v) for k, v in dataclasses.asdict(files_config_relative_to_output).items()
+        }
         with open(config_file, 'w') as f:
             yaml.dump(run_config_dict, f, Dumper=yaml.Dumper)
