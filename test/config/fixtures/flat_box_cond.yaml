@@ -1,0 +1,149 @@
+files_config:
+  area: cond.area
+  check: cond.chk
+  conductivity: cond.cond
+  error: fehmn.err
+  files: fehmn.files
+  final_conditions: cond.fin
+  grid: cond.fehm
+  heat_flux: cond.hflx
+  history: cond.hist
+  input: cond.dat
+  material_zone: cond.zone
+  output: cond.out
+  outside_zone: cond_outside.zone
+  permeability: cond.perm
+  pore_pressure: cond.ppor
+  rock_properties: cond.rock
+  run_root: cond
+  store: cond.stor
+  water_properties: ../../nist120-1800.out
+heat_flux_config:
+  heat_flux_model:
+    kind: constant_MW_per_m2
+    params:
+      constant: 3.67e-07
+pressure_config:
+  interpolation_model:
+    kind: none
+    params: {}
+  pressure_model:
+    kind: depth
+    params:
+      reference_pressure_MPa: 24.0
+      reference_temperature_degC: 2.0
+      reference_z: 4700.0
+      z_interval_m: 5.0
+  sampling_model: null
+rock_properties_config:
+  compressibility_configs:
+  - property_model:
+      kind: overburden
+      params:
+        a: 0.09
+        grav: 9.81
+        min_overburden: 25.0
+        rhow: 1000.0
+    zones:
+    - 1
+  - property_model:
+      kind: constant
+      params:
+        constant: 6.0e-10
+    zones:
+    - 2
+    - 3
+    - 4
+  conductivity_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.2
+    zones:
+    - 1
+  - property_model:
+      kind: porosity_weighted
+      params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+    zones:
+    - 2
+    - 3
+    - 4
+  grain_density_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 2650.0
+    zones:
+    - 1
+  - property_model:
+      kind: constant
+      params:
+        constant: 2700.0
+    zones:
+    - 2
+    - 3
+    - 4
+  permeability_configs:
+  - property_model:
+      kind: void_ratio_power_law
+      params:
+        A: 3.66e-18
+        B: 1.68
+    zones:
+    - 1
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.0e-12
+    zones:
+    - 2
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.0e-18
+    zones:
+    - 3
+    - 4
+  porosity_configs:
+  - property_model:
+      kind: depth_exponential_with_maximum
+      params:
+        porosity_a: 0.84
+        porosity_b: -0.125
+    zones:
+    - 1
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.1
+    zones:
+    - 2
+    - 3
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.05
+    zones:
+    - 4
+  specific_heat_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 800.0
+    zones:
+    - 1
+  - property_model:
+      kind: constant
+      params:
+        constant: 800.0
+    zones:
+    - 2
+    - 3
+    - 4
+  zone_assignment_order:
+  - 1
+  - 2
+  - 3
+  - 4

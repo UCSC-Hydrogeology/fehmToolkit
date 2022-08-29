@@ -170,6 +170,36 @@ def test_run_config_writes_relative_files(tmp_path, config_dict):
     )
 
 
+def test_run_config_from_yaml(fixture_dir):
+    config = RunConfig.from_yaml(fixture_dir / 'flat_box_cond.yaml')
+    assert isinstance(config.files_config, FilesConfig)
+    assert isinstance(config.heat_flux_config, HeatFluxConfig)
+    assert isinstance(config.pressure_config, PressureConfig)
+    assert isinstance(config.rock_properties_config, RockPropertiesConfig)
+    assert config.files_config.grid == Path(fixture_dir / 'cond.fehm')
+    assert config.files_config.flow is None
+    assert config.files_config.initial_conditions is None
+
+
+def test_run_config_omits_none_files(tmp_path, config_dict):
+    config_dict['files_config']['initial_conditions'] = None
+    del config_dict['files_config']['flow']
+
+    config_file = tmp_path / 'config.yaml'
+    with open(config_file, 'w') as f:
+        yaml.dump(config_dict, f, Dumper=yaml.Dumper)
+
+    with open(config_file) as f:
+        raw_config = yaml.load(f, Loader=yaml.Loader)
+
+    assert raw_config['files_config'].get('flow') is None
+    assert raw_config['files_config'].get('initial_conditions') is None
+
+    config = RunConfig.from_yaml(config_file)
+    assert config.files_config.flow is None
+    assert config.files_config.initial_conditions is None
+
+
 def test_files_config(files_config_dict):
     config = FilesConfig.from_dict(files_config_dict)
     assert config.run_root == 'run_root'
