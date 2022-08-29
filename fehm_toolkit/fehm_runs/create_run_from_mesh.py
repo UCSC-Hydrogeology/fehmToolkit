@@ -1,14 +1,13 @@
 import dataclasses
 import logging
 from pathlib import Path
-import shutil
 from typing import _UnionGenericAlias, GenericAlias, Optional, Sequence, Type, Union
 
 import yaml
 
 from fehm_toolkit.config import FilesConfig, RunConfig
 from fehm_toolkit.file_interface import get_unique_file, write_files_index
-from fehm_toolkit.file_manipulation import append_zones
+from fehm_toolkit.file_manipulation import append_zones, create_run_with_source_files
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +68,14 @@ def create_run_from_mesh(
         area_file=area_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['area']}"),
         water_properties_file=water_properties_file,
     )
-    create_run_with_source_files(target_directory, file_pairs_by_file_type, append_outside_zones=append_outside_zones)
+    create_run_with_source_files(target_directory, file_pairs_by_file_type)
+    if append_outside_zones:
+        append_zones(
+            add_zones_from_file=file_pairs_by_file_type['outside_zone'][1],
+            add_zones_to_file=file_pairs_by_file_type['material_zone'][1],
+            zone_keys_to_add=append_outside_zones,
+        )
+
     template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
     create_template_run_config(template_files_config, output_file=target_directory / CONFIG_NAME)
 
@@ -84,32 +90,6 @@ def create_run_from_mesh(
         f'* Update {files_config.input} with desired configuration\n'
         f'* Run FEHM\n'
     )
-
-
-def create_run_with_source_files(
-    target_directory: Path,
-    file_pairs_by_file_type: dict[str, tuple[Path, Path]],
-    append_outside_zones=None,
-):
-    logger.info('Creating directory %s', target_directory)
-    target_directory.mkdir()
-
-    file_pairs_by_file_type = file_pairs_by_file_type.copy()
-    (source_water_properties_file, run_water_properties_file) = file_pairs_by_file_type.pop('water_properties')
-
-    logger.info('Linking %s -> %s', run_water_properties_file, source_water_properties_file)
-    run_water_properties_file.symlink_to(source_water_properties_file)
-
-    for k, (source_file, run_file) in file_pairs_by_file_type.items():
-        logger.info('Copying %s to %s', source_file, run_file)
-        shutil.copy(source_file, run_file)
-
-    if append_outside_zones:
-        append_zones(
-            add_zones_from_file=file_pairs_by_file_type['outside_zone'][1],
-            add_zones_to_file=file_pairs_by_file_type['material_zone'][1],
-            zone_keys_to_add=append_outside_zones,
-        )
 
 
 def create_template_run_config(template_files_config: dict[str, Union[str, Path]], output_file: Path):
