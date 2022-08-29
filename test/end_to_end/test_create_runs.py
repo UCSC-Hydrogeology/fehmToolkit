@@ -1,5 +1,6 @@
 from fehm_toolkit.config import FilesConfig
-from fehm_toolkit.fehm_runs.create_run_from_mesh import create_run_from_mesh, create_template_input_file
+from fehm_toolkit.fehm_runs import create_run_from_mesh
+from fehm_toolkit.fehm_runs.create_run_from_mesh import create_template_input_file
 
 
 def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
