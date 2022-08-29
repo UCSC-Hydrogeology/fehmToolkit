@@ -14,28 +14,27 @@ from fehm_toolkit.file_interface import read_grid, write_compact_node_data
 logger = logging.getLogger(__name__)
 
 
-def generate_input_heatflux_file(
-    *,
-    config_file: Path,
-    grid_file: Path,
-    outside_zone_file: Path,
-    area_file: Path,
-    output_file: Path,
-    plot_result: bool = False,
-):
+def generate_input_heatflux_file(config_file: Path, plot_result: bool = False):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
+    if not config.files_config.heat_flux:
+        raise ValueError(f'No heat_flux file defined in {config_file}, required for output.')
 
     logger.info('Parsing grid into memory')
-    grid = read_grid(grid_file, outside_zone_file=outside_zone_file, area_file=area_file, read_elements=False)
+    grid = read_grid(
+        config.files_config.grid,
+        outside_zone_file=config.files_config.outside_zone,
+        area_file=config.files_config.area,
+        read_elements=False,
+    )
 
     logger.info('Computing boundary heat flux')
     heatflux_by_node = compute_boundary_heatflux(grid, config.heat_flux_config)
 
-    logger.info(f'Writing heat flux to disk: {output_file}')
+    logger.info(f'Writing heat flux to disk: {config.files_config.heat_flux}')
     write_compact_node_data(
         heatflux_by_node,
-        output_file,
+        config.files_config.heat_flux,
         header='hflx\n',
         footer='0\n',
         style='heatflux',
@@ -142,19 +141,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--grid_file', type=Path, help='Path to main grid (.fehm) file.')
-    parser.add_argument('--outside_zone_file', type=Path, help='Path to boundary (_outside.zone) file.')
-    parser.add_argument('--area_file', type=Path, help='Path to boundary area (.area) file.')
-    parser.add_argument('--config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
-    parser.add_argument('--output_file', type=Path, help='Path for heatflux output to be written.')
+    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
     parser.add_argument('--plot_result', action='store_true', help='Flag to optionally plot the heatflux.')
     args = parser.parse_args()
 
-    generate_input_heatflux_file(
-        config_file=args.config_file,
-        grid_file=args.grid_file,
-        outside_zone_file=args.outside_zone_file,
-        area_file=args.area_file,
-        output_file=args.output_file,
-        plot_result=args.plot_result,
-    )
+    generate_input_heatflux_file(args.config_file, plot_result=args.plot_result)
