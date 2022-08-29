@@ -9,9 +9,9 @@ import pytest
 from fehm_toolkit.config import RunConfig
 from fehm_toolkit.file_interface import read_pressure, write_restart, write_zones
 from fehm_toolkit.preprocessors import (
-    generate_input_heatflux_file,
-    generate_hydrostatic_pressure_file,
-    generate_rock_properties_files,
+    generate_input_heat_flux,
+    generate_hydrostatic_pressure,
+    generate_rock_properties,
 )
 from fehm_toolkit.file_manipulation import (
     append_zones,
@@ -32,7 +32,7 @@ def test_heat_in_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, m
     output_file = RunConfig.from_yaml(tmp_model_dir / 'config.yaml').files_config.heat_flux
     os.remove(output_file)
 
-    generate_input_heatflux_file(tmp_model_dir / 'config.yaml')
+    generate_input_heat_flux(tmp_model_dir / 'config.yaml')
 
     fixture_file = model_dir / 'cond.hflx'
     assert output_file.read_text() == fixture_file.read_text()
@@ -48,7 +48,7 @@ def test_rock_properties_against_fixture(tmp_path: Path, end_to_end_fixture_dir:
     for output_extension in ('cond', 'perm', 'ppor', 'rock'):
         os.remove(tmp_model_dir / f'cond.{output_extension}')
 
-    generate_rock_properties_files(tmp_model_dir / 'config.yaml')
+    generate_rock_properties(tmp_model_dir / 'config.yaml')
 
     for output_extension in ('cond', 'perm', 'ppor', 'rock'):
         logger.info(f'Comparing output for {output_extension} file.')
@@ -206,7 +206,7 @@ def test_generate_hydrostatic_pressure(tmp_path: Path, end_to_end_fixture_dir: P
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     output_file = tmp_path / 'test.iap'
 
-    generate_hydrostatic_pressure_file(model_dir / 'config.yaml', output_file=output_file)
+    generate_hydrostatic_pressure(model_dir / 'config.yaml', output_file=output_file)
     fixture_file = model_dir / 'cond.iap'
 
     fixture_pressure = read_pressure(fixture_file)

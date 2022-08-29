@@ -1,4 +1,3 @@
-import argparse
 import logging
 from pathlib import Path
 from typing import Callable
@@ -14,7 +13,7 @@ from fehm_toolkit.file_interface import read_grid, write_compact_node_data
 logger = logging.getLogger(__name__)
 
 
-def generate_input_heatflux_file(config_file: Path, plot_result: bool = False):
+def generate_input_heat_flux(config_file: Path, plot_result: bool = False):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
     if not config.files_config.heat_flux:
@@ -135,14 +134,3 @@ def _crustal_age_heatflux(node: Node, params: dict) -> float:
 
 def _constant_MW_per_m2(node: Node, params: dict) -> float:
     return -abs(node.outside_area.z * params['constant'])
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('config_file', type=Path, help='Path to configuration (.yaml/.hfi) file.')
-    parser.add_argument('--plot_result', action='store_true', help='Flag to optionally plot the heatflux.')
-    args = parser.parse_args()
-
-    generate_input_heatflux_file(args.config_file, plot_result=args.plot_result)
