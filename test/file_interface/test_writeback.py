@@ -38,7 +38,7 @@ def test_writeback_restart_legacy_format(fixture_dir, tmp_path):
     output_file = tmp_path / 'out.restart'
 
     state, metadata = read_restart(initial_file)
-    write_restart(state, metadata, output_file)
+    write_restart(state, metadata, output_file, fmt='legacy')
 
     assert initial_file.read_text() == output_file.read_text()
 
@@ -57,7 +57,7 @@ def test_tracer_restart_raises(fixture_dir, tmp_path):
     state, metadata = read_restart(fixture_dir / 'tracer_restart.fin')
 
     with pytest.raises(NotImplementedError):
-        write_restart(state, metadata, tmp_path / 'out.restart')
+        write_restart(state, metadata, tmp_path / 'out.restart', fmt='legacy')
 
 
 def test_writeback_pressure(fixture_dir, tmp_path):
