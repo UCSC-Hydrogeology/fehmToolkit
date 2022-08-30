@@ -21,7 +21,7 @@ def entry_point():
         'create_run_from_mesh',
         help='Create a new run directory from a LaGriT mesh',
         description=(
-            'Sets up a new run directory by copying required files from a mesh direcotry. File name roots are replaced '
+            'Create a run directory by copying files from a mesh direcotry. File name roots are replaced '
             'if run_root is set, otherwise file names are persisted.'
         ),
     )
@@ -47,9 +47,9 @@ def entry_point():
         'create_run_from_run',
         help='Create a run directory from a previous run',
         description=(
-            'Sets up a new run directory by copying required files from an existing run. File name roots are replaced '
-            'if run_root is set, otherwise file names are persisted. Optionally replace some or all node pressures, '
-            'controlled by mutually exclusive optional arguments.'
+            'Create a run directory by copying files from an existing run. Model time is reset to 0. '
+            'File name roots are replaced if run_root is set, otherwise file names are persisted. '
+            'Optionally replace some or all node pressures, controlled by mutually exclusive optional arguments.'
         ),
     )
     run_from_run.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
