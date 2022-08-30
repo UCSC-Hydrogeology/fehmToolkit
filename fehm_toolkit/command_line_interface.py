@@ -17,24 +17,52 @@ def entry_point():
     parser = argparse.ArgumentParser(prog='fehmtk', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(help='FEHM toolkit commands')
 
-    create_run = subparsers.add_parser('create_run_from_mesh', help='Create a new run directory from a LaGriT mesh')
-    create_run.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
-    create_run.add_argument('target_directory', type=Path, help='Destination run directory to be created')
-    create_run.add_argument('water_properties_file', type=Path, help='NIST lookup table (.out/.wpi)')
-    create_run.add_argument(
+    run_from_mesh = subparsers.add_parser(
+        'create_run_from_mesh',
+        help='Create a new run directory from a LaGriT mesh',
+        description=(
+            'Sets up a new run directory by copying required files from a mesh direcotry. File name roots are replaced '
+            'if run_root is set, otherwise file names are persisted.'
+        ),
+    )
+    run_from_mesh.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
+    run_from_mesh.add_argument('target_directory', type=Path, help='Destination run directory to be created')
+    run_from_mesh.add_argument('water_properties_file', type=Path, help='NIST lookup table (.out/.wpi)')
+    run_from_mesh.add_argument(
         '--append_outside_zones',
         type=int_or_string,
         nargs='+',
-        help='Outside zones to append to material zone file.',
+        help='Outside zones to append to material zone file',
         default=('top', 'bottom'),
     )
-    create_run.add_argument('--run_root', type=str, help='Common root to be used to name run files')
-    create_run.add_argument('--grid_file', type=Path, help='Main grid (.fehm[n]) file')
-    create_run.add_argument('--store_file', type=Path, help='FEHM storage coefficients (.stor) file')
-    create_run.add_argument('--material_zone_file', type=Path, help='Material (_material.zone) file')
-    create_run.add_argument('--outside_zone_file', type=Path, help='Boundary (_outside.zone) file')
-    create_run.add_argument('--area_file', type=Path, help='Boundary area (.area) file')
-    create_run.set_defaults(func=create_run_from_mesh)
+    run_from_mesh.add_argument('--run_root', type=str, help='Common root to be used to name run files')
+    run_from_mesh.add_argument('--grid_file', type=Path, help='Main grid (.fehm[n]) file')
+    run_from_mesh.add_argument('--store_file', type=Path, help='FEHM storage coefficients (.stor) file')
+    run_from_mesh.add_argument('--material_zone_file', type=Path, help='Material (_material.zone) file')
+    run_from_mesh.add_argument('--outside_zone_file', type=Path, help='Boundary (_outside.zone) file')
+    run_from_mesh.add_argument('--area_file', type=Path, help='Boundary area (.area) file')
+    run_from_mesh.set_defaults(func=create_run_from_mesh)
+
+    run_from_run = subparsers.add_parser(
+        'create_run_from_run',
+        help='Create a run directory from a previous run',
+        description=(
+            'Sets up a new run directory by copying required files from an existing run. File name roots are replaced '
+            'if run_root is set, otherwise file names are persisted. Optionally replace some or all node pressures, '
+            'controlled by mutually exclusive optional arguments.'
+        ),
+    )
+    run_from_run.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    run_from_run.add_argument('target_directory', type=Path, help='Destination run directory to be created')
+    run_from_run.add_argument('--run_root', type=str, help='Common root to be used to name run files')
+    run_from_run_exclusive = run_from_run.add_mutually_exclusive_group()
+    run_from_run_exclusive.add_argument('--reset_initial_pressure_outside_zones', type=int_or_string, nargs='+', help=(
+        'Space-separated list of zone names or numbers; pressure in target initial conditions are reset to '
+        ' initial_conditions (per config_file), for nodes in specified zones'
+    ))
+    run_from_run_exclusive.add_argument('--override_pressure_file', type=Path, help=(
+        'Pressure (.iap/.icp) file; pressure in target initial conditions are set to these, for all nodes'
+    ))
 
     create_config = subparsers.add_parser(
         'create_config_for_legacy_run',
