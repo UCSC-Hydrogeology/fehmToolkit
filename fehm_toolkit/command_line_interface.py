@@ -44,7 +44,7 @@ def entry_point():
     run_from_mesh.set_defaults(func=create_run_from_mesh)
 
     run_from_run = subparsers.add_parser(
-        'create_run_from_run',
+        'run_from_run',
         help='Create a run directory from a previous run',
         description=(
             'Create a run directory by copying files from an existing run. Model time is reset to 0. '
@@ -56,12 +56,12 @@ def entry_point():
     run_from_run.add_argument('target_directory', type=Path, help='Destination run directory to be created')
     run_from_run.add_argument('--run_root', type=str, help='Common root to be used to name run files')
     run_from_run_exclusive = run_from_run.add_mutually_exclusive_group()
-    run_from_run_exclusive.add_argument('--reset_initial_pressure_outside_zones', type=int_or_string, nargs='+', help=(
-        'Space-separated list of zone names or numbers; pressure in target initial conditions are reset to '
-        ' initial_conditions (per config_file), for nodes in specified zones'
+    run_from_run_exclusive.add_argument('--reset_zones', type=int_or_string, nargs='+', help=(
+        'Space-separated list of zone names or numbers referring to OUTSIDE zones; pressures set to '
+        ' initial_conditions for nodes in specified zones'
     ))
-    run_from_run_exclusive.add_argument('--override_pressure_file', type=Path, help=(
-        'Pressure (.iap/.icp) file; pressure in target initial conditions are set to these, for all nodes'
+    run_from_run_exclusive.add_argument('--pressure_file', type=Path, help=(
+        'Pressure (.iap/.icp) file; pressure set to those in file for all nodes'
     ))
 
     create_config = subparsers.add_parser(
