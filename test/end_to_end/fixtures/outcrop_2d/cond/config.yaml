@@ -87,7 +87,7 @@ rock_properties_config:
     - 4
   permeability_configs:
   - property_model:
-      kind: void_ratio_power_law
+      kind: void_ratio_exponential
       params:
         A: 3.66e-18
         B: 1.68
@@ -108,7 +108,7 @@ rock_properties_config:
     - 4
   porosity_configs:
   - property_model:
-      kind: depth_exponential_with_maximum
+      kind: depth_power_law_with_maximum
       params:
         porosity_a: 0.84
         porosity_b: -0.125
