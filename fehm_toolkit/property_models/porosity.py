@@ -22,6 +22,10 @@ def get_porosity_models_by_kind() -> dict:
 
 
 def _depth_exponential(depth: float, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> float:
+    """Porosity following an exponential function of depth:
+    A * e^(B * d)
+    where A and B are constants, and d is depth below the seafloor.
+    """
     params = model_config_by_property_kind[property_kind].params
     porosity_a, porosity_b = params['porosity_a'], params['porosity_b']
     return porosity_a * math.exp(porosity_b * depth)
@@ -32,6 +36,10 @@ def _depth_power_law_with_maximum(
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
 ) -> float:
+    """Porosity following a power-law relationship of depth, with a maximum porosity applied:
+    A * d^B or A * 50^B, whichever is lower
+    where A and B are constants, and d is depth below the seafloor.
+    """
     params = model_config_by_property_kind[property_kind].params
     porosity_a, porosity_b = params['porosity_a'], params['porosity_b']
 
