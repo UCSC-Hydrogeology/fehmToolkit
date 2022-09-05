@@ -18,7 +18,7 @@ def entry_point():
     subparsers = parser.add_subparsers(help='FEHM toolkit commands')
 
     run_from_mesh = subparsers.add_parser(
-        'create_run_from_mesh',
+        'run_from_mesh',
         help='Create a new run directory from a LaGriT mesh',
         description=(
             'Create a run directory by copying files from a mesh direcotry. File name roots are replaced '
@@ -29,7 +29,7 @@ def entry_point():
     run_from_mesh.add_argument('target_directory', type=Path, help='Destination run directory to be created')
     run_from_mesh.add_argument('water_properties_file', type=Path, help='NIST lookup table (.out/.wpi)')
     run_from_mesh.add_argument(
-        '--append_outside_zones',
+        '--append_zones',
         type=int_or_string,
         nargs='+',
         help='Outside zones to append to material zone file',
