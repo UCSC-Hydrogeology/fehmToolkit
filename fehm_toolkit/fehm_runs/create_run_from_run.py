@@ -13,6 +13,7 @@ from fehm_toolkit.file_interface import read_grid, read_restart, write_files_ind
 def create_run_from_run(
     config_file: Path,
     target_directory: Path,
+    run_root: str = None,
     reset_initial_pressure_outside_zones: Optional[Sequence[str]] = None,
     override_pressure_file: Optional[Path] = None,
 ):
@@ -42,7 +43,7 @@ def create_run_from_run(
             for node in grid.get_nodes_in_outside_zone(zone)
         })
 
-    target_files = _generate_target_files_config(files_config, target_directory)
+    target_files = _generate_target_files_config(files_config, target_directory, run_root=run_root)
     file_pairs_by_kind = _gather_file_pairs_to_copy(files_config, target_files)
     create_run_with_source_files(target_directory, file_pairs_by_kind)
     write_files_index(target_files, output_file=target_files.files)
@@ -53,34 +54,61 @@ def create_run_from_run(
     target_config.to_yaml(target_directory / config_file.name)
 
 
-def _generate_target_files_config(source_files: FilesConfig, target_directory: Path) -> FilesConfig:
+def _generate_target_files_config(
+    source_files: FilesConfig,
+    target_directory: Path,
+    run_root: str = None,
+) -> FilesConfig:
+    old_root = source_files.run_root
     return FilesConfig(
-        run_root=source_files.run_root,
-        material_zone=target_directory / source_files.material_zone.name,
-        outside_zone=target_directory / source_files.outside_zone.name,
-        area=target_directory / source_files.area.name,
-        rock_properties=target_directory / source_files.rock_properties.name,
-        conductivity=target_directory / source_files.conductivity.name,
-        pore_pressure=target_directory / source_files.pore_pressure.name,
-        permeability=target_directory / source_files.permeability.name,
-        files=target_directory / source_files.files.name,
-        grid=target_directory / source_files.grid.name,
-        input=target_directory / source_files.input.name,
-        output=target_directory / source_files.output.name,
-        store=target_directory / source_files.store.name,
-        history=target_directory / source_files.history.name,
-        water_properties=target_directory / source_files.water_properties.name,
-        check=target_directory / source_files.check.name,
-        error=target_directory / source_files.error.name,
-        final_conditions=target_directory / source_files.final_conditions.name,
-        flow=target_directory / source_files.flow.name if source_files.flow else None,
-        heat_flux=target_directory / source_files.heat_flux.name if source_files.heat_flux else None,
+        run_root=run_root or old_root,
+        material_zone=target_directory / _get_file_name(source_files.material_zone, old_root, run_root),
+        outside_zone=target_directory / _get_file_name(source_files.outside_zone, old_root, run_root),
+        area=target_directory / _get_file_name(source_files.area, old_root, run_root),
+        rock_properties=target_directory / _get_file_name(source_files.rock_properties, old_root, run_root),
+        conductivity=target_directory / _get_file_name(source_files.conductivity, old_root, run_root),
+        pore_pressure=target_directory / _get_file_name(source_files.pore_pressure, old_root, run_root),
+        permeability=target_directory / _get_file_name(source_files.permeability, old_root, run_root),
+        files=target_directory / _get_file_name(source_files.files, old_root, run_root),
+        grid=target_directory / _get_file_name(source_files.grid, old_root, run_root),
+        input=target_directory / _get_file_name(source_files.input, old_root, run_root),
+        output=target_directory / _get_file_name(source_files.output, old_root, run_root),
+        store=target_directory / _get_file_name(source_files.store, old_root, run_root),
+        history=target_directory / _get_file_name(source_files.history, old_root, run_root),
+        water_properties=target_directory / _get_file_name(source_files.water_properties, old_root, run_root),
+        check=target_directory / _get_file_name(source_files.check, old_root, run_root),
+        error=target_directory / _get_file_name(source_files.error, old_root, run_root),
+        final_conditions=target_directory / _get_file_name(source_files.final_conditions, old_root, run_root),
+        flow=(
+            target_directory / _get_file_name(source_files.flow, old_root, run_root)
+            if source_files.flow else None
+        ),
+        heat_flux=(
+            target_directory / _get_file_name(source_files.heat_flux, old_root, run_root)
+            if source_files.heat_flux else None
+        ),
         initial_conditions=(
-            target_directory / source_files.initial_conditions.name
-            if source_files.initial_conditions
-            else target_directory / f'{source_files.run_root}.ini'
+            target_directory / _get_file_name(source_files.initial_conditions, old_root, run_root)
+            if source_files.initial_conditions else target_directory / f'{run_root or old_root}.ini'
         ),
     )
+
+
+def _get_file_name(file, old_root, new_root):
+    """Get new file name, replacing old root where necessary.
+    >>> _get_file_name(Path('run.txt'), 'run', 'run2')
+    'run2.txt'
+    >>> _get_file_name(Path('p12_outside.zone'), 'p12', 'p13')
+    'p13_outside.zone'
+    >>> _get_file_name(Path('fehmn.files'), 'run', 'run2')
+    'fehmn.files'
+    >>> _get_file_name(Path('run.txt'), 'run', None)
+    'run.txt'
+    """
+    if new_root is None:
+        return file.name
+
+    return file.name.replace(old_root, new_root)
 
 
 def _gather_file_pairs_to_copy(
