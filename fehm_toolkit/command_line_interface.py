@@ -121,11 +121,9 @@ def entry_point():
         'append_zones',
         help='Append zones from one zone file to another, overwriting the target',
     )
-    zones.add_argument('add_zones_from_file', type=Path, help='Source file for new zones to add')
-    zones.add_argument('add_zones_to_file', type=Path, help='Target file that new zones will be added to')
-    zones.add_argument(
-        'zone_keys_to_add', type=int_or_string, nargs='+', help='Space-separated list of zone names or numbers',
-    )
+    zones.add_argument('source_file', type=Path, help='Source file for new zones to add')
+    zones.add_argument('target_file', type=Path, help='Target file that new zones will be added to')
+    zones.add_argument('zones', type=int_or_string, nargs='+', help='Space-separated list of zone names or numbers')
     zones.set_defaults(func=append_zones)
 
     args = vars(parser.parse_args())

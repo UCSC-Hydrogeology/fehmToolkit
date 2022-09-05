@@ -63,11 +63,7 @@ def test_append_zones_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Pa
     output_file = tmp_path / 'output.zone'
     shutil.copy(model_dir / 'cond_material.zone', output_file)
 
-    append_zones(
-        add_zones_from_file=model_dir / 'cond_outside.zone',
-        add_zones_to_file=output_file,
-        zone_keys_to_add=('top', 'bottom'),
-    )
+    append_zones(source_file=model_dir / 'cond_outside.zone', target_file=output_file, zones=('top', 'bottom'))
     fixture_file = model_dir / 'cond.zone'
     assert output_file.read_text() == fixture_file.read_text()
 
