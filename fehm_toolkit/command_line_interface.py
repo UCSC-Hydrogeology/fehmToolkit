@@ -19,7 +19,7 @@ def entry_point():
 
     create_run = subparsers.add_parser('create_run_from_mesh', help='Create a new run directory from a LaGriT mesh')
     create_run.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
-    create_run.add_argument('run_directory', type=Path, help='Destination run directory to be created')
+    create_run.add_argument('target_directory', type=Path, help='Destination run directory to be created')
     create_run.add_argument('water_properties_file', type=Path, help='NIST lookup table (.out/.wpi)')
     create_run.add_argument(
         '--append_outside_zones',

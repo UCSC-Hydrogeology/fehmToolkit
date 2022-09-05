@@ -1,14 +1,13 @@
 import dataclasses
 import logging
 from pathlib import Path
-import shutil
 from typing import _UnionGenericAlias, GenericAlias, Optional, Sequence, Type, Union
 
 import yaml
 
 from fehm_toolkit.config import FilesConfig, RunConfig
 from fehm_toolkit.file_interface import get_unique_file, write_files_index
-from fehm_toolkit.file_manipulation import append_zones
+from fehm_toolkit.file_manipulation import append_zones, create_run_with_source_files
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +39,7 @@ EXT_BY_FILE = {
 
 def create_run_from_mesh(
     mesh_directory: Path,
-    run_directory: Path,
+    target_directory: Path,
     water_properties_file: Path,
     append_outside_zones: Optional[Sequence[str]] = ('top', 'bottom'),
     run_root: Optional[str] = None,
@@ -53,14 +52,14 @@ def create_run_from_mesh(
     if not mesh_directory.is_dir():
         raise ValueError(f'mesh_directory: {mesh_directory} is not a directory.')
 
-    if run_directory.exists():
-        raise ValueError(f'run_directory: {run_directory} already exists.')
+    if target_directory.exists():
+        raise ValueError(f'target_directory: {target_directory} already exists.')
 
     if not water_properties_file.exists() or water_properties_file.is_dir():
         raise ValueError(f'water_properties_file: {water_properties_file} does not exist or is a directory.')
 
     file_pairs_by_file_type = _gather_file_pairs_to_copy(
-        run_directory,
+        target_directory,
         run_root,
         grid_file=grid_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['grid']}*"),
         store_file=store_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['store']}"),
@@ -69,47 +68,28 @@ def create_run_from_mesh(
         area_file=area_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['area']}"),
         water_properties_file=water_properties_file,
     )
-    create_run_with_source_files(run_directory, file_pairs_by_file_type, append_outside_zones=append_outside_zones)
-    template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
-    create_template_run_config(template_files_config, output_file=run_directory / CONFIG_NAME)
-
-    files_config = FilesConfig.from_dict(template_files_config)
-    write_files_index(files_config, output_file=run_directory / files_config.files.name)
-    create_template_input_file(files_config, output_file=run_directory / files_config.input.name)
-    logger.info(
-        'Suggested next steps:\n'
-        f'* Update {run_directory / CONFIG_NAME} with desired configuration\n'
-        '* Run heat_in to generate heat flux file\n'
-        '* Run rock_properties to generate physical properties files\n'
-        f'* Update {files_config.input} with desired configuration\n'
-        f'* Run FEHM\n'
-    )
-
-
-def create_run_with_source_files(
-    run_directory: Path,
-    file_pairs_by_file_type: dict[str, tuple[Path, Path]],
-    append_outside_zones=None,
-):
-    logger.info('Creating directory %s', run_directory)
-    run_directory.mkdir()
-
-    file_pairs_by_file_type = file_pairs_by_file_type.copy()
-    (source_water_properties_file, run_water_properties_file) = file_pairs_by_file_type.pop('water_properties')
-
-    logger.info('Linking %s -> %s', run_water_properties_file, source_water_properties_file)
-    run_water_properties_file.symlink_to(source_water_properties_file)
-
-    for k, (source_file, run_file) in file_pairs_by_file_type.items():
-        logger.info('Copying %s to %s', source_file, run_file)
-        shutil.copy(source_file, run_file)
-
+    create_run_with_source_files(target_directory, file_pairs_by_file_type)
     if append_outside_zones:
         append_zones(
             add_zones_from_file=file_pairs_by_file_type['outside_zone'][1],
             add_zones_to_file=file_pairs_by_file_type['material_zone'][1],
             zone_keys_to_add=append_outside_zones,
         )
+
+    template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
+    create_template_run_config(template_files_config, output_file=target_directory / CONFIG_NAME)
+
+    files_config = FilesConfig.from_dict(template_files_config)
+    write_files_index(files_config, output_file=target_directory / files_config.files.name)
+    create_template_input_file(files_config, output_file=target_directory / files_config.input.name)
+    logger.info(
+        'Suggested next steps:\n'
+        f'* Update {target_directory / CONFIG_NAME} with desired configuration\n'
+        '* Run heat_in to generate heat flux file\n'
+        '* Run rock_properties to generate physical properties files\n'
+        f'* Update {files_config.input} with desired configuration\n'
+        f'* Run FEHM\n'
+    )
 
 
 def create_template_run_config(template_files_config: dict[str, Union[str, Path]], output_file: Path):
@@ -169,7 +149,7 @@ def create_template_input_file(files_config: FilesConfig, output_file: Path):
 
 
 def _gather_file_pairs_to_copy(
-    run_directory: Path,
+    target_directory: Path,
     run_root: Optional[str],
     *,
     grid_file: Path,
@@ -181,21 +161,23 @@ def _gather_file_pairs_to_copy(
 ) -> dict[str, tuple[Path, Path]]:
     if run_root:
         return {
-            'grid': (grid_file, run_directory / f"{run_root}{EXT_BY_FILE['grid']}"),
-            'store': (store_file, run_directory / f"{run_root}{EXT_BY_FILE['store']}"),
-            'material_zone': (material_zone_file, run_directory / f"{run_root}{EXT_BY_FILE['material_zone']}"),
-            'outside_zone': (outside_zone_file, run_directory / f"{run_root}{EXT_BY_FILE['outside_zone']}"),
-            'area': (area_file, run_directory / f"{run_root}{EXT_BY_FILE['area']}"),
-            'water_properties': (water_properties_file, run_directory / f"{run_root}{EXT_BY_FILE['water_properties']}"),
+            'grid': (grid_file, target_directory / f"{run_root}{EXT_BY_FILE['grid']}"),
+            'store': (store_file, target_directory / f"{run_root}{EXT_BY_FILE['store']}"),
+            'material_zone': (material_zone_file, target_directory / f"{run_root}{EXT_BY_FILE['material_zone']}"),
+            'outside_zone': (outside_zone_file, target_directory / f"{run_root}{EXT_BY_FILE['outside_zone']}"),
+            'area': (area_file, target_directory / f"{run_root}{EXT_BY_FILE['area']}"),
+            'water_properties': (
+                water_properties_file, target_directory / f"{run_root}{EXT_BY_FILE['water_properties']}"
+            ),
         }
 
     return {
-        'grid': (grid_file, run_directory / grid_file.name),
-        'store': (store_file, run_directory / store_file.name),
-        'material_zone': (material_zone_file, run_directory / material_zone_file.name),
-        'outside_zone': (outside_zone_file, run_directory / outside_zone_file.name),
-        'area': (area_file, run_directory / area_file.name),
-        'water_properties': (water_properties_file, run_directory / water_properties_file.name),
+        'grid': (grid_file, target_directory / grid_file.name),
+        'store': (store_file, target_directory / store_file.name),
+        'material_zone': (material_zone_file, target_directory / material_zone_file.name),
+        'outside_zone': (outside_zone_file, target_directory / outside_zone_file.name),
+        'area': (area_file, target_directory / area_file.name),
+        'water_properties': (water_properties_file, target_directory / water_properties_file.name),
     }
 
 

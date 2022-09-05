@@ -1,12 +1,13 @@
 from fehm_toolkit.config import FilesConfig
-from fehm_toolkit.fehm_runs.create_run_from_mesh import create_run_from_mesh, create_template_input_file
+from fehm_toolkit.fehm_runs import create_run_from_mesh
+from fehm_toolkit.fehm_runs.create_run_from_mesh import create_template_input_file
 
 
 def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):
     new_directory = tmp_path / 'new_run'
     create_run_from_mesh(
         mesh_directory=end_to_end_fixture_dir / 'flat_box' / 'mesh',
-        run_directory=new_directory,
+        target_directory=new_directory,
         water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
     )
     new_files = {path.name for path in new_directory.iterdir()}
@@ -27,7 +28,7 @@ def test_create_run_from_mesh_flat_box_infer_run_root(tmp_path, end_to_end_fixtu
     new_directory = tmp_path / 'new_run'
     create_run_from_mesh(
         mesh_directory=end_to_end_fixture_dir / 'flat_box' / 'mesh',
-        run_directory=new_directory,
+        target_directory=new_directory,
         water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
         run_root='new_run',
     )
@@ -50,7 +51,7 @@ def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixtur
     new_directory = tmp_path / 'new_run'
     create_run_from_mesh(
         mesh_directory=mesh_directory,
-        run_directory=new_directory,
+        target_directory=new_directory,
         water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
         run_root='new_run',
         grid_file=mesh_directory / 'outcrop_2d.fehmn',
