@@ -91,7 +91,7 @@ def test_create_restart_from_avs_against_fixture(
     output_file = tmp_path / 'test.fin'
     fixture_file = model_dir / 'avs2fin.fin_fixture'
 
-    write_restart(state, metadata, output_file=output_file)
+    write_restart(state, metadata, output_file=output_file, fmt='legacy')
 
     assert output_file.read_text() == fixture_file.read_text()
 
@@ -116,7 +116,7 @@ def test_create_restart_from_restart_against_fixture(
     output_file = tmp_path / 'test.fin'
     fixture_file = model_dir / 'fin2ini.ini_fixture'
 
-    write_restart(state, metadata, output_file=output_file)
+    write_restart(state, metadata, output_file=output_file, fmt='legacy')
 
     assert output_file.read_text() == fixture_file.read_text()
 
@@ -138,7 +138,7 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixtu
     output_file = tmp_path / 'test.ini'
     fixture_file = model_dir / 'iap2ini.ini_fixture'
 
-    write_restart(state, metadata, output_file=output_file)
+    write_restart(state, metadata, output_file=output_file, fmt='legacy')
 
     assert output_file.read_text() == fixture_file.read_text()
 

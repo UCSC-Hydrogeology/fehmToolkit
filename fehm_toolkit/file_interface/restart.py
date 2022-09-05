@@ -62,7 +62,7 @@ def _parse_scalar_block(open_file: TextIO, n_nodes: int) -> list[Decimal]:
     return scalar_values
 
 
-def write_restart(state: State, metadata: RestartMetadata, output_file: Path, fmt: str = 'legacy'):
+def write_restart(state: State, metadata: RestartMetadata, output_file: Path, fmt: str = 'fehm'):
     state.validate()
     if metadata.unsupported_blocks:
         raise NotImplementedError('Some blocks in restart not supported, cannot guarantee accurate write.')
