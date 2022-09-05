@@ -13,7 +13,7 @@ from fehm_toolkit.file_interface import read_grid, write_compact_node_data
 logger = logging.getLogger(__name__)
 
 
-def generate_input_heat_flux(config_file: Path, plot_result: bool = False):
+def generate_input_heat_flux(config_file: Path, plot: bool = False):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
     if not config.files_config.heat_flux:
@@ -38,7 +38,7 @@ def generate_input_heat_flux(config_file: Path, plot_result: bool = False):
         footer='0\n',
         style='heatflux',
     )
-    if plot_result:
+    if plot:
         plot_heatflux(heatflux_by_node, grid)
 
 

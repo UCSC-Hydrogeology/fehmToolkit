@@ -65,8 +65,8 @@ def entry_point():
     ))
 
     create_config = subparsers.add_parser(
-        'create_config_for_legacy_run',
-        help='Create config.yaml file from legacy configuration files (e.g. .hfi/.rpi/.ipi)',
+        'legacy_config',
+        help='Create config.yaml from legacy configuration files (e.g. .hfi/.rpi/.ipi)',
     )
     create_config.add_argument('directory', type=Path, help='Directory with legacy configuration files')
     create_config.add_argument('--hfi_file', type=Path, help='Legacy heat flux configuration file')
@@ -94,24 +94,18 @@ def entry_point():
     create_config.add_argument('--initial_conditions_file', type=Path, help='Initial_conditions file')
     create_config.set_defaults(func=create_config_for_legacy_run)
 
-    rock_properties = subparsers.add_parser(
-        'generate_rock_properties',
-        help='Generate rock properties for run based on configuration'
-    )
+    rock_properties = subparsers.add_parser('rock_properties', help='Generate rock properties from configuration')
     rock_properties.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     rock_properties.set_defaults(func=generate_rock_properties)
 
-    heat_in = subparsers.add_parser(
-        'generate_input_heat_flux',
-        help='Generate input heat flux based on run configuration'
-    )
+    heat_in = subparsers.add_parser('heat_in', help='Generate input heat flux based on run configuration')
     heat_in.add_argument('config_file', type=Path, help='Run configuration (.yaml/.hfi) file')
-    heat_in.add_argument('--plot_result', action='store_true', help='Flag to plot the heat flux')
+    heat_in.add_argument('--plot', action='store_true', help='Flag to plot the heat flux')
     heat_in.set_defaults(func=generate_input_heat_flux)
 
     pressure = subparsers.add_parser(
-        'generate_hydrostatic_pressure',
-        help='Generate hydrostatic pressures for run by bootstrapping down the column',
+        'hydrostat',
+        help='Generate hydrostatic pressures by interpolating and bootstrapping down the water column',
     )
     pressure.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
