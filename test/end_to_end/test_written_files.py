@@ -7,7 +7,7 @@ from numpy.testing import assert_array_almost_equal
 import pytest
 
 from fehm_toolkit.config import RunConfig
-from fehm_toolkit.file_interface import read_pressure, write_restart, write_zones
+from fehm_toolkit.file_interface import read_pressure, write_restart
 from fehm_toolkit.preprocessors import (
     generate_input_heat_flux,
     generate_hydrostatic_pressure,
@@ -89,7 +89,7 @@ def test_create_restart_from_avs_against_fixture(
         base_restart_file=model_dir / f'{model_name}.ini',
     )
     output_file = tmp_path / 'test.fin'
-    fixture_file = model_dir / 'avs2fin_fixture.fin'
+    fixture_file = model_dir / 'avs2fin.fin_fixture'
 
     write_restart(state, metadata, output_file=output_file)
 
@@ -114,7 +114,7 @@ def test_create_restart_from_restart_against_fixture(
     state, metadata = create_restart_from_restart(model_dir / f'{model_name}.fin', reset_model_time=True)
 
     output_file = tmp_path / 'test.fin'
-    fixture_file = model_dir / 'fin2ini_fixture.ini'
+    fixture_file = model_dir / 'fin2ini.ini_fixture'
 
     write_restart(state, metadata, output_file=output_file)
 
@@ -136,7 +136,7 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixtu
     )
 
     output_file = tmp_path / 'test.ini'
-    fixture_file = model_dir / 'iap2ini_fixture.ini'
+    fixture_file = model_dir / 'iap2ini.ini_fixture'
 
     write_restart(state, metadata, output_file=output_file)
 
@@ -168,7 +168,7 @@ def test_write_modified_fehm_input_against_fixture(
         file_mapping={f'{model_name}.{ext}': f'test.{ext}' for ext in file_extensions},
     )
 
-    fixture_file = model_dir / 'datcopy_fixture.dat'
+    fixture_file = model_dir / 'datcopy.dat_fixture'
     assert output_file.read_text() == fixture_file.read_text()
 
 
@@ -197,7 +197,7 @@ def test_write_modified_fehm_input_with_timing_against_fixture(
         initial_simulation_time_days=1234,
     )
 
-    fixture_file = model_dir / 'datreset_fixture.dat'
+    fixture_file = model_dir / 'datreset.dat_fixture'
     assert output_file.read_text() == fixture_file.read_text()
 
 

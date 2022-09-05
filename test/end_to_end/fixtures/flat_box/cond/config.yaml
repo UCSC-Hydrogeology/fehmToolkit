@@ -5,11 +5,9 @@ files_config:
   error: fehmn.err
   files: fehmn.files
   final_conditions: cond.fin
-  flow: None
   grid: cond.fehm
   heat_flux: cond.hflx
   history: cond.hist
-  initial_conditions: None
   input: cond.dat
   material_zone: cond.zone
   output: cond.out

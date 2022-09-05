@@ -38,7 +38,7 @@ class RunConfig:
 
         run_config_dict = dataclasses.asdict(self)
         run_config_dict['files_config'] = {
-            k: str(v) for k, v in dataclasses.asdict(files_config_relative_to_output).items()
+            k: str(v) for k, v in dataclasses.asdict(files_config_relative_to_output).items() if v is not None
         }
         with open(config_file, 'w') as f:
             yaml.dump(run_config_dict, f, Dumper=yaml.Dumper)
