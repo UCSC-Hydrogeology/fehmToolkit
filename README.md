@@ -1,8 +1,7 @@
 # FEHM Toolkit
 This toolkit consists of utilities and convenience functions to enable fast and efficient use of [FEHM](https://github.com/lanl/FEHM) and [LaGriT](https://github.com/lanl/LaGriT), which are software packages created by Los Alamos National Labs for simulations of coupled fluid-heat-solute transport and related processes.
 
-The specific focus of the FEHM Toolkit is on simulations of seafloor hydrothermal circulation, though it can be used
-in other contexts and even modified to better support other use-cases as the need arises.
+The specific focus of the FEHM Toolkit is on simulations of seafloor hydrothermal circulation, though it can be used in other contexts and even modified to better support other use-cases as the need arises.
 
 ## Work in progress
 * This toolkit is in the early stages of development and is not yet in working order.
