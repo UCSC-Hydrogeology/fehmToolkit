@@ -22,6 +22,11 @@ def _porosity_weighted(
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
 ) -> Vector:
+    """Combined conductivity of water and rock, weighted by porosity:
+    W^p * R^(1 - p)
+    where W and R are constants: water conductivity and rock conductivity, respectively. Porosity p is calculated
+    separately with its own property model.
+    """
     params = model_config_by_property_kind[property_kind].params
     kw, kg = params['water_conductivity'], params['rock_conductivity']
 
@@ -33,6 +38,15 @@ def _porosity_weighted(
 
 
 def _ctr2tcon(depth: float, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Vector:
+    """Conductivity calculated by inverting a cumulative thermal resistance profile.
+
+    CTR must be defined with a ctr_model (e.g. polynomial function), and is optimised on the basis of the node depths
+    provided. For example, depth arrays of [[0, 50, 100], [0, 80]] will optimize the conductivity for two separate
+    columns (one with nodes at 0, 50, and 100, one with nodes at 0, 80).
+
+    This function is DEPRECATED, and has been included for backwards compatibility. It is recommended to specify
+    conductivity explicitly instead, performing any necessary calculations separately.
+    """
     params = model_config_by_property_kind[property_kind].params
 
     tcon_func = _get_tcon_func(params['ctr_model'])

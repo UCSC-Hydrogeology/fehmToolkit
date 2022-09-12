@@ -14,6 +14,16 @@ def get_compressibility_models_by_kind() -> dict:
 
 
 def _overburden(depth: float, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> float:
+    """Compressibility as a function of depth based on an overburden calculation:
+    0.435 * A * (1 - p) / b
+    where A is a constant and overburden b is calculated as described below. Porosity p is calculated separately with
+    its own property model.
+
+    Overburden b is calculated by summing up a column at a 1 meter interval as:
+    G * sum(g * (1 - p) + W * p - W) or B, whichever is higher
+    where G, W, and B are constants; G is the acceleration of gravity, W is the density of water, and B is the minimum
+    allowed overburden. Grain density g is calculated separately with its own property model.
+    """
     params = model_config_by_property_kind[property_kind].params
     porosity_model = get_porosity_model(model_config_by_property_kind['porosity'].kind)
     grain_density_model = get_generic_model(  # no grain_density-specific models exist at time of writing, using generic
