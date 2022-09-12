@@ -76,7 +76,7 @@ def create_run_from_mesh(
             zones=append_zones,
         )
 
-    template_files_config = _get_template_files_config(file_pairs_by_file_type, run_root)
+    template_files_config = get_template_files_config(file_pairs_by_file_type, run_root)
     create_template_run_config(template_files_config, output_file=target_directory / CONFIG_NAME)
 
     files_config = FilesConfig.from_dict(template_files_config)
@@ -140,11 +140,11 @@ def create_template_input_file(files_config: FilesConfig, output_file: Path):
         f.write('ctrl\n    # ctrl config goes here\n')
         f.write('time\n    # time config goes here\n')
         f.write('hflx\n    # hflx config for fixed temperature zones goes here\n')
-        f.write(f'hflx\nfile\n{files_config.heat_flux}\n')
-        f.write(f'rock\nfile\n{files_config.rock_properties}\n')
-        f.write(f'cond\nfile\n{files_config.conductivity}\n')
-        f.write(f'perm\nfile\n{files_config.permeability}\n')
-        f.write(f'ppor\nfile\n{files_config.pore_pressure}\n')
+        f.write(f'hflx\nfile\n{files_config.heat_flux.name}\n')
+        f.write(f'rock\nfile\n{files_config.rock_properties.name}\n')
+        f.write(f'cond\nfile\n{files_config.conductivity.name}\n')
+        f.write(f'perm\nfile\n{files_config.permeability.name}\n')
+        f.write(f'ppor\nfile\n{files_config.pore_pressure.name}\n')
         f.write('stop\n')
 
 
@@ -181,28 +181,29 @@ def _gather_file_pairs_to_copy(
     }
 
 
-def _get_template_files_config(
+def get_template_files_config(
     file_pairs_by_file_type: dict[str, tuple[Path, Path]],
     run_root: Optional[str],
 ) -> dict[str, Path]:
-    template_files_config = {'run_root': run_root or 'run'}
-    for field in dataclasses.fields(FilesConfig):
-        if field.name == 'initial_conditions':
-            continue
+    template_files_config = {
+        'run_root': run_root or 'run',
+        'files': 'fehmn.files',  # FEHM expects a specific name for this file
+    }
 
-        if field.name == 'files':  # FEHM expects a specific name for this file
-            template_files_config[field.name] = 'fehmn.files'
+    for field in dataclasses.fields(FilesConfig):
+
+        if field.name in ('run_root', 'initial_conditions', 'files'):
             continue
 
         if field.name in file_pairs_by_file_type:
             (source_file, run_file) = file_pairs_by_file_type[field.name]
-        elif field.name == 'run_root':
-            field_value = run_root
-        elif run_root:
-            field_value = f"{run_root}{EXT_BY_FILE[field.name]}"
-        else:
-            field_value = f'{field.name}.txt'
+            template_files_config[field.name] = run_file.name
+            continue
 
-        template_files_config[field.name] = field_value
+        if run_root:
+            template_files_config[field.name] = f'{run_root}{EXT_BY_FILE[field.name]}'
+            continue
+
+        template_files_config[field.name] = f'{field.name}.txt'
 
     return template_files_config
