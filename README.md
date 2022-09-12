@@ -1,6 +1,8 @@
 # FEHM Toolkit
 This toolkit consists of utilities and convenience functions to enable fast and efficient use of [FEHM](https://github.com/lanl/FEHM) and [LaGriT](https://github.com/lanl/LaGriT), which are software packages created by Los Alamos National Labs for simulations of coupled fluid-heat-solute transport and related processes.
 
+This toolkit abstracts away most manual file copying and editing associated with setting up FEHM runs, supports assigning properties, initial conditions, and boundary conditions for runs, and streamlines post-run model analysis. All of this is managed in a single configuration file within each run directory (#configuration), and accessed as a command-line tool (#usage).
+
 The specific focus of the FEHM Toolkit is on simulations of seafloor hydrothermal circulation, though it can be used in other contexts and even modified to better support other use-cases as the need arises.
 
 ## Work in progress
@@ -8,7 +10,12 @@ The specific focus of the FEHM Toolkit is on simulations of seafloor hydrotherma
 * Work to date is focused on collating and testing previous Matlab versions of the code.
 * This page will be updated when an initial release is ready.
 
-## Installation and use
+## Usage
+An sample workflow, starting with a grid created by LaGriT in a folder `mesh`:
+
+
+
+## Installation
 We recommend installing as an editable package for both development and use of the toolkit.
 
 1. Install a system for managing virual environments. [Anaconda](https://www.anaconda.com/products/distribution#Downloads) or the lighter-weight [Miniconda](https://docs.conda.io/en/latest/miniconda.html#latest-miniconda-installer-links) are recommended, but you can use whatever you prefer.
@@ -44,3 +51,7 @@ We recommend installing as an editable package for both development and use of t
     ```zsh
     fehmtk --help
     ```
+
+## Configuration
+--- TODO clean this up
+Yaml format, all in one place, some overlap with FEHM configuration, sync utility to handle that, manual editing of .dat required
