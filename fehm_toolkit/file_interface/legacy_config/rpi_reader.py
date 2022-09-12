@@ -136,12 +136,12 @@ def _get_models() -> tuple[tuple[str, str, Callable]]:
             'parser': _parse_params__assigned_constant,
         },
         {
-            'model_kind': 'depth_exponential_with_maximum',
+            'model_kind': 'depth_power_law_with_maximum',
             'signature': r'FUN=@\(depth\)min\(PORA\.\*depth\.\^\(PORB\),PORA\.\*50\.\^\(PORB\)\)(?:;|\n)',
             'parser': _parse_params__sediment_porosity,
         },
         {
-            'model_kind': 'depth_power_law',
+            'model_kind': 'depth_exponential',
             'signature': r'FUN=@\(depth\)PORA\.\*exp\(PORB\.\*depth\);',
             'parser': _parse_params__sediment_porosity,
         },
@@ -156,9 +156,9 @@ def _get_models() -> tuple[tuple[str, str, Callable]]:
             'parser': _parse_params__porosity_weighted,
         },
         {
-            'model_kind': 'void_ratio_power_law',
+            'model_kind': 'void_ratio_exponential',
             'signature': r'FUN=@\(depth,porosity\)A\.\*exp\(B\.\*VOID\(porosity\)\)(?:;|\n)',
-            'parser': _parse_params__void_ratio_power_law,
+            'parser': _parse_params__void_ratio_exponential,
         },
         {
             'model_kind': 'overburden',
@@ -226,7 +226,7 @@ def _parse_params__porosity_weighted(block: str) -> dict:
     return {'water_conductivity': float(match_kw.group(1)), 'rock_conductivity': float(match_k_grain.group(1))}
 
 
-def _parse_params__void_ratio_power_law(block: str) -> dict:
+def _parse_params__void_ratio_exponential(block: str) -> dict:
     match_a = re.search(rf'A=({NUMERIC_PATTERN})(?:;|\n)', block)
     match_b = re.search(rf'B=({NUMERIC_PATTERN})(?:;|\n)', block)
     if not match_a or not match_b:

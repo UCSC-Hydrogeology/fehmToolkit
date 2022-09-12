@@ -7,11 +7,11 @@ from .porosity import get_porosity_model
 
 def get_permeability_models_by_kind() -> dict:
     return {
-        'void_ratio_power_law': _void_ratio_power_law,
+        'void_ratio_exponential': _void_ratio_exponential,
     }
 
 
-def _void_ratio_power_law(
+def _void_ratio_exponential(
     depth: float,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,

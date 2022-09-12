@@ -128,7 +128,7 @@ def rock_properties_config_dict():
         'porosity_configs': [
             {
                 'property_model': {
-                    'kind': 'depth_power_law',
+                    'kind': 'depth_exponential',
                     'params': {'porosity_a': 0.84, 'porosity_b': -0.125},
                 },
                 'zones': [1],

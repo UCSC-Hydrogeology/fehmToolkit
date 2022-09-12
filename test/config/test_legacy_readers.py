@@ -75,7 +75,7 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
     assert config.permeability_configs == [
         PropertyConfig(
             property_model=ModelConfig(
-                kind='void_ratio_power_law',
+                kind='void_ratio_exponential',
                 params={'A': 3.66E-18, 'B': 1.68},
             ),
             zones=[1],
