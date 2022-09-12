@@ -53,6 +53,7 @@ def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixtur
     create_run_from_mesh(
         mesh_directory=mesh_directory,
         target_directory=new_directory,
+        append_zones=['top'],
         water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
         run_root='new_run',
         grid_file=mesh_directory / 'outcrop_2d.fehmn',

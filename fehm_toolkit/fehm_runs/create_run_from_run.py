@@ -14,8 +14,8 @@ def create_run_from_run(
     config_file: Path,
     target_directory: Path,
     run_root: str = None,
-    reset_initial_pressure_outside_zones: Optional[Sequence[str]] = None,
-    override_pressure_file: Optional[Path] = None,
+    reset_zones: Optional[Sequence[str]] = None,
+    pressure_file: Optional[Path] = None,
 ):
     config = RunConfig.from_yaml(config_file)
     files_config = config.files_config
@@ -23,24 +23,22 @@ def create_run_from_run(
     if target_directory.exists():
         raise ValueError(f'target_directory: {target_directory} already exists.')
 
-    if reset_initial_pressure_outside_zones and override_pressure_file:
+    if reset_zones and pressure_file:
         raise ValueError('Cannot override pressures and also reset to initial pressures, must choose one.')
 
-    if reset_initial_pressure_outside_zones and files_config.initial_conditions is None:
+    if reset_zones and files_config.initial_conditions is None:
         raise ValueError('Cannot reset initial pressures, no initial_conditions file set in config.')
 
     state, metadata = create_restart_from_restart(
         files_config.final_conditions,
         reset_model_time=True,
-        pressure_file=override_pressure_file,
+        pressure_file=pressure_file,
     )
-    if reset_initial_pressure_outside_zones:
+    if reset_zones:
         replacement_state, initial_metadata = read_restart(files_config.initial_conditions)
         grid = read_grid(files_config.grid, outside_zone_file=files_config.outside_zone, read_elements=False)
         state = replace_node_pressures(state, replacement_state, node_numbers={
-            node.number
-            for zone in reset_initial_pressure_outside_zones
-            for node in grid.get_nodes_in_outside_zone(zone)
+            node.number for zone in reset_zones for node in grid.get_nodes_in_outside_zone(zone)
         })
 
     target_files = _generate_target_files_config(files_config, target_directory, run_root=run_root)

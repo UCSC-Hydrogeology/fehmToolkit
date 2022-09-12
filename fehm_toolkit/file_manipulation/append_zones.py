@@ -8,19 +8,15 @@ from ..file_interface import read_zones, write_zones
 logger = logging.getLogger(__name__)
 
 
-def append_zones(
-    add_zones_from_file: Path,
-    add_zones_to_file: Path,
-    zone_keys_to_add: Sequence[Union[int, str]],
-):
-    zones_to_add = _filter_zones_to_add(zone_keys_to_add, raw_zones_to_add=read_zones(add_zones_from_file))
+def append_zones(source_file: Path, target_file: Path, zones: Sequence[Union[int, str]]):
+    zones_to_add = _filter_zones_to_add(zones, raw_zones_to_add=read_zones(source_file))
     if not zones_to_add:
-        raise ValueError(f'No zones with keys {zone_keys_to_add} found in {add_zones_from_file}')
+        raise ValueError(f'No zones with keys {zones} found in {source_file}')
 
-    combined_zones = _combine_zones(zones_to_add=zones_to_add, source_zones=read_zones(add_zones_to_file))
+    combined_zones = _combine_zones(zones_to_add=zones_to_add, source_zones=read_zones(target_file))
 
-    logger.info('Writing zones %s from %s to %s', zone_keys_to_add, add_zones_from_file, add_zones_to_file)
-    write_zones(combined_zones, add_zones_to_file)
+    logger.info('Writing zones %s from %s to %s', zones, source_file, target_file)
+    write_zones(combined_zones, target_file)
 
 
 def _filter_zones_to_add(zone_keys_to_add: Sequence[Union[int, str]], raw_zones_to_add: tuple[Zone]) -> tuple[Zone]:
