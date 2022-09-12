@@ -87,8 +87,8 @@ def create_run_from_mesh(
         f'* Update {target_directory / CONFIG_NAME} with desired configuration\n'
         '* Run heat_in to generate heat flux file\n'
         '* Run rock_properties to generate physical properties files\n'
-        f'* Update {files_config.input} with desired configuration\n'
-        f'* Run FEHM\n'
+        f'* Update {target_directory / files_config.input.name} with desired configuration\n'
+        f'* Run FEHM'
     )
 
 
@@ -132,7 +132,7 @@ def _get_type_name(base_type: Type):
 
 
 def create_template_input_file(files_config: FilesConfig, output_file: Path):
-    logger.info(f'Writing template input file to {output_file}. This file is incomplete and must be modified!')
+    logger.info(f'Writing template input file to {output_file}')
     with open(output_file, 'w') as f:
         f.write('"Template conductive run - ALL COMMENTS MUST BE REPLACED with real config!"\n')
         f.write('init\n    # init config goes here (pres macro may be used instead)\n')
