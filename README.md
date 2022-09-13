@@ -19,15 +19,19 @@ fehmtk run_from_run --help
 
 An sample workflow looks like this:
 1. Create a new FEHM run directory from the grid found in `my_mesh` (previously created by LaGriT):
+
 ```zsh
 fehmtk run_from_mesh my_mesh my_run ../nist120-1800.out --run_root run_1
 ```
+
 1. Update `my_run/config.yaml` (see [Configuration](#configuration))
 1. Run utilities to generate properties and boundary conditions:
+
 ```zsh
 fehmtk rock_properties my_run/config.yaml
 fehmtk heat_in my_run/config.yaml --plot
 ```
+
 1. Update `my_run/run_1.dat` to configure your FEHM run
 1. Run FEHM
 
