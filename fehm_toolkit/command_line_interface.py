@@ -2,7 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh
+from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh, create_run_from_run
 from .preprocessors import (
     generate_hydrostatic_pressure,
     generate_input_heat_flux,
@@ -63,6 +63,7 @@ def entry_point():
     run_from_run_exclusive.add_argument('--pressure_file', type=Path, help=(
         'Pressure (.iap/.icp) file; pressure set to those in file for all nodes'
     ))
+    run_from_run.set_defaults(func=create_run_from_run)
 
     create_config = subparsers.add_parser(
         'legacy_config',
