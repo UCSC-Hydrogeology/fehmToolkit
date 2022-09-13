@@ -36,7 +36,7 @@ class RunConfig:
     def to_yaml(self, config_file: Path):
         files_config_relative_to_output = self.files_config.relative_to(config_file.parent)
 
-        run_config_dict = dataclasses.asdict(self)
+        run_config_dict = dataclasses.asdict(self, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
         run_config_dict['files_config'] = {
             k: str(v) for k, v in dataclasses.asdict(files_config_relative_to_output).items() if v is not None
         }

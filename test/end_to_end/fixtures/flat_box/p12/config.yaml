@@ -29,9 +29,6 @@ heat_flux_config:
       crustal_age_sign: 1
       spread_rate_mm_per_year: 28.57
 pressure_config:
-  interpolation_model:
-    kind: none
-    params: {}
   pressure_model:
     kind: depth
     params:
@@ -39,7 +36,6 @@ pressure_config:
       reference_temperature_degC: 2.0
       reference_z: 4450.0
       z_interval_m: 5.0
-  sampling_model: null
 rock_properties_config:
   compressibility_configs:
   - property_model:
