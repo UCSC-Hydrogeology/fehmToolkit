@@ -1,7 +1,7 @@
 # FEHM Toolkit
 This toolkit consists of utilities and convenience functions to enable fast and efficient use of [FEHM](https://github.com/lanl/FEHM) and [LaGriT](https://github.com/lanl/LaGriT), which are software packages created by Los Alamos National Labs for simulations of coupled fluid-heat-solute transport and related processes.
 
-This toolkit abstracts away most manual file copying and editing associated with setting up FEHM runs, supports assigning properties, initial conditions, and boundary conditions for runs, and streamlines post-run model analysis. All of this is managed in a single configuration file within each run directory (#configuration), and accessed as a command-line tool (#usage).
+This toolkit abstracts away most manual file copying and editing associated with setting up FEHM runs, supports assigning properties, initial conditions, and boundary conditions for runs, and streamlines post-run model analysis. All of this is managed in a single [configuration file](#configuration) within each run directory, and accessed as a [command-line tool](#usage).
 
 The specific focus of the FEHM Toolkit is on simulations of seafloor hydrothermal circulation, though it can be used in other contexts and even modified to better support other use-cases as the need arises.
 
@@ -11,7 +11,7 @@ The specific focus of the FEHM Toolkit is on simulations of seafloor hydrotherma
 * This page will be updated when an initial release is ready.
 
 ## Usage
-After installing the package (#installation), you can invoke commands directly using `fehmtk`:
+After [installing the package](#installation), you can invoke commands directly using `fehmtk`:
 ```zsh
 fehmtk --help
 ```
@@ -21,7 +21,7 @@ An sample workflow looks like this:
 ```zsh
 fehmtk run_from_mesh my_mesh my_run ../nist120-1800.out --run_root run_1
 ```
-1. Update `my_run/config.yaml` (see #configuration)
+1. Update `my_run/config.yaml` (see [Configuration](#configuration))
 1. Run utilities to generate properties and boundary conditions:
 ```zsh
 fehmtk rock_properties my_run/config.yaml
