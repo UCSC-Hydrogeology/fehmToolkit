@@ -69,5 +69,102 @@ We recommend installing as an editable package for both development and use of t
     ```
 
 ## Configuration
---- TODO clean this up
-Yaml format, all in one place, some overlap with FEHM configuration, sync utility to handle that, manual editing of .dat required
+All of the configuration used by the `fehmtk` for a model run is kept as a single [YAML file](https://yaml.org/spec/1.2.2/#chapter-2-language-overview) (usually `config.yaml`), within the run directory. This provides `fehmtk` with file paths and settings for its various commands, particularly those responsible for property assignment and the specification of initial and boundary conditions.
+
+### Overlap with FEHM configuration
+FEHM has its own configuration files, notably the files index (usually `fehmn.files`) and the FEHM input file (often ending in `.dat` or `.txt`). There is some redundancy between the `fehmtk` config and that used by FEHM, and utilities will attempt to keep any shared references aligned when handling these files, such as when making a new model directory. Still, users should take care to ensure that the FEHM config files stay in sync with the `fehmtk` config.
+
+### Specification
+TODO general discussion, link to example
+Model configs
+
+#### Files config
+Mapping of file kinds to relative paths for each file. Paths are resolved relative to the config file.
+```yaml
+files_config:
+  area: cond.area
+  check: cond.chk
+  # ...
+  water_properties: ../../nist120-1800.out
+```
+Only showing a few keys, see [files_config.py](fehm_toolkit/config/files_config.py) for full list of keys.
+
+#### Heat flux config
+Mapping with a single top level key `heat_flux_model` with a model as a value.
+```yaml
+heat_flux_config:
+  heat_flux_model:
+    kind: constant_MW_per_m2
+    params:
+      constant: 3.67e-07
+```
+
+See [heat_flux_models.py](fehm_toolkit/preprocessors/heat_flux_models.py) for a full list of supported models and their required params.
+
+#### Rock properties config
+Mapping with keys for each property config (`compressibility_config`, `conductivity_config`, `permeability_config`, `porosity_config`, `specific_heat_config`), as well as the `zone_assignment_order`. The assignment order can be important in cases where some nodes are members of more than one zone, and for these nodes later zone assignments will overwrite earlier ones.
+
+Property configs contain a list of mappings, each containing a `property_model` and `zones`. This allows flexible specification of property models to one or more zones at a time, for each property.
+
+```yaml
+rock_properties_config:
+  compressibility_configs:
+  - property_model:
+      kind: overburden
+      params:
+        a: 0.09
+        grav: 9.81
+        min_overburden: 25.0
+        rhow: 1000.0
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 6.0e-10
+    zones: [2]
+  # ...
+  specific_heat_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 800.0
+    zones:
+    - 1
+    - 2
+  zone_assignment_order: [1, 2]
+```
+
+#### Pressure config (optional)
+**Note:** The `hydrostatic pressure` utility is considered deprecated. It is recommended to use FEHM itself to compute hydrostatic pressures. (TODO: link to a sample workflow for this)
+
+Mapping with required key for `pressure_model`, and optional keys for `interpolation_model` and `sampling_model`. This config is optional, and can be safely omitted if you do not plan to perform hydrostatic pressure calculations.
+
+```yaml
+pressure_config:
+  pressure_model:  # required
+    kind: depth
+    params:
+      z_interval_m: 5
+      reference_z: 4450
+      reference_pressure_MPa: 25
+      reference_temperature_degC: 2
+  interpolation_model:  # optional
+    kind: regular_grid
+    params:
+      x_samples: 50
+      y_samples: 50
+      z_samples: 20
+  sampling_model:  # optional
+    kind: explicit_lists
+    params:
+      explicit_outside_zones: [top]
+      explicit_material_zones: []
+      explicit_nodes: []
+```
+
+The pressure model controls how the hydrostatic pressure calculation is performed, and is the only required model. By default, this calculation will be done explicitly for all nodes in the model, although note that this can be prohibitively expensive for large grids.
+
+* Defining an `interpolation_model` has the explicit calculation performed on a smaller list of targets (e.g. a regular grid), then interpolate these results for node values.
+* Defining a `sampling_model` has this explicit calculation performed only on the nodes or zones specified.
+  * If enabled without interpolation, only sampled nodes are included in the calculation.
+  * If enabled with interpolation, all remaining nodes are interpolated via the given method.
