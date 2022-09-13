@@ -14,6 +14,7 @@ The specific focus of the FEHM Toolkit is on simulations of seafloor hydrotherma
 After [installing the package](#installation), you can invoke commands directly using `fehmtk`:
 ```zsh
 fehmtk --help
+fehmtk run_from_run --help
 ```
 
 An sample workflow looks like this:
