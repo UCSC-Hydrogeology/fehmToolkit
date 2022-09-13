@@ -11,7 +11,12 @@ The specific focus of the FEHM Toolkit is on simulations of seafloor hydrotherma
 * This page will be updated when an initial release is ready.
 
 ## Usage
-An sample workflow could look like this:
+After installing the package (#installation), you can invoke commands directly using `fehmtk`:
+```zsh
+fehmtk --help
+```
+
+An sample workflow looks like this:
 1. Create a new FEHM run directory from the grid found in `my_mesh` (previously created by LaGriT):
 ```zsh
 fehmtk run_from_mesh my_mesh my_run ../nist120-1800.out --run_root run_1
