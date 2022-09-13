@@ -42,7 +42,7 @@ def test_read_legacy_ipi_config_jdf(fixture_dir):
             'reference_temperature_degC': 2,
         }
     )
-    assert config.interpolation_model == ModelConfig(kind='none', params={})
+    assert config.interpolation_model is None
     assert config.sampling_model is None
 
 
@@ -57,7 +57,7 @@ def test_read_legacy_ipi_config_np(fixture_dir):
             'reference_temperature_degC': 2,
         }
     )
-    assert config.interpolation_model == ModelConfig(kind='none', params={})
+    assert config.interpolation_model is None
     assert config.sampling_model is None
 
 

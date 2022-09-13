@@ -21,5 +21,4 @@ def read_legacy_ipi_config(ipi_file: Path) -> PressureConfig:
                 'reference_temperature_degC': reference_temperature,
             },
         ),
-        interpolation_model=ModelConfig(kind='none', params={}),
     )
