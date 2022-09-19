@@ -159,8 +159,8 @@ def test_write_modified_fehm_input_against_fixture(
     file_extensions = {'perm', 'rock', 'cond', 'ppor', 'hflx', 'flow'}
 
     write_modified_fehm_input_file(
-        base_fehm_input_file=model_dir / f'{model_name}.dat',
-        out_file=output_file,
+        base_input_file=model_dir / f'{model_name}.dat',
+        output_file=output_file,
         file_mapping={f'{model_name}.{ext}': f'test.{ext}' for ext in file_extensions},
     )
 
@@ -187,8 +187,8 @@ def test_write_modified_fehm_input_with_timing_against_fixture(
     output_file = tmp_path / 'test.dat'
 
     write_modified_fehm_input_file(
-        base_fehm_input_file=model_dir / f'{model_name}.dat',
-        out_file=output_file,
+        base_input_file=model_dir / f'{model_name}.dat',
+        output_file=output_file,
         initial_timestep_days=7300,
         initial_simulation_time_days=1234,
     )
