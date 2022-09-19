@@ -1,14 +1,15 @@
 import logging
 from pathlib import Path
-from typing import Callable
 
 from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 from fehm_toolkit.config import HeatFluxConfig, RunConfig
-from fehm_toolkit.fehm_objects import Grid, Node
+from fehm_toolkit.fehm_objects import Grid
 from fehm_toolkit.file_interface import read_grid, write_compact_node_data
+
+from .heat_flux_models import get_heatflux_models_by_kind
 
 logger = logging.getLogger(__name__)
 
@@ -115,22 +116,3 @@ def _get_2d_axis_or_none(plot_data: pd.DataFrame) -> str:
         return 'y'
 
     return None
-
-
-def get_heatflux_models_by_kind() -> dict[str, Callable]:
-    return {
-        'crustal_age': _crustal_age_heatflux,
-        'constant_MW_per_m2': _constant_MW_per_m2,
-    }
-
-
-def _crustal_age_heatflux(node: Node, params: dict) -> float:
-    distance_from_boundary_m = params['crustal_age_sign'] * node.x
-    distance_from_ridge_m = params['boundary_distance_to_ridge_m'] + distance_from_boundary_m
-    age_ma = 1 / (params['spread_rate_mm_per_year'] * 1E3) * distance_from_ridge_m
-    heatflux_per_m2 = params['coefficient_MW'] / age_ma ** 0.5
-    return -abs(node.outside_area.z * heatflux_per_m2)
-
-
-def _constant_MW_per_m2(node: Node, params: dict) -> float:
-    return -abs(node.outside_area.z * params['constant'])

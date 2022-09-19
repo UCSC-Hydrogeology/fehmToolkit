@@ -20,6 +20,10 @@ def _void_ratio_exponential(
     A * e^(B * v)
     where A and B are constants, and v is the void ratio (p / (1 - p)). Porosity p is calculated separately with its
     own property model.
+
+    Required params:
+    A  (numeric)
+    B  (numeric)
     """
     params = model_config_by_property_kind[property_kind].params
 

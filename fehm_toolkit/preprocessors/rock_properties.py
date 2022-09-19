@@ -42,7 +42,7 @@ def generate_rock_properties(config_file: Path):
         ('permeability', 'perm\n', config.files_config.permeability),
         ('compressibility', 'ppor\n   1\n', config.files_config.pore_pressure),
     ):
-        logger.info('Writing property file (%s): %s', header, output_file)
+        logger.info('Writing property file (%s): %s', header.strip(), output_file)
         write_compact_node_data(property_lookups[property_kind], output_file, header=header, footer='\n')
 
 

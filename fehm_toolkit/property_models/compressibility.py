@@ -23,6 +23,12 @@ def _overburden(depth: float, model_config_by_property_kind: dict[str, ModelConf
     G * sum(g * (1 - p) + W * p - W) or B, whichever is higher
     where G, W, and B are constants; G is the acceleration of gravity, W is the density of water, and B is the minimum
     allowed overburden. Grain density g is calculated separately with its own property model.
+
+    Required params:
+    a               [A]  (numeric)
+    grav            [G]  (numeric)
+    rhow            [W]  (numeric)
+    min_overburden  [B]  (numeric)
     """
     params = model_config_by_property_kind[property_kind].params
     porosity_model = get_porosity_model(model_config_by_property_kind['porosity'].kind)

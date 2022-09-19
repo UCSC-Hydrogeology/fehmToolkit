@@ -26,6 +26,10 @@ def _porosity_weighted(
     W^p * R^(1 - p)
     where W and R are constants: water conductivity and rock conductivity, respectively. Porosity p is calculated
     separately with its own property model.
+
+    Required params:
+    water_conductivity  [W]  (numeric)
+    rock_conductivity   [R]  (numeric)
     """
     params = model_config_by_property_kind[property_kind].params
     kw, kg = params['water_conductivity'], params['rock_conductivity']
@@ -46,6 +50,10 @@ def _ctr2tcon(depth: float, model_config_by_property_kind: dict[str, ModelConfig
 
     This function is DEPRECATED, and has been included for backwards compatibility. It is recommended to specify
     conductivity explicitly instead, performing any necessary calculations separately.
+
+    Required params:
+    ctr_model           (model)
+    node_depth_columns  (list of list of numbers; [[0, 50, 100], [0, 80]])
     """
     params = model_config_by_property_kind[property_kind].params
 
