@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fehm_toolkit.config import FilesConfig, RunConfig
 from fehm_toolkit.fehm_runs import create_run_from_mesh, create_run_from_run
 from fehm_toolkit.fehm_runs.create_run_from_mesh import create_template_input_file
@@ -80,25 +82,25 @@ def test_create_template_input_file(tmp_path):
     output_file = tmp_path / 'test.dat'
     files_config = FilesConfig(
         run_root='run_root',
-        material_zone='material_zone.txt',
-        outside_zone='outside_zone.txt',
-        area='area.txt',
-        rock_properties='rock_properties.txt',
-        conductivity='conductivity.txt',
-        pore_pressure='pore_pressure.txt',
-        permeability='permeability.txt',
-        heat_flux='heat_flux.txt',
-        flow='flow.txt',
-        files='fehmn.files',
-        grid='grid.txt',
-        input='input.txt',
-        output='output.txt',
-        store='store.txt',
-        history='history.txt',
-        water_properties='water_properties.txt',
-        check='check.txt',
-        error='error.txt',
-        final_conditions='final_conditions.txt',
+        material_zone=Path('material_zone.txt'),
+        outside_zone=Path('outside_zone.txt'),
+        area=Path('area.txt'),
+        rock_properties=Path('rock_properties.txt'),
+        conductivity=Path('conductivity.txt'),
+        pore_pressure=Path('pore_pressure.txt'),
+        permeability=Path('permeability.txt'),
+        heat_flux=Path('heat_flux.txt'),
+        flow=Path('flow.txt'),
+        files=Path('fehmn.files'),
+        grid=Path('grid.txt'),
+        input=Path('input.txt'),
+        output=Path('output.txt'),
+        store=Path('store.txt'),
+        history=Path('history.txt'),
+        water_properties=Path('water_properties.txt'),
+        check=Path('check.txt'),
+        error=Path('error.txt'),
+        final_conditions=Path('final_conditions.txt'),
     )
     create_template_input_file(files_config, output_file=output_file)
     assert output_file.read_text() == (
