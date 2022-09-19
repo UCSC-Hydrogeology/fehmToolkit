@@ -6,7 +6,11 @@ import numpy as np
 
 from fehm_toolkit.fehm_objects import State
 from fehm_toolkit.config import FilesConfig, RunConfig
-from fehm_toolkit.file_manipulation import create_restart_from_restart, create_run_with_source_files
+from fehm_toolkit.file_manipulation import (
+    create_restart_from_restart,
+    create_run_with_source_files,
+    write_modified_fehm_input_file,
+)
 from fehm_toolkit.file_interface import read_grid, read_restart, write_files_index, write_restart
 
 
@@ -44,9 +48,14 @@ def create_run_from_run(
     target_files = _generate_target_files_config(files_config, target_directory, run_root=run_root)
     file_pairs_by_kind = _gather_file_pairs_to_copy(files_config, target_files)
     create_run_with_source_files(target_directory, file_pairs_by_kind)
-    write_files_index(target_files, output_file=target_files.files)
 
+    write_files_index(target_files, output_file=target_files.files)
     write_restart(state, metadata, output_file=target_files.initial_conditions)
+    write_modified_fehm_input_file(
+        files_config.input,
+        target_files.input,
+        file_mapping={f1.name: f2.name for f1, f2 in file_pairs_by_kind.values()},
+    )
 
     target_config = dataclasses.replace(config, files_config=target_files)
     target_config.to_yaml(target_directory / config_file.name)
@@ -109,10 +118,7 @@ def _get_file_name(file, old_root, new_root):
     return file.name.replace(old_root, new_root)
 
 
-def _gather_file_pairs_to_copy(
-    source_files: FilesConfig,
-    target_files: FilesConfig,
-) -> dict[str, tuple[Path, Path]]:
+def _gather_file_pairs_to_copy(source_files: FilesConfig, target_files: FilesConfig) -> dict[str, tuple[Path, Path]]:
     file_pairs_by_kind = {
         'material_zone': (source_files.material_zone, target_files.material_zone),
         'outside_zone': (source_files.outside_zone, target_files.outside_zone),
@@ -122,7 +128,6 @@ def _gather_file_pairs_to_copy(
         'permeability': (source_files.permeability, target_files.permeability),
         'pore_pressure': (source_files.pore_pressure, target_files.pore_pressure),
         'grid': (source_files.grid, target_files.grid),
-        'input': (source_files.input, target_files.input),
         'store': (source_files.store, target_files.store),
         'water_properties': (source_files.water_properties, target_files.water_properties),
     }
