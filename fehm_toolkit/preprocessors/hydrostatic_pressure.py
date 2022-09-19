@@ -58,7 +58,7 @@ def compute_hydrostatic_pressure(
     logger.info('Generating temperature lookups')
     temperature_lookup = NearestNDInterpolator(node_coordinates, node_temperatures)
 
-    if pressure_config.interpolation_model.kind == 'none':
+    if pressure_config.interpolation_model is None:
         sampled_node_numbers = [node.number for node in grid.nodes]
     else:
         sampled_node_numbers = _sample_node_numbers(grid, sampling_model=pressure_config.sampling_model)
@@ -81,7 +81,7 @@ def compute_hydrostatic_pressure(
         if np.isnan(pressure_by_node[node_number]):
             raise ValueError(f'Pressure at node {node_number} is not a number. May be out of range for density lookup.')
 
-    if pressure_config.interpolation_model.kind != 'none':
+    if pressure_config.interpolation_model is not None and pressure_config.interpolation_model.kind == 'regular_grid':
         x_targets, y_targets, z_targets = _get_xyz_targets(
             node_coordinates,
             interpolation_params=pressure_config.interpolation_model.params,
@@ -347,17 +347,20 @@ def _validate_pressure_config(config: PressureConfig, node_coordinates: np.ndarr
     if config.pressure_model.kind not in ('depth'):
         raise NotImplementedError(f'Pressure model kind {config.pressure_model.kind} not supported.')
 
-    if config.interpolation_model.kind not in ('regular_grid', 'none'):
-        raise NotImplementedError(f'Interpolation model kind {config.interpolation_model.kind} not supported.')
-
     if config.sampling_model is not None and config.sampling_model.kind not in ('explicit_lists'):
         raise NotImplementedError(f'Sampling model kind {config.sampling_model.kind} not supported.')
 
-    interpolation_params = config.interpolation_model.params
+    if config.interpolation_model is not None:
+        _validate_interpolation_model(config.interpolation_model, node_coordinates)
 
-    if config.interpolation_model.kind == 'regular_grid':
-        x_samples = interpolation_params.get('x_samples', 0)
-        y_samples = interpolation_params.get('y_samples', 0)
+
+def _validate_interpolation_model(model: ModelConfig, node_coordinates: np.ndarray):
+    if model.kind not in ('regular_grid'):
+        raise NotImplementedError(f'Interpolation model kind {model.kind} not supported.')
+
+    if model.kind == 'regular_grid':
+        x_samples = model.params.get('x_samples', 0)
+        y_samples = model.params.get('y_samples', 0)
         sample_xy_dimensions = (x_samples > 1) + (y_samples > 1)
         node_xy_dimensions = node_coordinates.shape[1] - 1
         if sample_xy_dimensions != node_xy_dimensions:
