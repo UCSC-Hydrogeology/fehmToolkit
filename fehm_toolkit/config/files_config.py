@@ -29,6 +29,9 @@ class FilesConfig:
     heat_flux: Optional[Path] = None
     initial_conditions: Optional[Path] = None
 
+    def __post_init__(self):
+        self.validate()
+
     @classmethod
     def from_dict(cls, dct: dict, files_relative_to: Optional[Path] = None):
         if files_relative_to is None:
@@ -48,9 +51,15 @@ class FilesConfig:
         })
 
     def validate(self):
-        self._assert_specified_paths_exist()
+        seen = set()
+        for path in dataclasses.asdict(self).values():
+            if path is None:
+                continue
+            if path in seen:
+                raise ValueError(f'Invalid FilesConfig, file duplicated: {path}')
+            seen.add(path)
 
-    def _assert_specified_paths_exist(self):
+    def assert_specified_paths_exist(self):
         does_not_exist = set()
         for key, path in dataclasses.asdict(self).items():
             if key == 'run_root':
