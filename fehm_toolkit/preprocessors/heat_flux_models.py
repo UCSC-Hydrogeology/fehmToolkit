@@ -14,10 +14,9 @@ def _crustal_age_heatflux(node: Node, params: dict) -> float:
     """Heat input per square meter as a function of distance to ridge in x:
     C / a^0.5
     Where C is a parameter and a is the crustal age, calculated as:
-    (D ± d) / (1000 * R)
-    Where R is the spread rate in mm/year, D is the distance between x=0 and the ridge, and d is the distance to a
-    given node. The sign in (D ± d) is determined by the crustal age sign, which denotes whether age increases or
-    decreases with x.
+    (D ± x) / (1000 * R)
+    Where R is the spread rate in mm/year, D is the distance between x=0 and the ridge. The sign in (D ± x) is
+    determined by the crustal age sign, which denotes whether age increases or decreases with x.
 
     Required params:
     coefficient_MW                [C]  (numeric)
