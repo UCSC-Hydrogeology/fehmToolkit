@@ -80,8 +80,11 @@ All of the configuration used by the `fehmtk` for a model run is kept as a singl
 FEHM has its own configuration files, notably the files index (usually `fehmn.files`) and the FEHM input file (often ending in `.dat` or `.txt`). There is some redundancy between the `fehmtk` config and that used by FEHM, and utilities will attempt to keep any shared references aligned when handling these files, such as when making a new model directory. Still, users should take care to ensure that the FEHM config files stay in sync with the `fehmtk` config.
 
 ### Specification
-TODO general discussion, link to example
-Model configs
+The configuration has a number of top-level keys. The `files_config` is shared across utilities, and ensures `fehmtk` has a unified view of files in a given run directory. Other top-level keys pertain to specific utilities; some are optional and some are mandatory. 
+
+A common construction throughout the configuration is a `model`, which consists of both a `kind` and `params`. This allows the relevant utility to take a different set of parameters depending the type of model you want to use.
+
+Example configs can be found in the repository test fixtures, e.g. [here](test/end_to_end/fixtures/outcrop_2d/cond/config.yaml).
 
 #### Files config
 Mapping of file kinds to relative paths for each file. Paths are resolved relative to the config file.
