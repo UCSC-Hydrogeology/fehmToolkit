@@ -70,7 +70,7 @@ def create_config_for_legacy_run(
         heat_flux=heat_flux_file or get_unique_file(directory, '*.hflx', optional=True),
         initial_conditions=initial_conditions_file or get_unique_file(directory, '*.ini', optional=True),
     )
-    files_config.validate()
+    files_config.assert_specified_paths_exist()
 
     run_config = RunConfig(
         heat_flux_config=read_legacy_hfi_config(hfi_file),

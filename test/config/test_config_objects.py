@@ -26,8 +26,8 @@ def config_dict(fixture_dir):
 def files_config_dict():
     return {
       'run_root': 'run_root',
-      'material_zone': 'run_root.zone',
-      'outside_zone': 'run_root.zone',
+      'material_zone': 'run_root_material.zone',
+      'outside_zone': 'run_root_outside.zone',
       'area': 'run_root.area',
       'initial_conditions': 'run_root.ini',
       'final_conditions': 'run_root.fin',
@@ -203,7 +203,7 @@ def test_run_config_omits_none_files(tmp_path, config_dict):
 def test_files_config(files_config_dict):
     config = FilesConfig.from_dict(files_config_dict)
     assert config.run_root == 'run_root'
-    assert config.material_zone == Path.cwd() / 'run_root.zone'
+    assert config.material_zone == Path.cwd() / 'run_root_material.zone'
     assert config.area == Path.cwd() / 'run_root.area'
     assert config.water_properties == Path.cwd() / '../../end_to_end/fixtures/nist120-1800.out'
     for k, v in asdict(config).items():
