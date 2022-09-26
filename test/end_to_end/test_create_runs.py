@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from fehm_toolkit.config import FilesConfig, RunConfig
-from fehm_toolkit.fehm_runs import create_run_from_mesh, create_run_from_run
-from fehm_toolkit.fehm_runs.create_run_from_mesh import create_template_input_file
-from fehm_toolkit.file_interface import read_restart
+from fehmtk.config import FilesConfig, RunConfig
+from fehmtk.fehm_runs import create_run_from_mesh, create_run_from_run
+from fehmtk.fehm_runs.create_run_from_mesh import create_template_input_file
+from fehmtk.file_interface import read_restart
 
 
 def test_create_run_from_mesh_flat_box_infer(tmp_path, end_to_end_fixture_dir):

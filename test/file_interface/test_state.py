@@ -1,6 +1,6 @@
 import pytest
 
-from fehm_toolkit.fehm_objects import State
+from fehmtk.fehm_objects import State
 
 
 def test_state_same_length():

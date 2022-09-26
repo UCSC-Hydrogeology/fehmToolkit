@@ -1,6 +1,5 @@
-from fehm_toolkit.config import FilesConfig
-
-from fehm_toolkit.file_interface import write_files_index
+from fehmtk.config import FilesConfig
+from fehmtk.file_interface import write_files_index
 
 
 def test_create_files_index(tmp_path):

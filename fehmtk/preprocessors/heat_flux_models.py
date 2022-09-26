@@ -1,6 +1,6 @@
 from typing import Callable
 
-from fehm_toolkit.fehm_objects import Node
+from fehmtk.fehm_objects import Node
 
 
 def get_heatflux_models_by_kind() -> dict[str, Callable]:

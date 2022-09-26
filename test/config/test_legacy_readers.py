@@ -1,8 +1,8 @@
-from fehm_toolkit.config import (
+from fehmtk.config import (
     ModelConfig,
     PropertyConfig,
 )
-from fehm_toolkit.file_interface.legacy_config import (
+from fehmtk.file_interface.legacy_config import (
     read_legacy_hfi_config,
     read_legacy_ipi_config,
     read_legacy_rpi_config,

@@ -5,9 +5,9 @@ from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-from fehm_toolkit.config import HeatFluxConfig, RunConfig
-from fehm_toolkit.fehm_objects import Grid
-from fehm_toolkit.file_interface import read_grid, write_compact_node_data
+from fehmtk.config import HeatFluxConfig, RunConfig
+from fehmtk.fehm_objects import Grid
+from fehmtk.file_interface import read_grid, write_compact_node_data
 
 from .heat_flux_models import get_heatflux_models_by_kind
 

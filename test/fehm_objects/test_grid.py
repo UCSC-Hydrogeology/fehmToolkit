@@ -1,7 +1,7 @@
 import pytest
 
-from fehm_toolkit.fehm_objects import Node, Vector
-from fehm_toolkit.file_interface import read_grid
+from fehmtk.fehm_objects import Node, Vector
+from fehmtk.file_interface import read_grid
 
 
 def test_pyramid_from_fehm(fixture_dir):

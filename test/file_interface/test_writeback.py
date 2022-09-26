@@ -1,6 +1,6 @@
 import pytest
 
-from fehm_toolkit.file_interface import (
+from fehmtk.file_interface import (
     read_pressure,
     read_restart,
     read_zones,

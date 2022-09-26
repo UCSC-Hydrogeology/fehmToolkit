@@ -2,9 +2,9 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from fehm_toolkit.config import FilesConfig, RunConfig
-from fehm_toolkit.file_interface import get_unique_file
-from fehm_toolkit.file_interface.legacy_config import (
+from fehmtk.config import FilesConfig, RunConfig
+from fehmtk.file_interface import get_unique_file
+from fehmtk.file_interface.legacy_config import (
     read_legacy_hfi_config,
     read_legacy_ipi_config,
     read_legacy_rpi_config,

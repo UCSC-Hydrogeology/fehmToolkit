@@ -95,7 +95,7 @@ files_config:
   # ...
   water_properties: ../../nist120-1800.out
 ```
-This only shows a few keys, see [files_config.py](fehm_toolkit/config/files_config.py) for full list of keys.
+This only shows a few keys, see [files_config.py](fehmtk/config/files_config.py) for full list of keys.
 
 #### Heat flux config
 Mapping with a single top level key `heat_flux_model` with a model as a value.
@@ -107,7 +107,7 @@ heat_flux_config:
       constant: 3.67e-07
 ```
 
-See [heat_flux_models.py](fehm_toolkit/preprocessors/heat_flux_models.py) for a full list of supported models and their required params.
+See [heat_flux_models.py](fehmtk/preprocessors/heat_flux_models.py) for a full list of supported models and their required params.
 
 #### Rock properties config
 Mapping with keys for each property config (`compressibility_config`, `conductivity_config`, `permeability_config`, `porosity_config`, `specific_heat_config`), as well as the `zone_assignment_order`. The assignment order can be important in cases where some nodes are members of more than one zone, and for these nodes later zone assignments will overwrite earlier ones.
@@ -142,7 +142,7 @@ rock_properties_config:
   zone_assignment_order: [1, 2]
 ```
 
-See [property_models](fehm_toolkit/property_models) for a full list of supported models and their required params.
+See [property_models](fehmtk/property_models) for a full list of supported models and their required params.
 
 #### Pressure config (optional)
 **Note:** The `hydrostatic pressure` utility is considered deprecated. It is recommended to use FEHM itself to compute hydrostatic pressures. (TODO: link to a sample workflow for this)

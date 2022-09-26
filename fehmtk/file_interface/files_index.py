@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fehm_toolkit.config import FilesConfig
+from fehmtk.config import FilesConfig
 
 FILES_INDEX_KEY_MAPPING = {
     'run_root': 'root',
