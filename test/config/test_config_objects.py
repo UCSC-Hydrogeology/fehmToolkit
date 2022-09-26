@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from fehm_toolkit.config import (
+from fehmtk.config import (
     FilesConfig,
     HeatFluxConfig,
     ModelConfig,

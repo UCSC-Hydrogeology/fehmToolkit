@@ -2,8 +2,8 @@ import shutil
 
 import pytest
 
-from fehm_toolkit.config import RunConfig
-from fehm_toolkit.fehm_runs.create_config_for_legacy_run import create_config_for_legacy_run
+from fehmtk.config import RunConfig
+from fehmtk.fehm_runs.create_config_for_legacy_run import create_config_for_legacy_run
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d'))

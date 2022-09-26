@@ -6,14 +6,14 @@ import shutil
 from numpy.testing import assert_array_almost_equal
 import pytest
 
-from fehm_toolkit.config import RunConfig
-from fehm_toolkit.file_interface import read_pressure, write_restart
-from fehm_toolkit.preprocessors import (
+from fehmtk.config import RunConfig
+from fehmtk.file_interface import read_pressure, write_restart
+from fehmtk.preprocessors import (
     generate_input_heat_flux,
     generate_hydrostatic_pressure,
     generate_rock_properties,
 )
-from fehm_toolkit.file_manipulation import (
+from fehmtk.file_manipulation import (
     append_zones,
     create_restart_from_avs,
     create_restart_from_restart,

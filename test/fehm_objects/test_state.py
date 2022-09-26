@@ -1,7 +1,7 @@
 import pytest
 
-from fehm_toolkit.fehm_objects import State
-from fehm_toolkit.fehm_runs.create_run_from_run import replace_node_pressures
+from fehmtk.fehm_objects import State
+from fehmtk.fehm_runs.create_run_from_run import replace_node_pressures
 
 
 @pytest.fixture

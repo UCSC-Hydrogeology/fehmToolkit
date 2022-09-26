@@ -2,8 +2,8 @@ from decimal import Decimal
 
 import pytest
 
-from fehm_toolkit.fehm_objects import Element, RestartMetadata, State, Vector, Zone
-from fehm_toolkit.file_interface import (
+from fehmtk.fehm_objects import Element, RestartMetadata, State, Vector, Zone
+from fehmtk.file_interface import (
     read_avs,
     read_fehm,
     read_nist_lookup_table,

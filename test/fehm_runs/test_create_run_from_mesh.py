@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from fehm_toolkit.config import ModelConfig, RockPropertiesConfig, RunConfig
-from fehm_toolkit.fehm_runs.create_run_from_mesh import build_template_from_type, get_template_files_config
+from fehmtk.config import ModelConfig, RockPropertiesConfig, RunConfig
+from fehmtk.fehm_runs.create_run_from_mesh import build_template_from_type, get_template_files_config
 
 
 def test_build_template_from_model_config():
