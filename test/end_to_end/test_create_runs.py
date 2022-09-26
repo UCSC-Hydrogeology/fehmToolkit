@@ -141,7 +141,12 @@ def test_create_run_from_run(tmp_path, end_to_end_fixture_dir):
     assert new_config.files_config.grid.exists()
     assert new_config.files_config.store.exists()
     assert new_config.files_config.files.exists()
+
     assert new_config.files_config.input.exists()
+    input_content = new_config.files_config.input.read_text()
+    assert new_config.files_config.permeability.name in input_content
+    assert new_config.files_config.conductivity.name in input_content
+    assert new_config.files_config.rock_properties.name in input_content
 
     assert new_config.files_config.grid.read_text() == run_config.files_config.grid.read_text()
     assert new_config.files_config.outside_zone.read_text() == run_config.files_config.outside_zone.read_text()
