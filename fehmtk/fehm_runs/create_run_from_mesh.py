@@ -5,9 +5,9 @@ from typing import _UnionGenericAlias, GenericAlias, Optional, Sequence, Type, U
 
 import yaml
 
-from fehm_toolkit.config import FilesConfig, RunConfig
-from fehm_toolkit.file_interface import get_unique_file, write_files_index
-from fehm_toolkit import file_manipulation
+from fehmtk.config import FilesConfig, RunConfig
+from fehmtk.file_interface import get_unique_file, write_files_index
+from fehmtk import file_manipulation
 
 
 logger = logging.getLogger(__name__)

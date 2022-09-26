@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 from typing import Callable, Optional
 
-from fehm_toolkit.config import RockPropertiesConfig
+from fehmtk.config import RockPropertiesConfig
 
 PROPERTY_KINDS = {'porosity', 'conductivity', 'permeability', 'compressibility'}
 NUMERIC_PATTERN = r'-{0,1}(?:(?:\d+\.\d+)|(?:\.{0,1}\d+))(?:(?:e|E)-{0,1}\d+){0,1}'

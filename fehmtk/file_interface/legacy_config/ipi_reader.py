@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fehm_toolkit.config import ModelConfig, PressureConfig
+from fehmtk.config import ModelConfig, PressureConfig
 
 
 def read_legacy_ipi_config(ipi_file: Path) -> PressureConfig:

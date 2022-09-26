@@ -2,7 +2,7 @@ from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
 
-from fehm_toolkit.fehm_objects import State
+from fehmtk.fehm_objects import State
 
 SUPPORTED_FIELDS = {
     'Liquid Pressure (MPa), (MPa)': 'pressure',

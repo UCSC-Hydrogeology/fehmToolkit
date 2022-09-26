@@ -4,14 +4,14 @@ from typing import Optional, Sequence
 
 import numpy as np
 
-from fehm_toolkit.fehm_objects import State
-from fehm_toolkit.config import FilesConfig, RunConfig
-from fehm_toolkit.file_manipulation import (
+from fehmtk.fehm_objects import State
+from fehmtk.config import FilesConfig, RunConfig
+from fehmtk.file_manipulation import (
     create_restart_from_restart,
     create_run_with_source_files,
     write_modified_fehm_input_file,
 )
-from fehm_toolkit.file_interface import read_grid, read_restart, write_files_index, write_restart
+from fehmtk.file_interface import read_grid, read_restart, write_files_index, write_restart
 
 
 def create_run_from_run(

@@ -2,7 +2,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Sequence, TextIO
 
-from fehm_toolkit.fehm_objects import RestartMetadata, State
+from fehmtk.fehm_objects import RestartMetadata, State
 from .helpers import grouper
 
 SUPPORTED_BLOCK_KINDS = ('temperature', 'saturation', 'pressure')

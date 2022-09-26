@@ -2,10 +2,10 @@ import logging
 from pathlib import Path
 from typing import Iterable
 
-from fehm_toolkit.config import ModelConfig, RockPropertiesConfig, RunConfig
-from fehm_toolkit.fehm_objects import Node, Grid, Zone
-from fehm_toolkit.file_interface import read_grid, write_compact_node_data
-from fehm_toolkit.property_models import get_rock_property_model
+from fehmtk.config import ModelConfig, RockPropertiesConfig, RunConfig
+from fehmtk.fehm_objects import Node, Grid, Zone
+from fehmtk.file_interface import read_grid, write_compact_node_data
+from fehmtk.property_models import get_rock_property_model
 
 logger = logging.getLogger(__name__)
 

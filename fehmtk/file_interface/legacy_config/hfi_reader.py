@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-from fehm_toolkit.config import HeatFluxConfig, ModelConfig
+from fehmtk.config import HeatFluxConfig, ModelConfig
 
 CRUSTAL_AGE_MODEL_KIND = 'crustal_age'
 
