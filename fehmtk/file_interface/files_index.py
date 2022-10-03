@@ -7,7 +7,7 @@ FILES_INDEX_KEY_MAPPING = {
     'input': 'input',
     'output': 'outpu',
     'grid': 'grida',
-    'store': 'storo',
+    'storage': 'storo',
     'final_conditions': 'rsto',
     'error': 'error',
     'check': 'check',

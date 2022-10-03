@@ -20,7 +20,7 @@ def test_create_files_index(tmp_path):
         grid='grid.txt',
         input='input.txt',
         output='output.txt',
-        store='store.txt',
+        storage='store.txt',
         history='history.txt',
         water_properties='water_properties.txt',
         check='check.txt',

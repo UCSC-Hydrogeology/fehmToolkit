@@ -59,7 +59,7 @@ def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixtur
         water_properties_file=end_to_end_fixture_dir / 'nist120-1800.out',
         run_root='new_run',
         grid_file=mesh_directory / 'outcrop_2d.fehmn',
-        store_file=mesh_directory / 'outcrop_2d.stor',
+        storage_file=mesh_directory / 'outcrop_2d.stor',
         material_zone_file=mesh_directory / 'outcrop_2d_material.zone',
         outside_zone_file=mesh_directory / 'outcrop_2d_outside.zone',
         area_file=mesh_directory / 'outcrop_2d_outside_vor.area',
@@ -95,7 +95,7 @@ def test_create_template_input_file(tmp_path):
         grid=Path('grid.txt'),
         input=Path('input.txt'),
         output=Path('output.txt'),
-        store=Path('store.txt'),
+        storage=Path('store.txt'),
         history=Path('history.txt'),
         water_properties=Path('water_properties.txt'),
         check=Path('check.txt'),
@@ -139,7 +139,7 @@ def test_create_run_from_run(tmp_path, end_to_end_fixture_dir):
     assert new_config.files_config.permeability.exists()
     assert new_config.files_config.water_properties.exists() and new_config.files_config.water_properties.is_symlink()
     assert new_config.files_config.grid.exists()
-    assert new_config.files_config.store.exists()
+    assert new_config.files_config.storage.exists()
     assert new_config.files_config.files.exists()
 
     assert new_config.files_config.input.exists()

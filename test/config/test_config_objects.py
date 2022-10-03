@@ -41,7 +41,7 @@ def files_config_dict():
       'grid': 'run_root.fehm',
       'input': 'run_root.dat',
       'output': 'run_root.out',
-      'store': 'run_root.stor',
+      'storage': 'run_root.stor',
       'history': 'run_root.hist',
       'water_properties': '../../end_to_end/fixtures/nist120-1800.out',
       'check': 'run_root.chk',

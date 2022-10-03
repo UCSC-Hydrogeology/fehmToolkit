@@ -18,7 +18,7 @@ files_config:
   pore_pressure: p13.ppor
   rock_properties: p13.rock
   run_root: p13
-  store: p13.stor
+  storage: p13.stor
   water_properties: ../../nist120-1800.out
 heat_flux_config:
   heat_flux_model:

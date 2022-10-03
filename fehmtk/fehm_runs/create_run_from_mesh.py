@@ -27,7 +27,7 @@ EXT_BY_FILE = {
     'grid': '.fehm',
     'input': '.dat',
     'output': '.out',
-    'store': '.stor',
+    'storage': '.stor',
     'history': '.hist',
     'water_properties': '.wpi',
     'check': '.chk',
@@ -44,7 +44,7 @@ def create_run_from_mesh(
     append_zones: Optional[Sequence[str]] = ('top', 'bottom'),
     run_root: Optional[str] = None,
     grid_file: Optional[Path] = None,
-    store_file: Optional[Path] = None,
+    storage_file: Optional[Path] = None,
     material_zone_file: Optional[Path] = None,
     outside_zone_file: Optional[Path] = None,
     area_file: Optional[Path] = None,
@@ -62,7 +62,7 @@ def create_run_from_mesh(
         target_directory,
         run_root,
         grid_file=grid_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['grid']}*"),
-        store_file=store_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['store']}"),
+        storage_file=storage_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['storage']}"),
         material_zone_file=material_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['material_zone']}"),
         outside_zone_file=outside_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['outside_zone']}"),
         area_file=area_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['area']}"),
@@ -153,7 +153,7 @@ def _gather_file_pairs_to_copy(
     run_root: Optional[str],
     *,
     grid_file: Path,
-    store_file: Path,
+    storage_file: Path,
     material_zone_file: Path,
     outside_zone_file: Path,
     area_file: Path,
@@ -162,7 +162,7 @@ def _gather_file_pairs_to_copy(
     if run_root:
         return {
             'grid': (grid_file, target_directory / f"{run_root}{EXT_BY_FILE['grid']}"),
-            'store': (store_file, target_directory / f"{run_root}{EXT_BY_FILE['store']}"),
+            'storage': (storage_file, target_directory / f"{run_root}{EXT_BY_FILE['storage']}"),
             'material_zone': (material_zone_file, target_directory / f"{run_root}{EXT_BY_FILE['material_zone']}"),
             'outside_zone': (outside_zone_file, target_directory / f"{run_root}{EXT_BY_FILE['outside_zone']}"),
             'area': (area_file, target_directory / f"{run_root}{EXT_BY_FILE['area']}"),
@@ -173,7 +173,7 @@ def _gather_file_pairs_to_copy(
 
     return {
         'grid': (grid_file, target_directory / grid_file.name),
-        'store': (store_file, target_directory / store_file.name),
+        'storage': (storage_file, target_directory / storage_file.name),
         'material_zone': (material_zone_file, target_directory / material_zone_file.name),
         'outside_zone': (outside_zone_file, target_directory / outside_zone_file.name),
         'area': (area_file, target_directory / area_file.name),
