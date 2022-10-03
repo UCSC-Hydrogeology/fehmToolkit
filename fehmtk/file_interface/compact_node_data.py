@@ -56,7 +56,7 @@ def write_compact_node_data(
     footer: str = None,
     style: str = 'rock_properties',
 ):
-    nodes_by_value = _group_nodes_by_formatted_output(value_by_node, style)
+    nodes_by_value = _group_nodes_by_formatted_output(value_by_node)
     ordered_entries = _get_grouped_entries(nodes_by_value)
     _write_compact_node_file(ordered_entries, output_file, style, header=header, footer=footer)
 
@@ -79,11 +79,10 @@ def _write_compact_node_file(
 
 def _group_nodes_by_formatted_output(
     value_by_node: dict[int, Union[float, Vector, tuple[float]]],
-    style: str,
 ) -> dict[str, list[int]]:
     nodes_by_formatted_value = defaultdict(list)
     for node, value in value_by_node.items():
-        formatted_value = _format_for_output(value, style)
+        formatted_value = _format_for_output(value)
         nodes_by_formatted_value[formatted_value].append(node)
     return nodes_by_formatted_value
 
@@ -132,22 +131,24 @@ def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
         yield group_start, group_end
 
 
-def _format_for_output(value: Union[float, Vector, tuple[float]], style: str) -> str:
+def _format_for_output(value: Union[float, Vector, Iterable[float]]) -> str:
+    r""" Format values for compact node data output.
+    >>> _format_for_output('hello')
+    'hello'
+    >>> _format_for_output(15)
+    '  1.50000E+01'
+    >>> _format_for_output(Vector(10, 20, 5))
+    '  1.00000E+01\t  2.00000E+01\t  5.00000E+00'
+    >>> _format_for_output([Vector(10, 20, 5), '0.'])
+    '  1.00000E+01\t  2.00000E+01\t  5.00000E+00\t0.'
+    >>> _format_for_output([(10, [20, 5]), '0.'])
+    '  1.00000E+01\t  2.00000E+01\t  5.00000E+00\t0.'
+    """
+
+    if isinstance(value, str):
+        return value
+
     try:
         return f'{value:13.5E}'
     except TypeError:
-        return _format_iterable_triple_for_output(value, style)
-
-
-def _format_iterable_triple_for_output(values: Iterable, style: str) -> str:
-    r""" Format iterable values with three items for output to compact node output file.
-    >>> _format_iterable_triple_for_output((1, 2.5, 3), 'rock_properties')
-    '  1.00000E+00\t  2.50000E+00\t  3.00000E+00'
-    >>> _format_iterable_triple_for_output([100, 0.2, 3], 'rock_properties')
-    '  1.00000E+02\t  2.00000E-01\t  3.00000E+00'
-    """
-    try:
-        x, y, z = values
-        return '\t'.join([f'{i:13.5E}' for i in (x, y, z)])
-    except ValueError:
-        raise ValueError(f'Cannot format value for compact node output: {values}')
+        return '\t'.join([_format_for_output(i) for i in value])
