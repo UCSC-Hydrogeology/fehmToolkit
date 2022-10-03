@@ -134,7 +134,7 @@ def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
 
 def _format_for_output(value: Union[float, Vector, tuple[float]], style: str) -> str:
     try:
-        return _format_numeric_for_output(value, style)
+        return f'{value:13.5E}'
     except TypeError:
         return _format_iterable_triple_for_output(value, style)
 
@@ -148,23 +148,6 @@ def _format_iterable_triple_for_output(values: Iterable, style: str) -> str:
     """
     try:
         x, y, z = values
-        return '\t'.join([_format_numeric_for_output(i, style) for i in (x, y, z)])
+        return '\t'.join([f'{i:13.5E}' for i in (x, y, z)])
     except ValueError:
         raise ValueError(f'Cannot format value for compact node output: {values}')
-
-
-def _format_numeric_for_output(value: float, style: str) -> str:
-    """ Format float value for output to compact node output file.
-    >>> _format_for_output(-0.0397631, 'heatflux')
-    '-3.97631E-02'
-    >>> _format_for_output(200, 'heatflux')
-    '2.00000E+02'
-    >>> _format_for_output(-0.0397631, 'rock_properties')
-    ' -3.97631E-02'
-    >>> _format_for_output(200, 'rock_properties')
-    '  2.00000E+02'
-    """
-    if style == 'heatflux':
-        return f'{value:.5E}'
-
-    return f'{value:13.5E}'
