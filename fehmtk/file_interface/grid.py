@@ -7,6 +7,7 @@ from scipy import interpolate
 
 from ..fehm_objects import Grid, Node, Vector, Zone
 from .fehm import read_fehm
+from .storage import read_volume_from_storage
 from .zone import read_zones
 
 
@@ -19,6 +20,7 @@ def read_grid(
     material_zone_file: Optional[Path] = None,
     outside_zone_file: Optional[Path] = None,
     area_file: Optional[Path] = None,
+    storage_file: Optional[Path] = None,
     read_elements: Optional[bool] = True,
 ) -> Grid:
     if area_file and not outside_zone_file:
@@ -31,6 +33,12 @@ def read_grid(
     if material_zone_file:
         logger.debug(f'Reading material zones from {material_zone_file}')
         material_zones = read_zones(material_zone_file)
+
+    volume_by_node_number = None
+    if storage_file:
+        logger.debug(f'Reading volumes from {storage_file}')
+        volumes = read_volume_from_storage(storage_file)
+        volume_by_node_number = {n: v for n, v in zip(sorted(coordinates_by_node_number.keys()), volumes)}
 
     outside_zones, area_by_node_number, depth_by_node_number = (None, None, None)
     if outside_zone_file:
@@ -48,7 +56,12 @@ def read_grid(
         depth_by_node_number = calculate_node_depths(coordinates_by_node_number, top_zone)
 
     logger.debug('Constructing nodes lookup')
-    nodes_by_number = _construct_nodes_lookup(coordinates_by_node_number, area_by_node_number, depth_by_node_number)
+    nodes_by_number = _construct_nodes_lookup(
+        coordinates_by_number=coordinates_by_node_number,
+        area_by_number=area_by_node_number,
+        depth_by_number=depth_by_node_number,
+        volume_by_number=volume_by_node_number,
+    )
 
     return Grid(
         nodes_by_number=nodes_by_number,
@@ -100,8 +113,10 @@ def _get_area_by_node_number(*, area_zones: Iterable[Zone], outside_zones: Itera
 
 def _construct_nodes_lookup(
     coordinates_by_number: dict[int, Vector],
+    *,
     area_by_number: Optional[dict[int, Vector]],
     depth_by_number: Optional[dict[int, float]],
+    volume_by_number: Optional[dict[int, float]],
 ) -> dict[int, Node]:
     return {
         number: Node(
@@ -109,6 +124,7 @@ def _construct_nodes_lookup(
             coordinates,
             outside_area=area_by_number.get(number) if area_by_number else None,
             depth=depth_by_number.get(number) if depth_by_number else None,
+            volume=volume_by_number.get(number) if volume_by_number else None,
         )
         for number, coordinates in coordinates_by_number.items()
     }
