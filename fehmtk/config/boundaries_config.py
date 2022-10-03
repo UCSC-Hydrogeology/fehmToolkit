@@ -12,7 +12,7 @@ class FlowConfig:
     @classmethod
     def from_dict(cls, dct):
         return cls(
-            boundary_model=ModelConfig.from_dict(dct['property_model']),
+            boundary_model=ModelConfig.from_dict(dct['boundary_model']),
             zones=dct['zones'],
         )
 
