@@ -33,11 +33,10 @@ def generate_input_heat_flux(config_file: Path, plot: bool = False):
 
     logger.info(f'Writing heat flux to disk: {config.files_config.heat_flux}')
     write_compact_node_data(
-        heatflux_by_node,
-        config.files_config.heat_flux,
+        {node_number: (heatflux, '0.') for node_number, heatflux in heatflux_by_node.items()},
+        output_file=config.files_config.heat_flux,
         header='hflx\n',
         footer='0\n',
-        style='heatflux',
     )
     if plot:
         plot_heatflux(heatflux_by_node, grid)

@@ -54,17 +54,15 @@ def write_compact_node_data(
     output_file: Path,
     header: str = None,
     footer: str = None,
-    style: str = 'rock_properties',
 ):
     nodes_by_value = _group_nodes_by_formatted_output(value_by_node)
     ordered_entries = _get_grouped_entries(nodes_by_value)
-    _write_compact_node_file(ordered_entries, output_file, style, header=header, footer=footer)
+    _write_compact_node_file(ordered_entries, output_file, header=header, footer=footer)
 
 
 def _write_compact_node_file(
     entries: tuple[int, int, str],
     output_file: Path,
-    style: str,
     header: str = None,
     footer: str = None,
 ):
@@ -72,7 +70,7 @@ def _write_compact_node_file(
         if header:
             f.write(header)
         for min_node, max_node, value in entries:
-            f.write(_format_compact_entry(min_node, max_node, value, style))
+            f.write(_format_compact_entry(min_node, max_node, value))
         if footer:
             f.write(footer)
 
@@ -95,21 +93,18 @@ def _get_grouped_entries(nodes_by_value: dict[str, list[int]]) -> list[tuple[int
     return sorted(entries, key=lambda entry: entry[0])  # sort by min_node
 
 
-def _format_compact_entry(min_node: int, max_node: int, value: str, style: str) -> str:
+def _format_compact_entry(min_node: int, max_node: int, value: str) -> str:
     r""" Format compact node data entry as a string.
-    >>> _format_compact_entry(1, 10, '2.00000E02', 'heatflux')
-    '1\t10\t1\t2.00000E02\t0.\n'
-    >>> _format_compact_entry(4, 5, '-3.56738E-04', 'heatflux')
-    '4\t5\t1\t-3.56738E-04\t0.\n'
-    >>> _format_compact_entry(1, 10, '2.00000E02', 'rock_properties')
+    >>> _format_compact_entry(1, 10, '2.00000E02\t0.')
+    '      1      10 1\t2.00000E02\t0.\n'
+    >>> _format_compact_entry(4, 5, '-3.56738E-04\t0.')
+    '      4       5 1\t-3.56738E-04\t0.\n'
+    >>> _format_compact_entry(1, 10, '2.00000E02')
     '      1      10 1\t2.00000E02\n'
-    >>> _format_compact_entry(4, 5, '-3.56738E-04', 'rock_properties')
+    >>> _format_compact_entry(4, 5, '-3.56738E-04')
     '      4       5 1\t-3.56738E-04\n'
     """
-    if style == 'heatflux':
-        return f'{min_node}\t{max_node}\t1\t{value}\t0.\n'
-
-    return f'{min_node:7d}{max_node:8d} 1\t{value}\n'
+    return f'{min_node:7d} {max_node:7d} 1\t{value}\n'
 
 
 def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
