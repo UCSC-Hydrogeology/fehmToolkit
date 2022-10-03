@@ -6,9 +6,8 @@ from fehmtk.config import RunConfig
 from fehmtk.fehm_runs.create_config_for_legacy_run import create_config_for_legacy_run
 
 
-@pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d'))
-def test_create_config_for_legacy_run_cond(tmp_path, end_to_end_fixture_dir, mesh_name):
-    run_directory = end_to_end_fixture_dir / mesh_name / 'cond'
+def test_create_config_for_legacy_run_cond(tmp_path, end_to_end_fixture_dir):
+    run_directory = end_to_end_fixture_dir / 'flat_box' / 'cond'
     tmp_model_dir = tmp_path / 'root' / 'model' / 'run'
     shutil.copytree(run_directory, tmp_model_dir)
     (tmp_model_dir.parent.parent / 'nist120-1800.out').touch()
