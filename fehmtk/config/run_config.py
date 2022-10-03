@@ -4,6 +4,7 @@ from typing import Optional
 
 import yaml
 
+from .boundaries_config import BoundariesConfig
 from .files_config import FilesConfig
 from .heat_flux_config import HeatFluxConfig
 from .pressure_config import PressureConfig
@@ -16,6 +17,7 @@ class RunConfig:
     files_config: FilesConfig
     heat_flux_config: HeatFluxConfig
     rock_properties_config: RockPropertiesConfig
+    boundaries_config: Optional[BoundariesConfig] = None
     pressure_config: Optional[PressureConfig] = None
 
     @classmethod
@@ -24,6 +26,9 @@ class RunConfig:
             files_config=FilesConfig.from_dict(dct['files_config'], files_relative_to),
             heat_flux_config=HeatFluxConfig.from_dict(dct['heat_flux_config']),
             rock_properties_config=RockPropertiesConfig.from_dict(dct['rock_properties_config']),
+            boundaries_config=(
+                BoundariesConfig.from_dict(dct['boundaries_config']) if dct.get('boundaries_config') else None
+            ),
             pressure_config=PressureConfig.from_dict(dct['pressure_config']) if dct.get('pressure_config') else None,
         )
 
