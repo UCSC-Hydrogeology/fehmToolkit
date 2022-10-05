@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from decimal import Decimal
 import os
 from pathlib import Path
 
@@ -244,14 +245,14 @@ def test_rock_properties_config(rock_properties_config_dict):
     config = RockPropertiesConfig.from_dict(rock_properties_config_dict)
     assert config.zone_assignment_order == [1, 2]
     assert config.permeability_configs == [
-        PropertyConfig(property_model=ModelConfig(kind='constant', params={'constant': 1e-16}), zones=[1]),
-        PropertyConfig(property_model=ModelConfig(kind='constant', params={'constant': 1e-10}), zones=[2]),
+        PropertyConfig(property_model=ModelConfig(kind='constant', params={'constant': Decimal('1e-16')}), zones=[1]),
+        PropertyConfig(property_model=ModelConfig(kind='constant', params={'constant': Decimal('1e-10')}), zones=[2]),
     ]
     assert config.conductivity_configs == [
         PropertyConfig(
             property_model=ModelConfig(
                 kind='porosity_weighted',
-                params={'rock_conductivity': 2.05, 'water_conductivity': 0.62},
+                params={'rock_conductivity': Decimal('2.05'), 'water_conductivity': Decimal('0.62')},
             ),
             zones=[1, 2],
         ),

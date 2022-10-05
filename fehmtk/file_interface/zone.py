@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 from typing import Iterable, Optional, TextIO
 
@@ -79,15 +80,15 @@ def _parse_zone_values_line(raw_line_values: list[str], is_vector_format: bool) 
     >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6'], False)
     [1, 2, 3, 4, 5, 6]
     >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6'], True)
-    [Vector(x=1.0, y=2.0, z=3.0), Vector(x=4.0, y=5.0, z=6.0)]
+    [Vector(x=Decimal('1'), y=Decimal('2'), z=Decimal('3')), Vector(x=Decimal('4'), y=Decimal('5'), z=Decimal('6'))]
     >>> _parse_zone_values_line(['1', '2', '3', '4', '5', '6', '7'], True)
-    [Vector(x=1.0, y=2.0, z=3.0), Vector(x=4.0, y=5.0, z=6.0)]
+    [Vector(x=Decimal('1'), y=Decimal('2'), z=Decimal('3')), Vector(x=Decimal('4'), y=Decimal('5'), z=Decimal('6'))]
     >>> _parse_zone_values_line(['1.0', '1.0', '4.5'], True)
-    [Vector(x=1.0, y=1.0, z=4.5)]
+    [Vector(x=Decimal('1.0'), y=Decimal('1.0'), z=Decimal('4.5'))]
     """
     if is_vector_format:
-        first = Vector(*(float(v) for v in raw_line_values[:3]))
-        second = Vector(*(float(v) for v in raw_line_values[3:6])) if raw_line_values[3:6] else None
+        first = Vector(*(Decimal(v) for v in raw_line_values[:3]))
+        second = Vector(*(Decimal(v) for v in raw_line_values[3:6])) if raw_line_values[3:6] else None
         if not second:
             return [first]
         return [first, second]

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 from typing import Optional, TextIO
 
@@ -41,7 +42,7 @@ def _read_coor(open_file: TextIO) -> dict[int, Vector]:
     coordinates_by_number = {}
     for i in range(n_nodes):
         number, x, y, z = next(open_file).strip().split()
-        coordinates_by_number[int(number)] = Vector(float(x), float(y), float(z))
+        coordinates_by_number[int(number)] = Vector(Decimal(x), Decimal(y), Decimal(z))
 
     return coordinates_by_number
 
