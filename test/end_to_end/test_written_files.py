@@ -9,6 +9,7 @@ import pytest
 from fehmtk.config import RunConfig
 from fehmtk.file_interface import read_pressure, write_restart
 from fehmtk.preprocessors import (
+    generate_flow_boundaries,
     generate_input_heat_flux,
     generate_hydrostatic_pressure,
     generate_rock_properties,
@@ -21,6 +22,22 @@ from fehmtk.file_manipulation import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.mark.parametrize('mesh_name', ('outcrop_2d',))
+def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
+    model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
+    tmp_model_dir = tmp_path / 'model_dir'
+
+    shutil.copytree(model_dir, tmp_model_dir)
+    config_file = tmp_model_dir / 'config.yaml'
+    output_file = RunConfig.from_yaml(config_file).files_config.flow
+    # os.remove(output_file)
+
+    generate_flow_boundaries(config_file)
+
+    fixture_file = model_dir / 'cond.flow'
+    assert output_file.read_text() == fixture_file.read_text()
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
