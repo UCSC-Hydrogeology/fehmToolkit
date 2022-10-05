@@ -17,6 +17,7 @@ files_config:
   rock_properties: cond.rock
   run_root: cond
   storage: cond.stor
+  flow: cond.flow
   water_properties: ../../nist120-1800.out
 heat_flux_config:
   heat_flux_model:
@@ -30,8 +31,8 @@ boundaries_config:
       params:
         input_fluid_temp_degC: 2
         aiped_to_volume_ratio: 1.0e-08
-    zones: ['top']
-
+    outside_zones: ['top']
+    material_zones: []
 pressure_config:
   pressure_model:
     kind: depth
