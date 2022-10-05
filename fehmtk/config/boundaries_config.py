@@ -7,13 +7,15 @@ from .model_config import ModelConfig
 @dataclass
 class FlowConfig:
     boundary_model: ModelConfig
-    zones: list[Union[int, str]]
+    outside_zones: list[Union[int, str]]
+    material_zones: list[Union[int, str]]
 
     @classmethod
     def from_dict(cls, dct):
         return cls(
             boundary_model=ModelConfig.from_dict(dct['boundary_model']),
-            zones=dct['zones'],
+            outside_zones=dct['outside_zones'],
+            material_zones=dct['material_zones'],
         )
 
 
