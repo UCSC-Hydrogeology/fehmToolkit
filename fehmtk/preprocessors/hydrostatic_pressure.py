@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 from pathlib import Path
 from typing import Callable, Optional, Sequence
@@ -5,15 +6,18 @@ from typing import Callable, Optional, Sequence
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, RegularGridInterpolator
 
+from fehmtk.common import round_significant_figures
 from fehmtk.config import ModelConfig, PressureConfig, RunConfig
 from fehmtk.fehm_objects import Grid, State
 from fehmtk.file_interface import read_grid, read_nist_lookup_table, read_restart, write_pressure
+from fehmtk.file_interface.grid import COORDINATE_SIGNIFICANT_FIGURES
 
 logger = logging.getLogger(__name__)
 
 N_ITERATIONS = 5
 GRAVITY_ACCELERATION_M_S2 = -9.80665
 RANDOM_SAMPLE_SEED = 12
+WATER_PROPERTIES_SIGNIFICANT_FIGURES = 7  # Coordinates in water properties files stored as e.g. 0.100974E+04
 
 
 def generate_hydrostatic_pressure(config_file: Path, output_file: Path):
@@ -49,7 +53,7 @@ def compute_hydrostatic_pressure(
     state: State,
     pressure_config: PressureConfig,
     density_lookup_MPa_degC: LinearNDInterpolator,
-) -> dict[int, float]:
+) -> dict[int, Decimal]:
     coordinates_by_number = _get_coordinates_by_number_without_flat_dimensions(grid)
     node_coordinates, node_temperatures = _get_coordinate_and_temperature_arrays(coordinates_by_number, state)
     _validate_pressure_config(pressure_config, node_coordinates)
@@ -78,7 +82,7 @@ def compute_hydrostatic_pressure(
             n_iterations=N_ITERATIONS,
         )
         pressure_by_node[node_number] = pressures[0]
-        if np.isnan(pressure_by_node[node_number]):
+        if pressure_by_node[node_number].is_nan():
             raise ValueError(f'Pressure at node {node_number} is not a number. May be out of range for density lookup.')
 
     if pressure_config.interpolation_model is not None and pressure_config.interpolation_model.kind == 'regular_grid':
@@ -114,16 +118,21 @@ def calculate_hydrostatic_pressure_for_column(
     *,
     target_xy: np.ndarray,
     z_targets: np.ndarray,
-    params: dict[str, float],
+    params: dict[str, Decimal],
     density_lookup_MPa_degC: Callable,
     temperature_lookup: Callable,
     n_iterations: int,
 ) -> np.ndarray:
 
+    params = {
+        k: float(v)  # interpolation requires floating point, and conversion to Decimal is too expensive at this step
+        for k, v in params.items()
+    }
+
     if len(z_targets) == 1 and z_targets[0] == params['reference_z']:
         return np.array([params['reference_pressure_MPa']])
 
-    z_column = build_z_column_around_reference(z_targets, params)
+    z_column = build_z_column_around_reference(z_targets.astype(float), params)
 
     reference_index = np.where(z_column == params['reference_z'])[0][0]
     coordinates_column = _prepend_entry_to_array(target_xy, z_column)
@@ -143,7 +152,10 @@ def calculate_hydrostatic_pressure_for_column(
         ))
         PT_column[:, 0] = ((P_column + np.roll(P_column, -1)) / 2)[:-1]  # TODO(dustin): skip this on last iteration
 
-    return np.interp(z_targets, xp=np.flip(z_column), fp=np.flip(P_column))
+    P_targets = np.interp(z_targets.astype(float), xp=np.flip(z_column), fp=np.flip(P_column))
+    return np.array([
+        round_significant_figures(Decimal(P), n=COORDINATE_SIGNIFICANT_FIGURES) for P in P_targets
+    ])
 
 
 def build_z_column_around_reference(z_targets: np.ndarray, params: dict[str, float]) -> np.ndarray:

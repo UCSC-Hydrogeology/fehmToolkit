@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 from pathlib import Path
 from typing import Iterable
@@ -46,7 +47,7 @@ def generate_rock_properties(config_file: Path):
         write_compact_node_data(property_lookups[property_kind], output_file, header=header, footer='\n')
 
 
-def compute_rock_properties(grid: Grid, rock_properties_config: RockPropertiesConfig) -> dict[str, dict[int, float]]:
+def compute_rock_properties(grid: Grid, rock_properties_config: RockPropertiesConfig) -> dict[str, dict[int, Decimal]]:
     _validate_config_all_zones_exist(rock_properties_config, zones=grid.material_zones)
 
     model_lookup_by_zone_and_property = rock_properties_config.create_model_lookup_by_zone_and_property()
@@ -67,7 +68,7 @@ def compute_rock_properties(grid: Grid, rock_properties_config: RockPropertiesCo
 def _compute_rock_properties_for_zone(
     model_config_by_property_kind: dict[str, ModelConfig],
     nodes: Iterable[Node],
-) -> dict[str, dict[int, float]]:
+) -> dict[str, dict[int, Decimal]]:
     zone_properties = {}
     for property_kind, model_config in model_config_by_property_kind.items():
         rock_property_model = get_rock_property_model(property_kind, model_config.kind)

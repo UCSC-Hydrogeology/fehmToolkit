@@ -1,4 +1,4 @@
-import math
+from decimal import Decimal
 
 from ..config import ModelConfig
 from ..fehm_objects import Vector
@@ -12,7 +12,7 @@ def get_permeability_models_by_kind() -> dict:
 
 
 def _void_ratio_exponential(
-    depth: float,
+    depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
 ) -> Vector:
@@ -31,5 +31,5 @@ def _void_ratio_exponential(
     porosity = porosity_model(depth, model_config_by_property_kind, 'porosity')
 
     void_ratio = porosity / (1 - porosity)
-    permeability = params['A'] * math.exp(params['B'] * void_ratio)
+    permeability = params['A'] * (params['B'] * void_ratio).exp()  # A * e^(B * v)
     return Vector(x=permeability, y=permeability, z=permeability)

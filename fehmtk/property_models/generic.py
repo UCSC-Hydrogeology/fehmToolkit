@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Callable, Union
 
 from ..config import ModelConfig
@@ -15,10 +16,10 @@ def get_generic_models_by_kind() -> dict:
 
 
 def _constant(
-    depth: float,
+    depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
-) -> Union[float, Vector]:
+) -> Union[Decimal, Vector]:
     """Property set as a constant value. If the property is Vector valued, it is also isotropic.
 
     Required params:

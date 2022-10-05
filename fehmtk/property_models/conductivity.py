@@ -1,9 +1,11 @@
 from collections import defaultdict
+from decimal import Decimal
 import re
 from statistics import mean
 from typing import Callable
 
-from ..config import ModelConfig
+from ..common import round_significant_figures
+from ..config.model_config import MODEL_PARAMS_SIGNIFICANT_FIGURES, ModelConfig
 from ..fehm_objects import Vector
 from .porosity import get_porosity_model
 
@@ -18,7 +20,7 @@ def get_conductivity_models_by_kind() -> dict:
 
 
 def _porosity_weighted(
-    depth: float,
+    depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
 ) -> Vector:
@@ -41,7 +43,7 @@ def _porosity_weighted(
     return Vector(x=conductivity, y=conductivity, z=conductivity)
 
 
-def _ctr2tcon(depth: float, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Vector:
+def _ctr2tcon(depth: Decimal, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Vector:
     """Conductivity calculated by inverting a cumulative thermal resistance profile.
 
     CTR must be defined with a ctr_model (e.g. polynomial function), and is optimised on the basis of the node depths
@@ -72,7 +74,7 @@ def _ctr2tcon(depth: float, model_config_by_property_kind: dict[str, ModelConfig
     return Vector(x=tcon, y=tcon, z=tcon)
 
 
-def _get_node_ranges_by_depth(node_depth_columns: list[list[float]]) -> dict[float, tuple[float]]:
+def _get_node_ranges_by_depth(node_depth_columns: list[list[Decimal]]) -> dict[Decimal, tuple[Decimal]]:
     node_ranges_by_depth = defaultdict(list)
     for column in node_depth_columns:
         if len(column) < 2:
@@ -104,9 +106,12 @@ def _get_tcon_func(ctr_model_config: dict) -> Callable:
         match = re.search(r'x\^(-{0,1}\d+)', key)
         if not match:
             raise KeyError(f"Invalid key in polynomial config: {ctr_model_config['model_params']}")
-        resistance_terms.append((coefficient, float(match.group(1))))
+        resistance_terms.append((
+            round_significant_figures(Decimal(coefficient), MODEL_PARAMS_SIGNIFICANT_FIGURES),
+            Decimal(match.group(1))),
+        )
 
-    def tcon(depth: float):
+    def tcon(depth: Decimal):
         resistance_derivitive_terms = [coeff * power * depth ** (power - 1) for coeff, power in resistance_terms]
         return 1 / sum(resistance_derivitive_terms)
 
