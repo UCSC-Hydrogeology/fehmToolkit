@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 import re
 
@@ -35,7 +36,7 @@ def read_legacy_hfi_config(hfi_file: Path) -> HeatFluxConfig:
     raise NotImplementedError(f'No model matched for {hfi_file}. File format not supported.')
 
 
-def _get_crustal_age_model_parameters(processed_text: str, hfi_file: Path) -> dict[str, float]:
+def _get_crustal_age_model_parameters(processed_text: str, hfi_file: Path) -> dict[str, Decimal]:
     return {
         'crustal_age_sign': _get_crustal_age_sign(processed_text, hfi_file),
         'spread_rate_mm_per_year': _get_spread_rate(processed_text, hfi_file),
@@ -54,25 +55,25 @@ def _get_crustal_age_sign(processed_text: str, hfi_file: Path) -> int:
     return crustal_age_sign
 
 
-def _get_spread_rate(processed_text: str, hfi_file: Path) -> float:
+def _get_spread_rate(processed_text: str, hfi_file: Path) -> Decimal:
     match = re.search(fr'SPREADRATE=({NUMERIC_PATTERN})', processed_text)
     if match is None:
         raise NotImplementedError(f'File {hfi_file} is a crustal age model, but no SPREADRATE found.')
-    return float(match.group(1))
+    return Decimal(match.group(1))
 
 
-def _get_heatflux_coefficient(processed_text: str, hfi_file: Path) -> float:
+def _get_heatflux_coefficient(processed_text: str, hfi_file: Path) -> Decimal:
     match = re.search(fr'A=({NUMERIC_PATTERN})', processed_text)
     if match is None:
         raise NotImplementedError(f'File {hfi_file} is a crustal age model, but no coefficient (A=) found.')
-    return float(match.group(1))
+    return Decimal(match.group(1))
 
 
-def _get_distance_to_ridge(processed_text: str, hfi_file: Path) -> float:
+def _get_distance_to_ridge(processed_text: str, hfi_file: Path) -> Decimal:
     match = re.search(fr'X0=({NUMERIC_PATTERN})', processed_text)
     if match is None:
         raise NotImplementedError(f'File {hfi_file} is a crustal age model, but no distance to ridge (X0=) found.')
-    return float(match.group(1))
+    return Decimal(match.group(1))
 
 
 def _read_and_process_hfi(hfi_file: Path) -> str:
@@ -97,8 +98,8 @@ def _read_and_process_hfi(hfi_file: Path) -> str:
     return processed_text
 
 
-def _get_constant_or_none(processed_text: str) -> float:
+def _get_constant_or_none(processed_text: str) -> Decimal:
     match = re.search(fr'HFLX=@\(x,y,z\)({NUMERIC_PATTERN})(?:;|\n)', processed_text)
     if match is None:
         return None
-    return float(match.group(1))
+    return Decimal(match.group(1))

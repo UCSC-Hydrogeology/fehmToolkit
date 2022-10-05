@@ -27,7 +27,7 @@ def read_avs(avs_file: Path) -> State:
 
         for line in f:
             row = {
-                field_name: round(Decimal(value), 10)
+                field_name: Decimal(value)
                 for field_name, value in zip(field_names, line.strip().split())
             }
             for field_name in fields_to_save:
