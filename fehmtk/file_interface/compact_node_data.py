@@ -95,16 +95,16 @@ def _get_grouped_entries(nodes_by_value: dict[str, list[int]]) -> list[tuple[int
 
 def _format_compact_entry(min_node: int, max_node: int, value: str) -> str:
     r""" Format compact node data entry as a string.
-    >>> _format_compact_entry(1, 10, '2.00000E02\t0.')
-    '      1      10 1\t2.00000E02\t0.\n'
-    >>> _format_compact_entry(4, 5, '-3.56738E-04\t0.')
-    '      4       5 1\t-3.56738E-04\t0.\n'
+    >>> _format_compact_entry(1, 10, '2.00000E02 0.')
+    '      1      10 1 2.00000E02 0.\n'
+    >>> _format_compact_entry(4, 5, '-3.56738E-04 0.')
+    '      4       5 1 -3.56738E-04 0.\n'
     >>> _format_compact_entry(1, 10, '2.00000E02')
-    '      1      10 1\t2.00000E02\n'
+    '      1      10 1 2.00000E02\n'
     >>> _format_compact_entry(4, 5, '-3.56738E-04')
-    '      4       5 1\t-3.56738E-04\n'
+    '      4       5 1 -3.56738E-04\n'
     """
-    return f'{min_node:7d} {max_node:7d} 1\t{value}\n'
+    return f'{min_node:7d} {max_node:7d} 1 {value}\n'
 
 
 def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
@@ -127,17 +127,17 @@ def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
 
 
 def _format_for_output(value: Union[float, Vector, Iterable[float]]) -> str:
-    r""" Format values for compact node data output.
+    """ Format values for compact node data output.
     >>> _format_for_output('hello')
     'hello'
     >>> _format_for_output(15)
     '  1.50000E+01'
     >>> _format_for_output(Vector(10, 20, 5))
-    '  1.00000E+01\t  2.00000E+01\t  5.00000E+00'
+    '  1.00000E+01   2.00000E+01   5.00000E+00'
     >>> _format_for_output([Vector(10, 20, 5), '0.'])
-    '  1.00000E+01\t  2.00000E+01\t  5.00000E+00\t0.'
+    '  1.00000E+01   2.00000E+01   5.00000E+00 0.'
     >>> _format_for_output([(10, [20, 5]), '0.'])
-    '  1.00000E+01\t  2.00000E+01\t  5.00000E+00\t0.'
+    '  1.00000E+01   2.00000E+01   5.00000E+00 0.'
     """
 
     if isinstance(value, str):
@@ -146,4 +146,4 @@ def _format_for_output(value: Union[float, Vector, Iterable[float]]) -> str:
     try:
         return f'{value:13.5E}'
     except TypeError:
-        return '\t'.join([_format_for_output(i) for i in value])
+        return ' '.join([_format_for_output(i) for i in value])
