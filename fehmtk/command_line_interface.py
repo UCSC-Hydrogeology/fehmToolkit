@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh, create_run_from_run
 from .preprocessors import (
+    generate_flow_boundaries,
     generate_hydrostatic_pressure,
     generate_input_heat_flux,
     generate_rock_properties,
@@ -77,6 +78,14 @@ def entry_point():
     flow = subparsers.add_parser('flow', help='Generate flow boundary conditions based on run configuration')
     flow.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     flow.set_defaults(func=generate_flow_boundaries)
+
+    pressure = subparsers.add_parser(
+        'hydrostat',
+        help='Generate hydrostatic pressures by interpolating and bootstrapping down the water column',
+    )
+    pressure.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
+    pressure.set_defaults(func=generate_hydrostatic_pressure)
 
     create_config = subparsers.add_parser(
         'legacy_config',
