@@ -109,6 +109,26 @@ heat_flux_config:
 
 See [heat_flux_models.py](fehmtk/preprocessors/heat_flux_models.py) for a full list of supported models and their required params.
 
+#### Boundaries config
+Mapping with a single top level key `flow_configs`, with a list of FlowConfigs as a value:
+```yaml
+boundaries_config:
+  flow_configs:
+  - boundary_model:
+      kind: 'open_flow'
+      params:
+        input_fluid_temp_degC: 2
+        aiped_to_volume_ratio: 1.0e-08
+    outside_zones: ['top']
+    material_zones: []  # these can also be omitted if empty (done with outside_zones below)
+  - boundary_model:
+      kind: 'open_flow'
+      params:
+        input_fluid_temp_degC: 10
+        aiped_to_volume_ratio: 1.0e-08
+    material_zones: [1, 2]
+```
+
 #### Rock properties config
 Mapping with keys for each property config (`compressibility_config`, `conductivity_config`, `permeability_config`, `porosity_config`, `specific_heat_config`), as well as the `zone_assignment_order`. The assignment order can be important in cases where some nodes are members of more than one zone, and for these nodes later zone assignments will overwrite earlier ones.
 
