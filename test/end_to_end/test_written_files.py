@@ -90,10 +90,12 @@ def test_append_zones_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Pa
     assert output_file.read_text() == fixture_file.read_text()
 
 
-@pytest.mark.parametrize('mesh_name, model_name, avs_number', (
-    ('flat_box', 'p12', 11),
-    ('outcrop_2d', 'p13', 2),
-))
+@pytest.mark.parametrize(
+    'mesh_name, model_name, avs_number', (
+        ('flat_box', 'p12', 11),
+        ('outcrop_2d', 'p13', 2),
+    ),
+)
 def test_create_restart_from_avs_against_fixture(
     tmp_path: Path,
     end_to_end_fixture_dir: Path,
@@ -120,7 +122,7 @@ def test_create_restart_from_avs_against_fixture(
         ('outcrop_2d', 'cond'),
         ('outcrop_2d', 'p13'),
         ('warped_box', 'cond'),
-    )
+    ),
 )
 def test_create_restart_from_restart_against_fixture(
     tmp_path: Path,
@@ -143,7 +145,7 @@ def test_create_restart_from_restart_against_fixture(
     'mesh_name, model_name', (
         ('flat_box', 'cond'),
         ('outcrop_2d', 'cond'),
-    )
+    ),
 )
 def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
@@ -168,7 +170,7 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixtu
         ('outcrop_2d', 'cond'),
         ('outcrop_2d', 'p13'),
         ('warped_box', 'cond'),
-    )
+    ),
 )
 def test_write_modified_fehm_input_against_fixture(
     tmp_path: Path,
@@ -197,7 +199,7 @@ def test_write_modified_fehm_input_against_fixture(
         ('outcrop_2d', 'cond'),
         ('outcrop_2d', 'p13'),
         ('warped_box', 'cond'),
-    )
+    ),
 )
 def test_write_modified_fehm_input_with_timing_against_fixture(
     tmp_path: Path,
