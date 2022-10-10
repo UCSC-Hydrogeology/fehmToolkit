@@ -20,6 +20,15 @@ files_config:
   run_root: p12
   storage: p12.stor
   water_properties: ../../nist120-1800.out
+boundaries_config:
+  flow_configs:
+  - boundary_model:
+      kind: 'open_flow'
+      params:
+        input_fluid_temp_degC: 2
+        aiped_to_volume_ratio: 1.0e-08
+    outside_zones: ['top']
+    material_zones: []
 heat_flux_config:
   heat_flux_model:
     kind: crustal_age

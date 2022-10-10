@@ -19,12 +19,22 @@ files_config:
   rock_properties: p13.rock
   run_root: p13
   storage: p13.stor
+  flow: p13.flow
   water_properties: ../../nist120-1800.out
 heat_flux_config:
   heat_flux_model:
     kind: constant_MW_per_m2
     params:
       constant: 3.67e-07
+boundaries_config:
+  flow_configs:
+  - boundary_model:
+      kind: 'open_flow'
+      params:
+        input_fluid_temp_degC: 2
+        aiped_to_volume_ratio: 1.0e-08
+    outside_zones: ['top']
+    material_zones: []
 pressure_config:
   pressure_model:
     kind: depth

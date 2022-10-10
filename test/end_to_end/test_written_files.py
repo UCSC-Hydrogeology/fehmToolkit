@@ -24,19 +24,24 @@ from fehmtk.file_manipulation import (
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.parametrize('mesh_name', ('outcrop_2d',))
-def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
-    model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
+@pytest.mark.parametrize(
+    'mesh_name, model_name', (
+        ('flat_box', 'p12'),
+        ('outcrop_2d', 'p13'),
+    ),
+)
+def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str, model_name: str):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
     tmp_model_dir = tmp_path / 'model_dir'
 
     shutil.copytree(model_dir, tmp_model_dir)
     config_file = tmp_model_dir / 'config.yaml'
     output_file = RunConfig.from_yaml(config_file).files_config.flow
-    # os.remove(output_file)
+    os.remove(output_file)
 
     generate_flow_boundaries(config_file)
 
-    fixture_file = model_dir / 'cond.flow'
+    fixture_file = model_dir / f'{model_name}.flow'
     assert output_file.read_text() == fixture_file.read_text()
 
 
