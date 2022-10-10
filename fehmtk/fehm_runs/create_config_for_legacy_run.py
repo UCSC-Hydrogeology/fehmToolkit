@@ -73,7 +73,7 @@ def create_config_for_legacy_run(
     files_config.assert_specified_paths_exist()
 
     boundaries_config = None
-    if files_config.flow is None:
+    if files_config.flow is not None:
         open_flow_params = {'input_fluid_temp_degC': 2, 'aiped_to_volume_ratio': 1e-8}
         logger.warning(
             'Creating boundaries_config with default parameters, THESE MAY NOT MATCH WHAT WAS INITIALLY USED! %s',
