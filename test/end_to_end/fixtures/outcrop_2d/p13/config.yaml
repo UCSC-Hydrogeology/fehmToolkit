@@ -34,7 +34,6 @@ boundaries_config:
         input_fluid_temp_degC: 2
         aiped_to_volume_ratio: 1.0e-08
     outside_zones: ['top']
-    material_zones: []
 pressure_config:
   pressure_model:
     kind: depth

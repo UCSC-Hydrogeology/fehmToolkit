@@ -14,8 +14,6 @@ logger = logging.getLogger(__name__)
 def generate_flow_boundaries(config_file: Path):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
-    if config.boundaries_config is None:
-        raise ValueError(f'boundaries_config not found in RunConfig at {config_file}')
     if config.files_config.flow is None:
         raise ValueError(f'Flow file missing from files_config in RunConfig at {config_file}')
 
@@ -72,7 +70,13 @@ def warn_if_file_not_referenced(*, input_file: Path, referenced_file: Path):
 
 
 def _validate_boundaries_config(config: BoundariesConfig):
+    if config is None:
+        raise ValueError('No boundaries_config in config file.')
+
     for flow_config in config.flow_configs:
         model = flow_config.boundary_model
         if model.kind not in ('open_flow'):
             raise NotImplementedError(f'Boundary model kind ({model.kind}) not supported.')
+
+        if not flow_config.material_zones and not flow_config.outside_zones:
+            raise ValueError('No zones specified (outside or material), at least one zone is required.')
