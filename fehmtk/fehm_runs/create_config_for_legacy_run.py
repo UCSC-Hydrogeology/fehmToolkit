@@ -72,18 +72,25 @@ def create_config_for_legacy_run(
     )
     files_config.assert_specified_paths_exist()
 
-    boundaries_config = None if files_config.flow is None else BoundariesConfig(
-        flow_configs=[
-            FlowConfig(
-                outside_zones=['top'],
-                material_zones=[],
-                boundary_model=ModelConfig(
-                    kind='open_flow',
-                    params={'input_fluid_temp_degC': 2, 'aiped_to_volume_ratio': 1.0e-08},
-                ),
-            )
-        ],
-    )
+    boundaries_config = None
+    if files_config.flow is None:
+        open_flow_params = {'input_fluid_temp_degC': 2, 'aiped_to_volume_ratio': 1e-8}
+        logger.warning(
+            'Creating boundaries_config with default parameters, THESE MAY NOT MATCH WHAT WAS INITIALLY USED! %s',
+            open_flow_params,
+        )
+        boundaries_config = BoundariesConfig(
+            flow_configs=[
+                FlowConfig(
+                    outside_zones=['top'],
+                    material_zones=[],
+                    boundary_model=ModelConfig(
+                        kind='open_flow',
+                        params=open_flow_params,
+                    ),
+                )
+            ],
+        )
 
     run_config = RunConfig(
         heat_flux_config=read_legacy_hfi_config(hfi_file),
