@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 
 from fehmtk.config import ModelConfig, PressureConfig
@@ -9,8 +10,8 @@ def read_legacy_ipi_config(ipi_file: Path) -> PressureConfig:
         header = next(f).strip()
         if header != 'lagrit':
             raise ValueError(f'Unexpected header in {ipi_file}: "{header}"')
-        z_interval = float(next(f).strip())
-        reference_z, reference_pressure, reference_temperature = [float(v) for v in next(f).strip().split(',')]
+        z_interval = Decimal(next(f).strip())
+        reference_z, reference_pressure, reference_temperature = [Decimal(v) for v in next(f).strip().split(',')]
     return PressureConfig(
         pressure_model=ModelConfig(
             kind='depth',

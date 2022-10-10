@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fehmtk.config import (
     ModelConfig,
     PropertyConfig,
@@ -13,10 +15,10 @@ def test_read_legacy_hfi_config_jdf(fixture_dir):
     config = read_legacy_hfi_config(fixture_dir / 'legacy_jdf.hfi')
     model_config = config.heat_flux_model
     assert model_config.params == {
-        'crustal_age_sign': 1,
-        'spread_rate_mm_per_year': 28.57,
-        'coefficient_MW': 0.367E-6,
-        'boundary_distance_to_ridge_m': 60000,
+        'crustal_age_sign': Decimal('1'),
+        'spread_rate_mm_per_year': Decimal('28.57'),
+        'coefficient_MW': Decimal('0.367E-6'),
+        'boundary_distance_to_ridge_m': Decimal('60000'),
     }
 
 
@@ -24,10 +26,10 @@ def test_read_legacy_hfi_config_np(fixture_dir):
     config = read_legacy_hfi_config(fixture_dir / 'legacy_np.hfi')
     model_config = config.heat_flux_model
     assert model_config.params == {
-        'crustal_age_sign': -1,
-        'spread_rate_mm_per_year': 17,
-        'coefficient_MW': 0.5E-6,
-        'boundary_distance_to_ridge_m': 144000,
+        'crustal_age_sign': Decimal('-1'),
+        'spread_rate_mm_per_year': Decimal('17'),
+        'coefficient_MW': Decimal('0.5E-6'),
+        'boundary_distance_to_ridge_m': Decimal('144000'),
     }
 
 
@@ -36,10 +38,10 @@ def test_read_legacy_ipi_config_jdf(fixture_dir):
     assert config.pressure_model == ModelConfig(
         kind='depth',
         params={
-            'z_interval_m': 5,
-            'reference_z': 4450,
-            'reference_pressure_MPa': 25,
-            'reference_temperature_degC': 2,
+            'z_interval_m': Decimal('5'),
+            'reference_z': Decimal('4450'),
+            'reference_pressure_MPa': Decimal('25'),
+            'reference_temperature_degC': Decimal('2'),
         }
     )
     assert config.interpolation_model is None
@@ -51,10 +53,10 @@ def test_read_legacy_ipi_config_np(fixture_dir):
     assert config.pressure_model == ModelConfig(
         kind='depth',
         params={
-            'z_interval_m': 5,
-            'reference_z': 4174.31,
-            'reference_pressure_MPa': 45.289,
-            'reference_temperature_degC': 2,
+            'z_interval_m': Decimal('5'),
+            'reference_z': Decimal('4174.31'),
+            'reference_pressure_MPa': Decimal('45.289'),
+            'reference_temperature_degC': Decimal('2'),
         }
     )
     assert config.interpolation_model is None
@@ -76,16 +78,16 @@ def test_read_legacy_rpi_config_jdf(fixture_dir):
         PropertyConfig(
             property_model=ModelConfig(
                 kind='void_ratio_exponential',
-                params={'A': 3.66E-18, 'B': 1.68},
+                params={'A': Decimal('3.66E-18'), 'B': Decimal('1.68')},
             ),
             zones=[1],
         ),
         PropertyConfig(
-            property_model=ModelConfig(kind='constant', params={'constant': 1E-12}),
+            property_model=ModelConfig(kind='constant', params={'constant': Decimal('1E-12')}),
             zones=[2, 3, 4],
         ),
         PropertyConfig(
-            property_model=ModelConfig(kind='constant', params={'constant': 1E-18}),
+            property_model=ModelConfig(kind='constant', params={'constant': Decimal('1E-18')}),
             zones=[5],
         ),
     ]
@@ -106,14 +108,14 @@ def test_read_legacy_rpi_config_np(fixture_dir):
         PropertyConfig(
             property_model=ModelConfig(
                 kind='porosity_weighted',
-                params={'water_conductivity': 0.62, 'rock_conductivity': 2.60},
+                params={'water_conductivity': Decimal('0.62'), 'rock_conductivity': Decimal('2.60')},
             ),
             zones=[1],
         ),
         PropertyConfig(
             property_model=ModelConfig(
                 kind='porosity_weighted',
-                params={'water_conductivity': 0.62, 'rock_conductivity': 2.05},
+                params={'water_conductivity': Decimal('0.62'), 'rock_conductivity': Decimal('2.05')},
             ),
             zones=[2, 3, 4, 5, 6],
         ),

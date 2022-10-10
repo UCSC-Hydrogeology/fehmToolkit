@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 from pathlib import Path
 from typing import Iterable, Optional
@@ -5,10 +6,13 @@ from typing import Iterable, Optional
 import numpy as np
 from scipy import interpolate
 
+from ..common import round_significant_figures
 from ..fehm_objects import Grid, Node, Vector, Zone
 from .fehm import read_fehm
 from .storage import read_volume_from_storage
 from .zone import read_zones
+
+COORDINATE_SIGNIFICANT_FIGURES = 13  # Coordinates in FEHM files stored as e.g. 1.000000000000E+01
 
 
 logger = logging.getLogger(__name__)
@@ -81,7 +85,7 @@ def _validate_outside_zones_match_area_zones(area_zones: Iterable[Zone], outside
         )
 
 
-def _get_area_by_node_number(*, area_zones: Iterable[Zone], outside_zones: Iterable[Zone]) -> dict[int, tuple[float]]:
+def _get_area_by_node_number(*, area_zones: Iterable[Zone], outside_zones: Iterable[Zone]) -> dict[int, tuple[Decimal]]:
     area_data_by_zone_number = {area.number: area.data for area in area_zones}
     outside_zone_nodes_by_zone_number = {zone.number: zone.data for zone in outside_zones}
 
@@ -115,8 +119,8 @@ def _construct_nodes_lookup(
     coordinates_by_number: dict[int, Vector],
     *,
     area_by_number: Optional[dict[int, Vector]],
-    depth_by_number: Optional[dict[int, float]],
-    volume_by_number: Optional[dict[int, float]],
+    depth_by_number: Optional[dict[int, Decimal]],
+    volume_by_number: Optional[dict[int, Decimal]],
 ) -> dict[int, Node]:
     return {
         number: Node(
@@ -133,37 +137,17 @@ def _construct_nodes_lookup(
 def calculate_node_depths(
     coordinates_by_number: dict[int, Vector],
     top_zone: Optional[Zone],
-) -> Optional[dict[int, float]]:
+) -> Optional[dict[int, Decimal]]:
     if top_zone is None:
         return None
 
     top_coordinates = np.array([coordinates_by_number[node_number].value for node_number in top_zone.data])
     flat_dimension = _get_flat_dimension_or_none(top_coordinates)
+    top_coordinates = top_coordinates.astype(float)  # interpolation routines require floats
     if flat_dimension is not None:
-        model_dimension = 1 if flat_dimension == 0 else 0
-        seafloor_1d = interpolate.interp1d(
-            x=top_coordinates[:, model_dimension],
-            y=top_coordinates[:, 2],
-            bounds_error=False,
-            fill_value='extrapolate',
-        )
-        return {
-            number: float(seafloor_1d(coordinates.value[model_dimension])) - coordinates.z
-            for number, coordinates in coordinates_by_number.items()
-        }
+        return _calculate_2d_node_depths(coordinates_by_number, top_coordinates, flat_dimension)
 
-    seafloor_2d_linear = interpolate.LinearNDInterpolator(top_coordinates[:, 0:2], top_coordinates[:, 2])
-    seafloor_2d_nearest = interpolate.NearestNDInterpolator(top_coordinates[:, 0:2], top_coordinates[:, 2])
-
-    ordered_entries = sorted(coordinates_by_number.items())
-    ordered_xy = np.array([coordinates.value[:2] for number, coordinates in ordered_entries])
-    linear_interpolated = seafloor_2d_linear(ordered_xy)
-
-    depth_by_number = {}
-    for linear, (number, coordinates) in zip(linear_interpolated, ordered_entries):
-        seafloor = linear if not np.isnan(linear) else float(seafloor_2d_nearest(coordinates.x, coordinates.y))
-        depth_by_number[number] = round(seafloor - coordinates.z, 10)  # rounding avoids floating point variation
-    return depth_by_number
+    return _calculate_3d_node_depths(coordinates_by_number, top_coordinates, flat_dimension)
 
 
 def _get_flat_dimension_or_none(coordinates: np.array) -> Optional[int]:
@@ -179,3 +163,53 @@ def _get_flat_dimension_or_none(coordinates: np.array) -> Optional[int]:
         if not coordinates[:, dim].var():
             return dim
     return None
+
+
+def _calculate_3d_node_depths(
+    coordinates_by_number: dict[int, Vector],
+    top_coordinates: np.ndarray,
+    flat_dimension: int,
+) -> dict[int, Decimal]:
+    seafloor_2d_linear = interpolate.LinearNDInterpolator(top_coordinates[:, 0:2], top_coordinates[:, 2])
+    seafloor_2d_nearest = interpolate.NearestNDInterpolator(top_coordinates[:, 0:2], top_coordinates[:, 2])
+
+    ordered_entries = sorted(coordinates_by_number.items())
+    ordered_xy = np.array([coordinates.value[:2] for number, coordinates in ordered_entries])
+    linear_interpolated = seafloor_2d_linear(ordered_xy)
+
+    depth_by_number = {}
+    for linear, (number, coordinates) in zip(linear_interpolated, ordered_entries):
+        interpolated_seafloor = linear if not np.isnan(linear) else seafloor_2d_nearest(coordinates.x, coordinates.y)
+        seafloor_z = round_significant_figures(
+            Decimal(interpolated_seafloor),  # convert float back to Decimal to work with Decimal coordinates
+            n=COORDINATE_SIGNIFICANT_FIGURES,
+        )
+        depth_by_number[number] = seafloor_z - coordinates.z
+    return depth_by_number
+
+
+def _calculate_2d_node_depths(
+    coordinates_by_number: dict[int, Vector],
+    top_coordinates: np.ndarray,
+    flat_dimension: int,
+) -> dict[int, Decimal]:
+    model_dimension = 1 if flat_dimension == 0 else 0
+    seafloor_1d = interpolate.interp1d(
+        x=top_coordinates[:, model_dimension],
+        y=top_coordinates[:, 2],
+        bounds_error=False,
+        fill_value='extrapolate',
+    )
+    depth_by_number = {}
+    for number, coordinates in coordinates_by_number.items():
+        horizontal_coordinate = coordinates.value[model_dimension]
+        seafloor_z = round_significant_figures(
+            Decimal(seafloor_1d(float(horizontal_coordinate)).item()),  # interpolant requires floats
+            n=COORDINATE_SIGNIFICANT_FIGURES,
+        )
+        depth_by_number[number] = seafloor_z - coordinates.z
+    return depth_by_number
+    return {
+        number: seafloor_1d(coordinates.value[model_dimension]) - coordinates.z
+        for number, coordinates in coordinates_by_number.items()
+    }

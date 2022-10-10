@@ -22,7 +22,7 @@ def test_read_fehm_pyramid(fixture_dir):
         assert isinstance(node_number, int)
         assert isinstance(coordinates, Vector)
         for coor in coordinates.value:
-            assert isinstance(coor, float)
+            assert isinstance(coor, Decimal)
 
     for element_number, element in elements_by_number.items():
         assert isinstance(element_number, int)

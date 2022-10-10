@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Optional, Sequence
 
 
-@dataclass
+@dataclass(frozen=True)
 class State:
     """Class representing a snapshotted model state."""
     temperature: Sequence[Decimal]
@@ -24,7 +24,7 @@ class State:
                 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class RestartMetadata:
     """Class for holding structured metadata from the header in restart (.ini, .fin) files."""
     simulation_time_days: Decimal

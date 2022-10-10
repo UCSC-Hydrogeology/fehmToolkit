@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import Decimal
 from itertools import groupby
 from pathlib import Path
 from typing import Iterable, Union
@@ -6,7 +7,7 @@ from typing import Iterable, Union
 from ..fehm_objects import Vector
 
 
-def read_compact_node_data(compact_node_data_file: Path) -> dict[int, float]:
+def read_compact_node_data(compact_node_data_file: Path) -> dict[int, Decimal]:
     data_by_node = {}
     with open(compact_node_data_file) as f:
         file_header = next(f).strip().split()
@@ -23,12 +24,12 @@ def read_compact_node_data(compact_node_data_file: Path) -> dict[int, float]:
     return data_by_node
 
 
-def _parse_compact_node_data_line(line: str) -> dict[int, float]:
+def _parse_compact_node_data_line(line: str) -> dict[int, Decimal]:
     r""" Parse compact node data string into a lookup of values by node.
     >>> _parse_compact_node_data_line('80   81  1   -3.92330E-04    0.')
-    {80: -0.00039233, 81: -0.00039233}
+    {80: Decimal('-0.000392330'), 81: Decimal('-0.000392330')}
     >>> _parse_compact_node_data_line('1\t3\t2\t10.\t0.')
-    {1: 10.0, 3: 10.0}
+    {1: Decimal('10'), 3: Decimal('10')}
     >>> _parse_compact_node_data_line('0')
     >>> _parse_compact_node_data_line('\n')
     """
@@ -44,13 +45,13 @@ def _parse_compact_node_data_line(line: str) -> dict[int, float]:
         raise ValueError(f'Could not parse compact node data line: {line}')
 
     for node_number in range(int(min_node), int(max_node) + 1, int(spacing)):
-        data_by_node[node_number] = float(value)
+        data_by_node[node_number] = Decimal(value)
 
     return data_by_node
 
 
 def write_compact_node_data(
-    value_by_node: dict[int, Union[float, Vector, tuple[float]]],
+    value_by_node: dict[int, Union[float, Decimal, Vector, tuple[Decimal]]],
     output_file: Path,
     header: str = None,
     footer: str = None,
@@ -76,7 +77,7 @@ def _write_compact_node_file(
 
 
 def _group_nodes_by_formatted_output(
-    value_by_node: dict[int, Union[float, Vector, tuple[float]]],
+    value_by_node: dict[int, Union[float, Decimal, Vector, tuple[Decimal]]],
 ) -> dict[str, list[int]]:
     nodes_by_formatted_value = defaultdict(list)
     for node, value in value_by_node.items():
@@ -126,7 +127,7 @@ def _consecutive_groups(x: list[int]) -> list[tuple[int]]:
         yield group_start, group_end
 
 
-def _format_for_output(value: Union[float, Vector, Iterable[float]]) -> str:
+def _format_for_output(value: Union[float, Decimal, Vector, Iterable]) -> str:
     """ Format values for compact node data output.
     >>> _format_for_output('hello')
     'hello'

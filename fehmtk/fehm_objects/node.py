@@ -1,25 +1,26 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
 from .vector import Vector
 
 
-@dataclass
-class Node:
+@dataclass(frozen=True)
+class Node():
     """Class for tracking individual node properties."""
     number: int
     coordinates: Vector
     outside_area: Vector = None
-    depth: float = None
-    volume: float = None
+    depth: Decimal = None
+    volume: Decimal = None
 
     @property
-    def x(self) -> float:
+    def x(self) -> Decimal:
         return self.coordinates.x
 
     @property
-    def y(self):
+    def y(self) -> Decimal:
         return self.coordinates.y
 
     @property
-    def z(self):
+    def z(self) -> Decimal:
         return self.coordinates.z

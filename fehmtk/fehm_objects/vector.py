@@ -1,15 +1,16 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
 
-@dataclass
+@dataclass(frozen=True)
 class Vector:
     """Class for tracking vector values (e.g. vornoi areas)."""
-    x: float
-    y: float
-    z: float
+    x: Decimal
+    y: Decimal
+    z: Decimal
 
     @property
-    def value(self) -> tuple[float]:
+    def value(self) -> tuple[Decimal]:
         return (self.x, self.y, self.z)
 
     def __format__(self, fmt) -> str:

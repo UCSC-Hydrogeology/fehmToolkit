@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import Decimal
 from pathlib import Path
 import re
 from typing import Callable, Optional
@@ -107,20 +108,20 @@ def _match_zones(block: str) -> list[int]:
     return list(range(int(zone_min), int(zone_max or zone_min) + 1))
 
 
-def _match_grain_density(block: str) -> Optional[float]:
+def _match_grain_density(block: str) -> Optional[Decimal]:
     match = re.search(rf'RHOG=({NUMERIC_PATTERN})(?:;|\n)', block)
     if match is None:
         return
 
-    return float(match.group(1))
+    return Decimal(match.group(1))
 
 
-def _match_specific_heat(block: str) -> Optional[float]:
+def _match_specific_heat(block: str) -> Optional[Decimal]:
     match = re.search(rf'SPECHEAT=({NUMERIC_PATTERN})(?:;|\n)', block)
     if match is None:
         return
 
-    return float(match.group(1))
+    return Decimal(match.group(1))
 
 
 def _get_models() -> tuple[tuple[str, str, Callable]]:
@@ -172,7 +173,7 @@ def _parse_params__constant(block: str) -> dict:
     match = re.search(rf'FUN=@\((?:\w|,)+\)({NUMERIC_PATTERN})(?:;|\n)', block)
     if not match:
         raise NotImplementedError(f'No match found for constant function in block:\n{block}')
-    return {'constant': float(match.group(1))}
+    return {'constant': Decimal(match.group(1))}
 
 
 def _parse_params__assigned_constant(block: str) -> dict:
@@ -180,7 +181,7 @@ def _parse_params__assigned_constant(block: str) -> dict:
     match = re.search(rf'{assigned_variable}=({NUMERIC_PATTERN})(?:;|\n)', block)
     if not match:
         raise NotImplementedError(f'No assignment found for variable {assigned_variable} in block:\n{block}')
-    return {'constant': float(match.group(1))}
+    return {'constant': Decimal(match.group(1))}
 
 
 def _parse_params__sediment_porosity(block: str) -> dict:
@@ -188,7 +189,7 @@ def _parse_params__sediment_porosity(block: str) -> dict:
     match_porb = re.search(rf'PORB=({NUMERIC_PATTERN})(?:;|\n)', block)
     if not match_pora or not match_porb:
         raise NotImplementedError(f'No match found for porosity constants (PORA, PORB) in block:\n{block}')
-    return {'porosity_a': float(match_pora.group(1)), 'porosity_b': float(match_porb.group(1))}
+    return {'porosity_a': Decimal(match_pora.group(1)), 'porosity_b': Decimal(match_porb.group(1))}
 
 
 def _parse_params__jdf_ctr2tcon(block: str) -> dict:
@@ -223,7 +224,7 @@ def _parse_params__porosity_weighted(block: str) -> dict:
     match_k_grain = re.search(rf'{grain_conductivity_variable}=({NUMERIC_PATTERN})(?:;|\n)', block)
     if not match_kw or not match_k_grain:
         raise NotImplementedError(f'No match found for conductivity constants (KW, KR) in block:\n{block}')
-    return {'water_conductivity': float(match_kw.group(1)), 'rock_conductivity': float(match_k_grain.group(1))}
+    return {'water_conductivity': Decimal(match_kw.group(1)), 'rock_conductivity': Decimal(match_k_grain.group(1))}
 
 
 def _parse_params__void_ratio_exponential(block: str) -> dict:
@@ -231,7 +232,7 @@ def _parse_params__void_ratio_exponential(block: str) -> dict:
     match_b = re.search(rf'B=({NUMERIC_PATTERN})(?:;|\n)', block)
     if not match_a or not match_b:
         raise NotImplementedError(f'No match found for power law constants (A, B) in block:\n{block}')
-    return {'A': float(match_a.group(1)), 'B': float(match_b.group(1))}
+    return {'A': Decimal(match_a.group(1)), 'B': Decimal(match_b.group(1))}
 
 
 def _parse_params__overburden(block: str) -> dict:
@@ -243,8 +244,8 @@ def _parse_params__overburden(block: str) -> dict:
         raise NotImplementedError(f'Failed to match all overburden constants in block:\n{block}')
 
     return {
-        'a': float(match_a.group(1)),
-        'grav': float(match_grav.group(1)),
-        'rhow': float(match_rhow.group(1)),
-        'min_overburden': float(match_min_ob.group(1)),
+        'a': Decimal(match_a.group(1)),
+        'grav': Decimal(match_grav.group(1)),
+        'rhow': Decimal(match_rhow.group(1)),
+        'min_overburden': Decimal(match_min_ob.group(1)),
     }

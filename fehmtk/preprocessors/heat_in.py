@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 from pathlib import Path
 
@@ -42,7 +43,7 @@ def generate_input_heat_flux(config_file: Path, plot: bool = False):
         plot_heatflux(heatflux_by_node, grid)
 
 
-def compute_boundary_heatflux(grid: Grid, heat_flux_config: HeatFluxConfig) -> dict[int, float]:
+def compute_boundary_heatflux(grid: Grid, heat_flux_config: HeatFluxConfig) -> dict[int, Decimal]:
     heatflux_models = get_heatflux_models_by_kind()
 
     try:
@@ -54,7 +55,7 @@ def compute_boundary_heatflux(grid: Grid, heat_flux_config: HeatFluxConfig) -> d
     return {node.number: model(node, heat_flux_config.heat_flux_model.params) for node in input_nodes}
 
 
-def plot_heatflux(heatflux_by_node: dict[int, float], grid: Grid):
+def plot_heatflux(heatflux_by_node: dict[int, Decimal], grid: Grid):
     entries = []
     for node_number, heatflux_MW in heatflux_by_node.items():
         node = grid.node(node_number)

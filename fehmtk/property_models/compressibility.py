@@ -1,3 +1,4 @@
+from decimal import Decimal
 import math
 
 import numpy as np
@@ -13,7 +14,7 @@ def get_compressibility_models_by_kind() -> dict:
     }
 
 
-def _overburden(depth: float, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> float:
+def _overburden(depth: Decimal, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Decimal:
     """Compressibility as a function of depth based on an overburden calculation:
     0.435 * A * (1 - p) / b
     where A is a constant and overburden b is calculated as described below. Porosity p is calculated separately with
@@ -46,4 +47,4 @@ def _overburden(depth: float, model_config_by_property_kind: dict[str, ModelConf
     rho_wet_bulk_column = (1 - porosity_column) * grain_density_column + porosity_column * params['rhow']
     overburden = max(params['grav'] * sum(rho_wet_bulk_column - params['rhow']), params['min_overburden'])
     porosity = porosity_model(depth, model_config_by_property_kind, 'porosity')
-    return 0.435 * params['a'] * (1 - porosity) / overburden
+    return Decimal('0.435') * params['a'] * (1 - porosity) / overburden
