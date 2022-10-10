@@ -10,6 +10,7 @@ class Node:
     coordinates: Vector
     outside_area: Vector = None
     depth: float = None
+    volume: float = None
 
     @property
     def x(self) -> float:
