@@ -9,6 +9,7 @@ from fehmtk.file_interface import (
     read_nist_lookup_table,
     read_pressure,
     read_restart,
+    read_volume_from_storage,
     read_zones,
 )
 
@@ -221,3 +222,25 @@ def test_read_nist_lookup(fixture_dir):
         (22, 4): {'density_kg_m3': 0.101055E+04},
         (22, 6): {'density_kg_m3': 0.101039E+04},
     }
+
+
+def test_read_storage_volume_square(fixture_dir):
+    volume = read_volume_from_storage(fixture_dir / 'square.stor')
+    assert volume == (
+        Decimal('6.230119676777E+04'),
+        Decimal('1.246023935355E+05'),
+        Decimal('6.230119676777E+04'),
+        Decimal('1.246023935355E+05'),
+        Decimal('2.492047870711E+05'),
+    )
+
+
+def test_read_storage_volume_pyramid(fixture_dir):
+    volume = read_volume_from_storage(fixture_dir / 'simple_pyramid.stor')
+    assert volume == (
+        Decimal('9.375000000000E+04'),
+        Decimal('9.374999999999E+04'),
+        Decimal('4.687500000000E+04'),
+        Decimal('2.343750000000E+04'),
+        Decimal('4.687500000001E+04'),
+    )

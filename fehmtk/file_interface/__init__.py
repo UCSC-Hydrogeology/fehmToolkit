@@ -7,4 +7,5 @@ from .fluid_properties import read_nist_lookup_table
 from .grid import read_grid
 from .pressure import read_pressure, write_pressure
 from .restart import read_restart, write_restart
+from .storage import read_volume_from_storage
 from .zone import read_zones, write_zones
