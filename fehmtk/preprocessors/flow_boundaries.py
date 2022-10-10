@@ -48,7 +48,7 @@ def generate_flow_data_by_node_number(config: BoundariesConfig, grid: Grid) -> d
         model = flow_config.boundary_model
         nodes = _gather_nodes(grid, flow_config.outside_zones, flow_config.material_zones)
         for node in nodes:
-            skd = 0
+            skd = '0'
             eflow = -model.params['input_fluid_temp_degC']
             aiped = abs(node.volume * model.params['aiped_to_volume_ratio'])
             flow_data_by_number[node.number] = (skd, eflow, aiped)
