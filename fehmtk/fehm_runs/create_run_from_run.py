@@ -80,7 +80,7 @@ def _generate_target_files_config(
         grid=target_directory / _get_file_name(source_files.grid, old_root, run_root),
         input=target_directory / _get_file_name(source_files.input, old_root, run_root),
         output=target_directory / _get_file_name(source_files.output, old_root, run_root),
-        store=target_directory / _get_file_name(source_files.store, old_root, run_root),
+        storage=target_directory / _get_file_name(source_files.storage, old_root, run_root),
         history=target_directory / _get_file_name(source_files.history, old_root, run_root),
         water_properties=target_directory / _get_file_name(source_files.water_properties, old_root, run_root),
         check=target_directory / _get_file_name(source_files.check, old_root, run_root),
@@ -128,7 +128,7 @@ def _gather_file_pairs_to_copy(source_files: FilesConfig, target_files: FilesCon
         'permeability': (source_files.permeability, target_files.permeability),
         'pore_pressure': (source_files.pore_pressure, target_files.pore_pressure),
         'grid': (source_files.grid, target_files.grid),
-        'store': (source_files.store, target_files.store),
+        'storage': (source_files.storage, target_files.storage),
         'water_properties': (source_files.water_properties, target_files.water_properties),
     }
 

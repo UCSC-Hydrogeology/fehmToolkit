@@ -16,7 +16,7 @@ files_config:
   pore_pressure: cond.ppor
   rock_properties: cond.rock
   run_root: cond
-  store: cond.stor
+  storage: cond.stor
   water_properties: ../../nist120-1800.out
 heat_flux_config:
   heat_flux_model:

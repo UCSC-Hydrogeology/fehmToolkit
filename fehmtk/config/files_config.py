@@ -19,7 +19,7 @@ class FilesConfig:
     grid: Path
     input: Path
     output: Path
-    store: Path
+    storage: Path
     history: Path
     water_properties: Path
     check: Path

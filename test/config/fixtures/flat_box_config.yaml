@@ -15,7 +15,7 @@ files_config:
   grid: cond.fehm
   input: cond.dat
   output: cond.out
-  store: cond.stor
+  storage: cond.stor
   history: cond.hist
   water_properties: ../../end_to_end/fixtures/nist120-1800.out
   check: cond.chk
