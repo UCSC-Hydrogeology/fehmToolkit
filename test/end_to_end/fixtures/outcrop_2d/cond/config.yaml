@@ -23,6 +23,15 @@ heat_flux_config:
     kind: constant_MW_per_m2
     params:
       constant: 3.67e-07
+boundaries_config:
+  flow_configs:
+  - boundary_model:
+      kind: 'open_flow'
+      params:
+        input_fluid_temp_degC: 2
+        aiped_to_volume_ratio: 1.0e-08
+    zones: ['top']
+
 pressure_config:
   pressure_model:
     kind: depth
