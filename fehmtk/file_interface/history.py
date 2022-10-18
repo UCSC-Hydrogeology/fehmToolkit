@@ -11,7 +11,7 @@ TIME_HEADING = 'time__days'
 
 def read_history(
     history_file: Path,
-    last_fraction: float = 0.9,
+    last_fraction: float = None,
     read_nodes: Optional[Sequence[int]] = None,
     read_fields: Optional[Sequence[str]] = None,
 ) -> pd.DataFrame:
@@ -19,7 +19,7 @@ def read_history(
         read_fields = [_parse_heading(field) for field in read_fields]
 
     times = None
-    if last_fraction == 1:
+    if last_fraction is None or last_fraction == 1:
         skip_times = 0
     else:
         times = read_history_times(history_file)
