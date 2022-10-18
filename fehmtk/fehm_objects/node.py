@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Optional
 
 from .vector import Vector
 
@@ -9,9 +10,9 @@ class Node():
     """Class for tracking individual node properties."""
     number: int
     coordinates: Vector
-    outside_area: Vector = None
-    depth: Decimal = None
-    volume: Decimal = None
+    outside_area: Optional[Vector] = None
+    depth: Optional[Decimal] = None
+    volume: Optional[Decimal] = None
 
     @property
     def x(self) -> Decimal:
