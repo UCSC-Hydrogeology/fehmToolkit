@@ -113,11 +113,11 @@ def _read_headings_and_first_time(open_file: TextIO, read_fields: list[bool]) ->
 def _parse_heading_lines(lines: Sequence[str]) -> list[str]:
     r"""Get headings from raw lines
     >>> _parse_heading_lines(['node flow enthalpy(Mj/kg) flow(kg/s) temperature(deg C) total pressure(Mpa)'])
-    ('node', 'flow_enthalpy__Mj/kg', 'flow__kg/s', 'temperature__deg_C', 'total_pressure__Mpa')
+    ['node', 'flow_enthalpy__Mj/kg', 'flow__kg/s', 'temperature__deg_C', 'total_pressure__Mpa']
     >>> _parse_heading_lines(['node flow enthalpy(Mj/kg) flow(kg/s)\n', 'temperature(deg C) total pressure(Mpa)'])
-    ('node', 'flow_enthalpy__Mj/kg', 'flow__kg/s', 'temperature__deg_C', 'total_pressure__Mpa')
+    ['node', 'flow_enthalpy__Mj/kg', 'flow__kg/s', 'temperature__deg_C', 'total_pressure__Mpa']
     >>> _parse_heading_lines(['flow(kg/s) temperature(deg C) total pressure(Mpa)'])
-    ('flow__kg/s', 'temperature__deg_C', 'total_pressure__Mpa')
+    ['flow__kg/s', 'temperature__deg_C', 'total_pressure__Mpa']
     """
     raw_headings = ' '.join([line.strip() for line in lines])
 
