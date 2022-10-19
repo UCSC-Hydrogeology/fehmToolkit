@@ -6,7 +6,7 @@ from typing import Optional, Sequence, TextIO
 import pandas as pd
 
 
-TIME_HEADING = 'time__days'
+TIME_HEADING = 'time_days'
 
 
 def read_history(
@@ -15,9 +15,6 @@ def read_history(
     read_nodes: Optional[Sequence[int]] = None,
     read_fields: Optional[Sequence[str]] = None,
 ) -> pd.DataFrame:
-    if read_fields:  # apply same parsing logic used in reading headings
-        read_fields = [_parse_heading(field) for field in read_fields]
-
     times = None
     if last_fraction is None or last_fraction == 1:
         skip_times = 0
@@ -126,13 +123,15 @@ def _parse_heading_lines(lines: Sequence[str]) -> list[str]:
         headings.append('node')
         raw_headings = raw_headings[5:]
 
-    parsed = [_parse_heading(heading) for heading in raw_headings.split(') ')]
+    parsed = [_amend_heading(heading) for heading in raw_headings.split(') ')]
     headings.extend(parsed)
     return headings
 
 
-def _parse_heading(heading: str) -> str:
-    return heading.replace('(', '__').replace(')', '').replace(' ', '_')
+def _amend_heading(heading: str) -> str:
+    if heading.endswith(')'):
+        return heading
+    return f'{heading})'
 
 
 def _read_node_data(

@@ -9,21 +9,21 @@ from fehmtk.file_interface.history import read_history, read_history_times
 def test_read_history_all(fixture_dir):
     history = read_history(fixture_dir / 'simple_run.hist', last_fraction=1, read_nodes=None, read_fields=None)
     assert len(history) == 1210
-    assert history.time__days.nunique() == 605
-    assert (history.time__days >= 0).all()
-    assert history.loc[history.node == 221, 'time__days'].nunique() == 605
-    assert history.loc[history.node == 662, 'time__days'].nunique() == 605
+    assert history.time_days.nunique() == 605
+    assert (history.time_days >= 0).all()
+    assert history.loc[history.node == 221, 'time_days'].nunique() == 605
+    assert history.loc[history.node == 662, 'time_days'].nunique() == 605
     assert not history.isnull().any().any()
     assert history.head(2).equals(
         pd.DataFrame({
-            'time__days': [Decimal('0.0000000000000000'), Decimal('0.0000000000000000')],
+            'time_days': [Decimal('0.0000000000000000'), Decimal('0.0000000000000000')],
             'node': [Decimal('221'), Decimal('662')],
-            'flow_enthalpy__Mj/kg': [Decimal('563787.863'), Decimal('0.100000000E-19')],
-            'flow__kg/s': [Decimal('7343991.36'), Decimal('0.00000000')],
-            'temperature__deg_C': [Decimal('2.00000005'), Decimal('29.0456162')],
-            'total_pressure__Mpa': [Decimal('29.4709090'), Decimal('31.4565923')],
-            'capillary_pressure__Mpa': [Decimal('0.00000000'), Decimal('0.00000000')],
-            'saturation__kg/kg': [Decimal('1.00000000'), Decimal('1.00000000')],
+            'flow enthalpy(Mj/kg)': [Decimal('563787.863'), Decimal('0.100000000E-19')],
+            'flow(kg/s)': [Decimal('7343991.36'), Decimal('0.00000000')],
+            'temperature(deg C)': [Decimal('2.00000005'), Decimal('29.0456162')],
+            'total pressure(Mpa)': [Decimal('29.4709090'), Decimal('31.4565923')],
+            'capillary pressure(Mpa)': [Decimal('0.00000000'), Decimal('0.00000000')],
+            'saturation(kg/kg)': [Decimal('1.00000000'), Decimal('1.00000000')],
         })
     )
 
@@ -33,29 +33,29 @@ def test_read_history_partial(fixture_dir):
         fixture_dir / 'simple_run.hist',
         last_fraction=0.2,
         read_nodes=[662],
-        read_fields=['temperature__deg_C', 'total pressure(Mpa)'],
+        read_fields=['temperature(deg C)', 'total pressure(Mpa)'],
     )
     assert len(history) == 121
-    assert history.time__days.nunique() == 121
-    assert (history.time__days >= 0).all()
+    assert history.time_days.nunique() == 121
+    assert (history.time_days >= 0).all()
     assert (history.node == 662).all()
     assert not history.isnull().any().any()
     assert history.head(2).equals(
         pd.DataFrame({
-            'time__days': [Decimal('15614386.324303947'), Decimal('15667626.324303947')],
+            'time_days': [Decimal('15614386.324303947'), Decimal('15667626.324303947')],
             'node': [Decimal('662'), Decimal('662')],
-            'temperature__deg_C': [Decimal('36.0320759'), Decimal('36.0222481')],
-            'total_pressure__Mpa': [Decimal('31.4195226'), Decimal('31.4197168')],
+            'temperature(deg C)': [Decimal('36.0320759'), Decimal('36.0222481')],
+            'total pressure(Mpa)': [Decimal('31.4195226'), Decimal('31.4197168')],
         })
     )
 
 
 def test_read_history_no_nodes(fixture_dir):
     history = read_history(fixture_dir / 'simple_run_no_nodes.hist', last_fraction=1, read_nodes=None, read_fields=None)
-    assert history.columns == 'time__days'
+    assert history.columns == 'time_days'
     assert len(history) == 605
-    assert history.time__days.nunique() == 605
-    assert (history.time__days >= 0).all()
+    assert history.time_days.nunique() == 605
+    assert (history.time_days >= 0).all()
 
 
 @pytest.mark.parametrize('fixture_name', ('simple_run.hist', 'simple_run_no_nodes.hist'))
