@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh, create_run_from_run
 from .preprocessors import (
+    generate_flow_boundaries,
     generate_hydrostatic_pressure,
     generate_input_heat_flux,
     generate_rock_properties,
@@ -65,6 +66,27 @@ def entry_point():
     ))
     run_from_run.set_defaults(func=create_run_from_run)
 
+    rock_properties = subparsers.add_parser('rock_properties', help='Generate rock properties from configuration')
+    rock_properties.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    rock_properties.set_defaults(func=generate_rock_properties)
+
+    heat_in = subparsers.add_parser('heat_in', help='Generate input heat flux based on run configuration')
+    heat_in.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    heat_in.add_argument('--plot', action='store_true', help='Flag to plot the heat flux')
+    heat_in.set_defaults(func=generate_input_heat_flux)
+
+    flow = subparsers.add_parser('flow', help='Generate flow boundary conditions based on run configuration')
+    flow.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    flow.set_defaults(func=generate_flow_boundaries)
+
+    pressure = subparsers.add_parser(
+        'hydrostat',
+        help='Generate hydrostatic pressures by interpolating and bootstrapping down the water column',
+    )
+    pressure.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
+    pressure.set_defaults(func=generate_hydrostatic_pressure)
+
     create_config = subparsers.add_parser(
         'legacy_config',
         help='Create config.yaml from legacy configuration files (e.g. .hfi/.rpi/.ipi)',
@@ -94,23 +116,6 @@ def entry_point():
     create_config.add_argument('--heat_flux_file', type=Path, help='Heat flux file')
     create_config.add_argument('--initial_conditions_file', type=Path, help='Initial_conditions file')
     create_config.set_defaults(func=create_config_for_legacy_run)
-
-    rock_properties = subparsers.add_parser('rock_properties', help='Generate rock properties from configuration')
-    rock_properties.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
-    rock_properties.set_defaults(func=generate_rock_properties)
-
-    heat_in = subparsers.add_parser('heat_in', help='Generate input heat flux based on run configuration')
-    heat_in.add_argument('config_file', type=Path, help='Run configuration (.yaml/.hfi) file')
-    heat_in.add_argument('--plot', action='store_true', help='Flag to plot the heat flux')
-    heat_in.set_defaults(func=generate_input_heat_flux)
-
-    pressure = subparsers.add_parser(
-        'hydrostat',
-        help='Generate hydrostatic pressures by interpolating and bootstrapping down the water column',
-    )
-    pressure.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
-    pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
-    pressure.set_defaults(func=generate_hydrostatic_pressure)
 
     zones = subparsers.add_parser(
         'append_zones',
