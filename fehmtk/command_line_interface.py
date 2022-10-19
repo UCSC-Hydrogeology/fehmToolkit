@@ -9,6 +9,9 @@ from .preprocessors import (
     generate_input_heat_flux,
     generate_rock_properties,
 )
+from .postprocessors import (
+    check_history,
+)
 from .file_manipulation import append_zones
 
 
@@ -78,6 +81,24 @@ def entry_point():
     flow = subparsers.add_parser('flow', help='Generate flow boundary conditions based on run configuration')
     flow.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     flow.set_defaults(func=generate_flow_boundaries)
+
+    history = subparsers.add_parser('check_history', help='Summary plots of run history file')
+    history.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    history.add_argument(
+        '--last_fraction',
+        type=float,
+        help='Truncates plots, showing only last fraction of data (e.g., .5 displays the last half, .2 the last fifth)',
+        default=0.9,
+    )
+    history.add_argument('--nodes', type=int, nargs='+', help='Space-separated list of node numbers, only plot these')
+    history.add_argument(
+        '--fields',
+        type=str,
+        nargs='+',
+        help='Space-separated list of fields, only plot these',
+        default=['temperature(deg C)', 'total pressure(Mpa)'],
+    )
+    history.set_defaults(func=check_history)
 
     pressure = subparsers.add_parser(
         'hydrostat',
