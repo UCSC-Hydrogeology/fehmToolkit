@@ -28,6 +28,7 @@ def entry_point():
             'Create a run directory by copying files from a mesh direcotry. File name roots are replaced '
             'if run_root is set, otherwise file names are persisted.'
         ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     run_from_mesh.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
     run_from_mesh.add_argument('target_directory', type=Path, help='Destination run directory to be created')
@@ -82,7 +83,11 @@ def entry_point():
     flow.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     flow.set_defaults(func=generate_flow_boundaries)
 
-    history = subparsers.add_parser('check_history', help='Summary plots of run history file')
+    history = subparsers.add_parser(
+        'check_history',
+        help='Summary plots of run history file',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     history.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     history.add_argument(
         '--last_fraction',
@@ -95,7 +100,7 @@ def entry_point():
         '--fields',
         type=str,
         nargs='+',
-        help='Space-separated list of fields, only plot these',
+        help='Space-separated list of fields, only plot these - wrap fields with spaces in double-quotes',
         default=['temperature(deg C)', 'total pressure(Mpa)'],
     )
     history.set_defaults(func=check_history)
