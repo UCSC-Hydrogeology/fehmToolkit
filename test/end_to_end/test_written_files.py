@@ -9,6 +9,7 @@ import pytest
 from fehmtk.config import RunConfig
 from fehmtk.file_interface import read_pressure, write_restart
 from fehmtk.preprocessors import (
+    generate_flow_boundaries,
     generate_input_heat_flux,
     generate_hydrostatic_pressure,
     generate_rock_properties,
@@ -21,6 +22,27 @@ from fehmtk.file_manipulation import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.mark.parametrize(
+    'mesh_name, model_name', (
+        ('flat_box', 'p12'),
+        ('outcrop_2d', 'p13'),
+    ),
+)
+def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str, model_name: str):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
+    tmp_model_dir = tmp_path / 'model_dir'
+
+    shutil.copytree(model_dir, tmp_model_dir)
+    config_file = tmp_model_dir / 'config.yaml'
+    output_file = RunConfig.from_yaml(config_file).files_config.flow
+    os.remove(output_file)
+
+    generate_flow_boundaries(config_file)
+
+    fixture_file = model_dir / f'{model_name}.flow'
+    assert output_file.read_text() == fixture_file.read_text()
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
@@ -68,10 +90,12 @@ def test_append_zones_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Pa
     assert output_file.read_text() == fixture_file.read_text()
 
 
-@pytest.mark.parametrize('mesh_name, model_name, avs_number', (
-    ('flat_box', 'p12', 11),
-    ('outcrop_2d', 'p13', 2),
-))
+@pytest.mark.parametrize(
+    'mesh_name, model_name, avs_number', (
+        ('flat_box', 'p12', 11),
+        ('outcrop_2d', 'p13', 2),
+    ),
+)
 def test_create_restart_from_avs_against_fixture(
     tmp_path: Path,
     end_to_end_fixture_dir: Path,
@@ -98,7 +122,7 @@ def test_create_restart_from_avs_against_fixture(
         ('outcrop_2d', 'cond'),
         ('outcrop_2d', 'p13'),
         ('warped_box', 'cond'),
-    )
+    ),
 )
 def test_create_restart_from_restart_against_fixture(
     tmp_path: Path,
@@ -121,7 +145,7 @@ def test_create_restart_from_restart_against_fixture(
     'mesh_name, model_name', (
         ('flat_box', 'cond'),
         ('outcrop_2d', 'cond'),
-    )
+    ),
 )
 def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixture_dir, mesh_name, model_name):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
@@ -146,7 +170,7 @@ def test_create_restart_from_pressure_against_fixture(tmp_path, end_to_end_fixtu
         ('outcrop_2d', 'cond'),
         ('outcrop_2d', 'p13'),
         ('warped_box', 'cond'),
-    )
+    ),
 )
 def test_write_modified_fehm_input_against_fixture(
     tmp_path: Path,
@@ -175,7 +199,7 @@ def test_write_modified_fehm_input_against_fixture(
         ('outcrop_2d', 'cond'),
         ('outcrop_2d', 'p13'),
         ('warped_box', 'cond'),
-    )
+    ),
 )
 def test_write_modified_fehm_input_with_timing_against_fixture(
     tmp_path: Path,
