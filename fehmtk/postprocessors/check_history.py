@@ -29,8 +29,6 @@ def check_history(
 ):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
-    if not config.files_config.history:
-        raise ValueError(f'No history file defined in {config_file}.')
 
     history = read_history(
         config.files_config.history,
