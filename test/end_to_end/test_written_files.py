@@ -21,6 +21,7 @@ from fehmtk.file_manipulation import (
     write_modified_fehm_input_file,
 )
 from fehmtk.postprocessors import (
+    compare_runs,
     summarize_run,
 )
 
@@ -35,11 +36,32 @@ logger = logging.getLogger(__name__)
 )
 def test_run_summary(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str, model_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
-    output_file = tmp_path / 'summary_fixture.csv'
+    output_file = tmp_path / 'summary.csv'
 
     summarize_run(model_dir / 'config.yaml', output_file)
 
     fixture_file = model_dir / 'summary_fixture.csv'
+    assert output_file.read_text() == fixture_file.read_text()
+
+
+def test_compare(tmp_path: Path, end_to_end_fixture_dir: Path):
+    model_dir = end_to_end_fixture_dir / 'flat_box' / 'p12'
+    other_dir = end_to_end_fixture_dir / 'flat_box' / 'cond'
+    output_file = tmp_path / 'compare.csv'
+
+    compare_runs(model_dir / 'config.yaml', other_dir / 'config.yaml', output_file)
+
+    fixture_file = model_dir / 'compare_fixture.csv'
+    assert output_file.read_text() == fixture_file.read_text()
+
+
+def test_compare_self(tmp_path: Path, end_to_end_fixture_dir: Path):
+    model_dir = end_to_end_fixture_dir / 'outcrop_2d' / 'p13'
+    output_file = tmp_path / 'compare_self.csv'
+
+    compare_runs(model_dir / 'config.yaml', model_dir / 'config.yaml', output_file)
+
+    fixture_file = model_dir / 'compare_self_fixture.csv'
     assert output_file.read_text() == fixture_file.read_text()
 
 
