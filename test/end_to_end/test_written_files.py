@@ -20,8 +20,27 @@ from fehmtk.file_manipulation import (
     create_restart_from_restart,
     write_modified_fehm_input_file,
 )
+from fehmtk.postprocessors import (
+    summarize_run,
+)
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.mark.parametrize(
+    'mesh_name, model_name', (
+        ('flat_box', 'p12'),
+        ('outcrop_2d', 'p13'),
+    ),
+)
+def test_run_summary(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str, model_name: str):
+    model_dir = end_to_end_fixture_dir / mesh_name / model_name
+    output_file = tmp_path / 'summary_fixture.csv'
+
+    summarize_run(model_dir / 'config.yaml', output_file)
+
+    fixture_file = model_dir / 'summary_fixture.csv'
+    assert output_file.read_text() == fixture_file.read_text()
 
 
 @pytest.mark.parametrize(
