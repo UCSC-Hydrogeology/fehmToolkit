@@ -32,12 +32,7 @@ logger = logging.getLogger(__name__)
 )
 def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str, model_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / model_name
-    tmp_model_dir = tmp_path / 'model_dir'
-
-    shutil.copytree(model_dir, tmp_model_dir)
-    config_file = tmp_model_dir / 'config.yaml'
-    output_file = RunConfig.from_yaml(config_file).files_config.flow
-    os.remove(output_file)
+    config_file, (output_file,) = _setup_temporary_model_run(model_dir, tmp_path, output_keys=['flow'])
 
     generate_flow_boundaries(config_file)
 
@@ -48,13 +43,9 @@ def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
 def test_heat_in_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
-    tmp_model_dir = tmp_path / 'model_dir'
+    config_file, (output_file,) = _setup_temporary_model_run(model_dir, tmp_path, output_keys=['heat_flux'])
 
-    shutil.copytree(model_dir, tmp_model_dir)
-    output_file = RunConfig.from_yaml(tmp_model_dir / 'config.yaml').files_config.heat_flux
-    os.remove(output_file)
-
-    generate_input_heat_flux(tmp_model_dir / 'config.yaml')
+    generate_input_heat_flux(config_file)
 
     fixture_file = model_dir / 'cond.hflx'
     assert output_file.read_text() == fixture_file.read_text()
@@ -62,20 +53,17 @@ def test_heat_in_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, m
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
 def test_rock_properties_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
-    logger.info(f'Generating rock properties files ({mesh_name}).')
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
+    config_file, output_files = _setup_temporary_model_run(
+        model_dir,
+        tmp_path,
+        output_keys=['conductivity', 'permeability', 'pore_pressure', 'rock_properties'],
+    )
 
-    tmp_model_dir = tmp_path / 'model_dir'
-    shutil.copytree(model_dir, tmp_model_dir)
-    for output_extension in ('cond', 'perm', 'ppor', 'rock'):
-        os.remove(tmp_model_dir / f'cond.{output_extension}')
+    generate_rock_properties(config_file)
 
-    generate_rock_properties(tmp_model_dir / 'config.yaml')
-
-    for output_extension in ('cond', 'perm', 'ppor', 'rock'):
-        logger.info(f'Comparing output for {output_extension} file.')
-        output_file = tmp_model_dir / f'cond.{output_extension}'
-        fixture_file = model_dir / f'cond.{output_extension}'
+    for output_file in output_files:
+        fixture_file = model_dir / output_file.name
         assert output_file.read_text() == fixture_file.read_text()
 
 
@@ -232,3 +220,18 @@ def test_generate_hydrostatic_pressure(tmp_path: Path, end_to_end_fixture_dir: P
     fixture_pressure = read_pressure(fixture_file)
     output_pressure = read_pressure(output_file)
     assert_array_almost_equal(fixture_pressure, output_pressure, 1)
+
+
+def _setup_temporary_model_run(run_dir: Path, tmp_path: Path, output_keys: list[str] = None) -> tuple[Path]:
+    tmp_model_dir = tmp_path / 'model_dir'
+    shutil.copytree(run_dir, tmp_model_dir)
+    config_file = tmp_model_dir / 'config.yaml'
+    output_files = []
+    for key in output_keys:
+        files_config = RunConfig.from_yaml(config_file).files_config
+        output_file = getattr(files_config, key)
+        assert isinstance(output_file, Path)
+        os.remove(output_file)
+        output_files.append(output_file)
+
+    return config_file, output_files
