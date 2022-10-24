@@ -15,6 +15,15 @@ class State:
     def __post_init__(self):
         self.validate()
 
+    def __sub__(self, other):
+        return State(
+            pressure=_subtract_items(self.pressure, other.pressure),
+            temperature=_subtract_items(self.temperature, other.temperature),
+            mass_flux=_subtract_items(self.mass_flux, other.mass_flux),
+            saturation=_subtract_items(self.saturation, other.saturation),
+            source=_subtract_items(self.source, other.source),
+        )
+
     def validate(self):
         n_temps = len(self.temperature)
         for field, data in self.__dict__.items():
@@ -33,3 +42,13 @@ class RestartMetadata:
     model_description: str
     dual_porosity_permeability_keyword: str
     unsupported_blocks: bool = False
+
+
+def _subtract_items(seq, other):
+    if seq is None or other is None:
+        return None
+
+    if len(seq) != len(other):
+        raise ValueError(f'Incompatible states, number of nodes not equal ({len(seq)} != {len(other)})')
+
+    return tuple(a - b for a, b, in zip(seq, other))
