@@ -30,7 +30,6 @@ def entry_point():
             'Create a run directory by copying files from a mesh direcotry. File name roots are replaced '
             'if run_root is set, otherwise file names are persisted.'
         ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     run_from_mesh.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
     run_from_mesh.add_argument('target_directory', type=Path, help='Destination run directory to be created')
@@ -38,8 +37,11 @@ def entry_point():
     run_from_mesh.add_argument(
         '--append_zones',
         type=int_or_string,
-        nargs='+',
-        help='Outside zones to append to material zone file',
+        nargs='*',
+        help=(
+            'Space-separated list of zone names or numbers for outside zones to append to the material zone file. '
+            'Leave blank after --append_zones to skip this step. (default: top bottom)'
+        ),
         default=('top', 'bottom'),
     )
     run_from_mesh.add_argument('--run_root', type=str, help='Common root to be used to name run files')
