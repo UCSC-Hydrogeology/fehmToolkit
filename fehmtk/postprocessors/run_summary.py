@@ -12,20 +12,20 @@ from fehmtk.file_interface import read_grid, read_restart
 logger = logging.getLogger(__name__)
 
 
-def compare_runs(config_file: Path, other_config_file: Path, output_csv: Path, nodes: Optional[Sequence] = None):
-    _summarize_run(config_file, other_config_file=other_config_file, output_csv=output_csv, nodes=nodes)
+def compare_runs(config_file: Path, compare_config_file: Path, output_file: Path, nodes: Optional[Sequence] = None):
+    _summarize_run(config_file, compare_config_file=compare_config_file, output_file=output_file, nodes=nodes)
 
 
-def summarize_run(config_file: Path, output_csv: Path, nodes: Optional[Sequence] = None):
-    _summarize_run(config_file, output_csv=output_csv, nodes=nodes)
+def summarize_run(config_file: Path, output_file: Path, nodes: Optional[Sequence] = None):
+    _summarize_run(config_file, output_file=output_file, nodes=nodes)
 
 
 def _summarize_run(
     config_file: Path,
     *,
-    output_csv: Path,
+    output_file: Path,
     nodes: Optional[Sequence] = None,
-    other_config_file: Optional[Path] = None,
+    compare_config_file: Optional[Path] = None,
 ):
     logger.info('Reading configuration file: %s', config_file)
     config = RunConfig.from_yaml(config_file)
@@ -35,7 +35,7 @@ def _summarize_run(
         nodes = read_monitored_nodes_from_input(config.files_config.input)
     nodes = sorted(nodes)
 
-    logger.info('Parsing grid into memory')
+    logger.info('Parsing grid into memory from files in %s', config_file)
     grid = read_grid(
         config.files_config.grid,
         outside_zone_file=config.files_config.outside_zone,
@@ -46,12 +46,16 @@ def _summarize_run(
     monitored = (
         pd.DataFrame(data=[_dict_from_node(grid.node(i)) for i in nodes])
     )
+    logger.info('Reading state from restart file: %s', config.files_config.final_conditions)
     state, metadata = read_restart(config.files_config.final_conditions)
 
-    if other_config_file:
-        other_config = RunConfig.from_yaml(other_config_file)
-        _validate_same_grids(grid, other_config)
-        other_state, other_metadata = read_restart(other_config.files_config.final_conditions)
+    if compare_config_file:
+        logger.info('Reading configuration file: %s', compare_config_file)
+        compare_config_file = RunConfig.from_yaml(compare_config_file)
+        _validate_same_grids(grid, compare_config_file)
+
+        logger.info('Reading state from restart file: %s', compare_config_file.files_config.final_conditions)
+        other_state, other_metadata = read_restart(compare_config_file.files_config.final_conditions)
         state = state - other_state
 
     monitored_indexes = [i - 1 for i in nodes]
@@ -61,8 +65,8 @@ def _summarize_run(
     monitored['material_zones'] = _get_zones_for_nodes(nodes, grid.material_zones)
     monitored['outside_zones'] = _get_zones_for_nodes(nodes, grid.outside_zones)
 
-    logger.info('Writing output to: %s', output_csv)
-    monitored.to_csv(output_csv, index=False)
+    logger.info('Writing output to: %s', output_file)
+    monitored.to_csv(output_file, index=False)
 
 
 def _dict_from_node(node: Node) -> dict:
@@ -78,6 +82,7 @@ def _get_zones_for_nodes(nodes: list[int], zones: set[Zone]) -> list[int]:
 
 
 def _validate_same_grids(grid: Grid, other_config: RunConfig):
+    logger.info('Parsing grid into memory from files in compare config')
     other_grid = read_grid(
         other_config.files_config.grid,
         outside_zone_file=other_config.files_config.outside_zone,

@@ -11,6 +11,8 @@ from .preprocessors import (
 )
 from .postprocessors import (
     check_history,
+    compare_runs,
+    summarize_run,
 )
 from .file_manipulation import append_zones
 
@@ -28,7 +30,6 @@ def entry_point():
             'Create a run directory by copying files from a mesh direcotry. File name roots are replaced '
             'if run_root is set, otherwise file names are persisted.'
         ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     run_from_mesh.add_argument('mesh_directory', type=Path, help='Mesh directory containing source files')
     run_from_mesh.add_argument('target_directory', type=Path, help='Destination run directory to be created')
@@ -36,8 +37,11 @@ def entry_point():
     run_from_mesh.add_argument(
         '--append_zones',
         type=int_or_string,
-        nargs='+',
-        help='Outside zones to append to material zone file',
+        nargs='*',
+        help=(
+            'Space-separated list of zone names or numbers for outside zones to append to the material zone file. '
+            'Leave blank after --append_zones to skip this step. (default: top bottom)'
+        ),
         default=('top', 'bottom'),
     )
     run_from_mesh.add_argument('--run_root', type=str, help='Common root to be used to name run files')
@@ -84,7 +88,7 @@ def entry_point():
     flow.set_defaults(func=generate_flow_boundaries)
 
     history = subparsers.add_parser(
-        'check_history',
+        'history',
         help='Summary plots of run history file',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -104,6 +108,35 @@ def entry_point():
         default=['temperature(deg C)', 'total pressure(Mpa)'],
     )
     history.set_defaults(func=check_history)
+
+    summary = subparsers.add_parser(
+        'summary',
+        help="Produce a summary of a run's final output, as a csv file with details for specified nodes",
+    )
+    summary.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    summary.add_argument('output_file', type=Path, help='CSV output of node and state details to be written')
+    summary.add_argument(
+        '--nodes',
+        type=int,
+        nargs='+',
+        help='Space-separated list of node numbers to inspect (default: nodes in "node" macros in FEHM input file)',
+    )
+    summary.set_defaults(func=summarize_run)
+
+    compare = subparsers.add_parser(
+        'compare',
+        help="Produce a comparison of two run's final outputs, as a csv file with details for specified nodes",
+    )
+    compare.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    compare.add_argument('compare_config_file', type=Path, help='Run configuration file for run to compare')
+    compare.add_argument('output_file', type=Path, help='CSV output of node and state details to be written')
+    compare.add_argument(
+        '--nodes',
+        type=int,
+        nargs='+',
+        help='Space-separated list of node numbers to inspect (default: nodes in "node" macros in FEHM input file)',
+    )
+    compare.set_defaults(func=compare_runs)
 
     pressure = subparsers.add_parser(
         'hydrostat',
