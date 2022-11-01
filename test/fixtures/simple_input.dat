@@ -1,6 +1,6 @@
-"2d outcrop, coupled run"
+"Flat box column of seafloor"
 cont
-avs 10000  365e4
+avs 10000 365e4
 material
 liquid
 velocity
@@ -12,33 +12,36 @@ endavs
 sol
 1    -1
 node
-3
-25 60 105
+2
+    1   10
+node
+   3
+  50 70   140
 eos
 5  0  0
 21.  50.  997.   0.0   -0.45  0.23   0.0  4.2e-03  5.5e-04  0. 0.
 0.1  20.  1.29   0.     0.    2.5   0.     0.1     2.e-4   0. 0.
 perm
 file
-p13.perm
+p12.perm
 rock
 file
-p13.rock
+p12.rock
 cond
 file
-p13.cond
+p12.cond
 ppor
 file
-p13.ppor
+p12.ppor
 hflx
--5 0 0 2.0 1.e6
+-4 0 0 2.0 1.e6
 0
 hflx
 file
-p13.hflx
+p12.hflx
 flow
 file
-p13.flow
+p12.flow
 time
 1.e-4 365e4  10000  10  0   1   0
 0.0    0.0    0.0    0.0
