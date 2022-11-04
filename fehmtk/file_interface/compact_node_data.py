@@ -132,19 +132,19 @@ def _format_for_output(value: Union[float, Decimal, Vector, Iterable]) -> str:
     >>> _format_for_output('hello')
     'hello'
     >>> _format_for_output(15)
-    '  1.50000E+01'
+    '            15'
     >>> _format_for_output(Vector(10, 20, 5))
-    '  1.00000E+01   2.00000E+01   5.00000E+00'
+    '            10             20              5'
     >>> _format_for_output([Vector(10, 20, 5), '0.'])
-    '  1.00000E+01   2.00000E+01   5.00000E+00 0.'
+    '            10             20              5 0.'
     >>> _format_for_output([(10, [20, 5]), '0.'])
-    '  1.00000E+01   2.00000E+01   5.00000E+00 0.'
+    '            10             20              5 0.'
     """
 
     if isinstance(value, str):
         return value
 
     try:
-        return f'{value:13.5E}'
+        return f'{value:14.6G}'
     except TypeError:
         return ' '.join([_format_for_output(i) for i in value])
