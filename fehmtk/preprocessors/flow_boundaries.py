@@ -8,6 +8,8 @@ from fehmtk.config import FlowConfig, RunConfig
 from fehmtk.fehm_objects import Grid, Node
 from fehmtk.file_interface import read_grid, write_compact_node_data
 
+from .boundary_models import get_boundary_model
+
 logger = logging.getLogger(__name__)
 
 
@@ -43,13 +45,11 @@ def generate_flow_boundaries(config_file: Path):
 def generate_flow_data_by_node_number(config: FlowConfig, grid: Grid) -> dict[int, float]:
     flow_data_by_number = {}
     for boundary_config in config.boundary_configs:
-        model = boundary_config.boundary_model
+        model = get_boundary_model('flow', boundary_config.boundary_model.kind)
         nodes = _gather_nodes(grid, boundary_config.outside_zones, boundary_config.material_zones)
         for node in nodes:
-            skd = '0'
-            eflow = -model.params['input_fluid_temp_degC']
-            aiped = abs(node.volume * model.params['aiped_to_volume_ratio'])
-            flow_data_by_number[node.number] = (skd, eflow, aiped)
+            flow_data_by_number[node.number] = model(node, boundary_config.boundary_model.params)
+
     return flow_data_by_number
 
 

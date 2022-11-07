@@ -8,7 +8,7 @@ def get_boundary_model(boundary_kind: str, model_kind: str) -> Callable:
     if boundary_kind == 'heat_flux':
         models_by_kind = _get_heat_flux_models_by_kind()
     elif boundary_kind == 'flow':
-        pass  # TODO(dustin): implement flow boundary models
+        models_by_kind = _get_flow_models_by_kind()
     else:
         raise NotImplementedError(f'No models defined for boundary_kind {boundary_kind}')
 
@@ -16,6 +16,24 @@ def get_boundary_model(boundary_kind: str, model_kind: str) -> Callable:
         return models_by_kind[model_kind]
     except KeyError:
         raise NotImplementedError(f'No model defined for kind {model_kind}')
+
+
+def _get_flow_models_by_kind() -> dict[str, Callable]:
+    return {
+        'open_flow': _open_flow,
+    }
+
+
+def _open_flow(node: Node, params: dict) -> tuple[Decimal]:
+    """Fluid flow set to constant pressure, allowing flow in or out to maintain it.
+
+    Fluid input comes in at the specified temperature, output is at the in-place temperature. AIPED value sets the
+    impedence to flow, and therefore determines the model's ability to maintain the desired pressure.
+    """
+    skd = '0'
+    eflow = -params['input_fluid_temp_degC']
+    aiped = abs(node.volume * params['aiped_to_volume_ratio'])
+    return (skd, eflow, aiped)
 
 
 def _get_heat_flux_models_by_kind() -> dict[str, Callable]:
@@ -27,6 +45,7 @@ def _get_heat_flux_models_by_kind() -> dict[str, Callable]:
 
 def _crustal_age_heatflux(node: Node, params: dict) -> Decimal:
     """Heat input per square meter as a function of distance to ridge in x:
+
     C / a^0.5
     Where C is a parameter and a is the crustal age, calculated as:
     (D ± x) / (1000 * R)
