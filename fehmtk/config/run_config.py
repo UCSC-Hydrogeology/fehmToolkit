@@ -4,9 +4,8 @@ from typing import Optional
 
 import yaml
 
-from .boundary_config import FlowConfig
+from .boundary_config import FlowConfig, HeatFluxConfig
 from .files_config import FilesConfig
-from .heat_flux_config import HeatFluxConfig
 from .pressure_config import PressureConfig
 from .rock_properties_config import RockPropertiesConfig
 

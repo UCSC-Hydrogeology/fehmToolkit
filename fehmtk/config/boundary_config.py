@@ -28,3 +28,14 @@ class FlowConfig:
         return cls(
             boundary_configs=[BoundaryConfig.from_dict(c) for c in dct['boundary_configs']],
         )
+
+
+@dataclass
+class HeatFluxConfig:
+    boundary_configs: list[BoundaryConfig]
+
+    @classmethod
+    def from_dict(cls, dct):
+        return cls(
+            boundary_configs=[BoundaryConfig.from_dict(c) for c in dct['boundary_configs']],
+        )
