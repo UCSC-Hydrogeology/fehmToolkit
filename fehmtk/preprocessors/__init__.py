@@ -1,4 +1,3 @@
-from .flow_boundaries import generate_flow_boundaries
-from .heat_flux_boundaries import generate_heat_flux_boundaries
+from .flow_boundaries import generate_flow_boundaries, generate_heat_flux_boundaries
 from .hydrostatic_pressure import generate_hydrostatic_pressure
 from .rock_properties import generate_rock_properties
