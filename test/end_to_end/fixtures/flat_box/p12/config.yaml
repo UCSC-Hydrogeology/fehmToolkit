@@ -35,6 +35,7 @@ heat_flux_config:
     params:
       boundary_distance_to_ridge_m: 95000.0
       coefficient_MW: 3.67e-07
+      crustal_age_dimension: x
       crustal_age_sign: 1
       spread_rate_mm_per_year: 28.57
 pressure_config:
