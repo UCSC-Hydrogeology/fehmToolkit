@@ -74,9 +74,5 @@ def _validate_flow_config(config: FlowConfig):
         raise ValueError('No flow_config in config file.')
 
     for boundary_config in config.boundary_configs:
-        model = boundary_config.boundary_model
-        if model.kind not in ('open_flow'):
-            raise NotImplementedError(f'Boundary model kind ({model.kind}) not supported.')
-
         if not boundary_config.material_zones and not boundary_config.outside_zones:
             raise ValueError('No zones specified (outside or material), at least one zone is required.')
