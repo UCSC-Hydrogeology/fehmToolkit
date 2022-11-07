@@ -21,6 +21,9 @@ def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     if not config.files_config.heat_flux:
         raise ValueError(f'No heat_flux file defined in {config_file}, required for output.')
 
+    if plot and len(config.heat_flux_config.boundary_configs) > 1:
+        raise NotImplementedError('No support for plotting when multiple boundary_configs are present.')
+
     logger.info('Parsing grid into memory')
     grid = read_grid(
         config.files_config.grid,
