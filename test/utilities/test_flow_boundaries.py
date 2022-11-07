@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from fehmtk.config import BoundariesConfig, FlowConfig, ModelConfig
-from fehmtk.preprocessors.flow_boundaries import _validate_boundaries_config, warn_if_file_not_referenced
+from fehmtk.config import BoundaryConfig, FlowConfig, ModelConfig
+from fehmtk.preprocessors.flow_boundaries import _validate_flow_config, warn_if_file_not_referenced
 
 
 @pytest.fixture
@@ -51,28 +51,28 @@ def test_warn_if_file_not_referenced_ok(fake_input_file: Path, recwarn):
 
 def test_validate_no_config():
     with pytest.raises(ValueError):
-        _validate_boundaries_config(None)
+        _validate_flow_config(None)
 
 
 def test_validate_no_zones(valid_model_config):
-    config = BoundariesConfig(flow_configs=[
-        FlowConfig(
+    config = FlowConfig(boundary_configs=[
+        BoundaryConfig(
             boundary_model=valid_model_config,
             outside_zones=[],
             material_zones=[],
         )
     ])
     with pytest.raises(ValueError):
-        _validate_boundaries_config(config)
+        _validate_flow_config(config)
 
 
 def test_validate_bad_model_kind(bad_model_config):
-    config = BoundariesConfig(flow_configs=[
-        FlowConfig(
+    config = FlowConfig(boundary_configs=[
+        BoundaryConfig(
             boundary_model=bad_model_config,
             outside_zones=['top'],
             material_zones=[1, 2],
         )
     ])
     with pytest.raises(NotImplementedError):
-        _validate_boundaries_config(config)
+        _validate_flow_config(config)

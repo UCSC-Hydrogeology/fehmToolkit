@@ -26,8 +26,8 @@ heat_flux_config:
     kind: constant_MW_per_m2
     params:
       constant: 3.67e-07
-boundaries_config:
-  flow_configs:
+flow_config:
+  boundary_configs:
   - boundary_model:
       kind: 'open_flow'
       params:
