@@ -10,7 +10,7 @@ from fehmtk.config import RunConfig
 from fehmtk.file_interface import read_pressure, write_restart
 from fehmtk.preprocessors import (
     generate_flow_boundaries,
-    generate_input_heat_flux,
+    generate_heat_flux_boundaries,
     generate_hydrostatic_pressure,
     generate_rock_properties,
 )
@@ -82,11 +82,11 @@ def test_generate_flow_boundaries(tmp_path: Path, end_to_end_fixture_dir: Path, 
 
 
 @pytest.mark.parametrize('mesh_name', ('flat_box', 'outcrop_2d', 'warped_box'))
-def test_heat_in_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
+def test_heat_flux_against_fixture(tmp_path: Path, end_to_end_fixture_dir: Path, mesh_name: str):
     model_dir = end_to_end_fixture_dir / mesh_name / 'cond'
     config_file, (output_file,) = _setup_temporary_model_run(model_dir, tmp_path, output_keys=['heat_flux'])
 
-    generate_input_heat_flux(config_file)
+    generate_heat_flux_boundaries(config_file)
 
     fixture_file = model_dir / 'cond.hflx'
     assert output_file.read_text() == fixture_file.read_text()

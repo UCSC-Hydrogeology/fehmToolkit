@@ -15,7 +15,7 @@ from .heat_flux_models import get_heatflux_models_by_kind
 logger = logging.getLogger(__name__)
 
 
-def generate_input_heat_flux(config_file: Path, plot: bool = False):
+def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
     if not config.files_config.heat_flux:
