@@ -7,6 +7,7 @@ import pytest
 import yaml
 
 from fehmtk.config import (
+    BoundaryConfig,
     FilesConfig,
     HeatFluxConfig,
     ModelConfig,
@@ -222,8 +223,18 @@ def test_model_config():
 
 def test_heat_flux_config():
     assert HeatFluxConfig.from_dict(
-        {'heat_flux_model': {'kind': 'constant', 'params': {'constant': 9000}}}
-    ) == HeatFluxConfig(heat_flux_model=ModelConfig(kind='constant', params={'constant': 9000}))
+        {'boundary_configs': [
+            {'boundary_model': {'kind': 'constant', 'params': {'constant': 9000}}, 'outside_zones': ['top']}
+        ]}
+    ) == HeatFluxConfig(
+        boundary_configs=[
+            BoundaryConfig(
+                boundary_model=ModelConfig(kind='constant', params={'constant': 9000}),
+                outside_zones=['top'],
+                material_zones=[],
+            ),
+        ],
+    )
 
 
 def test_pressure_config(pressure_config_dict):

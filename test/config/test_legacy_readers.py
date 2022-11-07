@@ -13,8 +13,9 @@ from fehmtk.file_interface.legacy_config import (
 
 def test_read_legacy_hfi_config_jdf(fixture_dir):
     config = read_legacy_hfi_config(fixture_dir / 'legacy_jdf.hfi')
-    model_config = config.heat_flux_model
-    assert model_config.params == {
+    assert len(config.boundary_configs) == 1
+    boundary_config = config.boundary_configs[0]
+    assert boundary_config.boundary_model.params == {
         'crustal_age_sign': Decimal('1'),
         'crustal_age_dimension': 'x',
         'spread_rate_mm_per_year': Decimal('28.57'),
@@ -25,8 +26,9 @@ def test_read_legacy_hfi_config_jdf(fixture_dir):
 
 def test_read_legacy_hfi_config_np(fixture_dir):
     config = read_legacy_hfi_config(fixture_dir / 'legacy_np.hfi')
-    model_config = config.heat_flux_model
-    assert model_config.params == {
+    assert len(config.boundary_configs) == 1
+    boundary_config = config.boundary_configs[0]
+    assert boundary_config.boundary_model.params == {
         'crustal_age_sign': Decimal('-1'),
         'crustal_age_dimension': 'x',
         'spread_rate_mm_per_year': Decimal('17'),
