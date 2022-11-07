@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from fehmtk.config import BoundaryConfig, FlowConfig, ModelConfig
-from fehmtk.preprocessors.flow_boundaries import _validate_config, warn_if_file_not_referenced
+from fehmtk.preprocessors.boundaries import _validate_config, warn_if_file_not_referenced
 
 
 @pytest.fixture
