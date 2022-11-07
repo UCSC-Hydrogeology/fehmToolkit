@@ -4,7 +4,21 @@ from typing import Callable
 from fehmtk.fehm_objects import Node
 
 
-def get_heatflux_models_by_kind() -> dict[str, Callable]:
+def get_boundary_model(boundary_kind: str, model_kind: str) -> Callable:
+    if boundary_kind == 'heat_flux':
+        models_by_kind = _get_heat_flux_models_by_kind()
+    elif boundary_kind == 'flow':
+        pass  # TODO(dustin): implement flow boundary models
+    else:
+        raise NotImplementedError(f'No models defined for boundary_kind {boundary_kind}')
+
+    try:
+        return models_by_kind[model_kind]
+    except KeyError:
+        raise NotImplementedError(f'No model defined for kind {model_kind}')
+
+
+def _get_heat_flux_models_by_kind() -> dict[str, Callable]:
     return {
         'crustal_age': _crustal_age_heatflux,
         'constant_MW_per_m2': _constant_MW_per_m2,
