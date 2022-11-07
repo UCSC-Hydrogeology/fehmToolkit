@@ -19,14 +19,16 @@ files_config:
   storage: cond.stor
   water_properties: ../../nist120-1800.out
 heat_flux_config:
-  heat_flux_model:
-    kind: crustal_age
-    params:
-      boundary_distance_to_ridge_m: 95000.0
-      coefficient_MW: 3.67e-07
-      crustal_age_dimension: x
-      crustal_age_sign: 1
-      spread_rate_mm_per_year: 28.57
+  boundary_configs:
+  - boundary_model:
+      kind: crustal_age
+      params:
+        boundary_distance_to_ridge_m: 95000.0
+        coefficient_MW: 3.67e-07
+        crustal_age_dimension: x
+        crustal_age_sign: 1
+        spread_rate_mm_per_year: 28.57
+    outside_zones: ['bottom']
 pressure_config:
   pressure_model:
     kind: depth

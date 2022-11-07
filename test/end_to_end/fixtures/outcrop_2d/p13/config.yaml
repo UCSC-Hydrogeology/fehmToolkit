@@ -22,10 +22,12 @@ files_config:
   flow: p13.flow
   water_properties: ../../nist120-1800.out
 heat_flux_config:
-  heat_flux_model:
-    kind: constant_MW_per_m2
-    params:
-      constant: 3.67e-07
+  boundary_configs:
+  - boundary_model:
+      kind: constant_MW_per_m2
+      params:
+        constant: 3.67e-07
+    outside_zones: ['bottom']
 flow_config:
   boundary_configs:
   - boundary_model:
