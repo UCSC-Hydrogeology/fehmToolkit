@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from fehmtk.config import BoundaryConfig, FlowConfig, ModelConfig
-from fehmtk.preprocessors.flow_boundaries import _validate_flow_config, warn_if_file_not_referenced
+from fehmtk.preprocessors.flow_boundaries import _validate_config, warn_if_file_not_referenced
 
 
 @pytest.fixture
@@ -51,7 +51,7 @@ def test_warn_if_file_not_referenced_ok(fake_input_file: Path, recwarn):
 
 def test_validate_no_config():
     with pytest.raises(ValueError):
-        _validate_flow_config(None)
+        _validate_config(None)
 
 
 def test_validate_no_zones(valid_model_config):
@@ -63,4 +63,4 @@ def test_validate_no_zones(valid_model_config):
         )
     ])
     with pytest.raises(ValueError):
-        _validate_flow_config(config)
+        _validate_config(config)
