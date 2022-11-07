@@ -58,6 +58,8 @@ def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     if not config.files_config.heat_flux:
         raise ValueError(f'No heat_flux file defined in {config_file}, required for output.')
 
+    _validate_config(config.heat_flux_config)
+
     if plot and len(config.heat_flux_config.boundary_configs) > 1:
         raise NotImplementedError('No support for plotting when multiple boundary_configs are present.')
 
@@ -83,6 +85,8 @@ def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
         header='hflx\n',
         footer='0\n',
     )
+    warn_if_file_not_referenced(input_file=config.files_config.input, referenced_file=config.files_config.heat_flux)
+
     if plot:
         plot_heatflux(heatflux_by_node, grid)
 
