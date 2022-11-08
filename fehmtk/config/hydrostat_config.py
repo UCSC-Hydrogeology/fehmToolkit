@@ -5,7 +5,7 @@ from .model_config import ModelConfig
 
 
 @dataclass
-class PressureConfig:
+class HydrostatConfig:
     pressure_model: ModelConfig
     interpolation_model: ModelConfig = None
     sampling_model: Optional[ModelConfig] = None

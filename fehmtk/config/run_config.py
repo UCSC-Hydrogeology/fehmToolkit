@@ -6,7 +6,7 @@ import yaml
 
 from .boundary_config import FlowConfig, HeatFluxConfig
 from .files_config import FilesConfig
-from .pressure_config import PressureConfig
+from .hydrostat_config import HydrostatConfig
 from .rock_properties_config import RockPropertiesConfig
 
 
@@ -17,7 +17,7 @@ class RunConfig:
     heat_flux_config: HeatFluxConfig
     rock_properties_config: RockPropertiesConfig
     flow_config: Optional[FlowConfig] = None
-    pressure_config: Optional[PressureConfig] = None
+    hydrostat_config: Optional[HydrostatConfig] = None
 
     @classmethod
     def from_dict(cls, dct: dict, files_relative_to: Optional[Path] = None):
@@ -26,7 +26,7 @@ class RunConfig:
             heat_flux_config=HeatFluxConfig.from_dict(dct['heat_flux_config']),
             rock_properties_config=RockPropertiesConfig.from_dict(dct['rock_properties_config']),
             flow_config=FlowConfig.from_dict(dct['flow_config']) if dct.get('flow_config') else None,
-            pressure_config=PressureConfig.from_dict(dct['pressure_config']) if dct.get('pressure_config') else None,
+            hydrostat_config=HydrostatConfig.from_dict(dct['hydrostat_config']) if dct.get('hydrostat_config') else None,
         )
 
     @classmethod
