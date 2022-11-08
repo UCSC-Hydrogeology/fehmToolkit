@@ -16,6 +16,7 @@ class RunConfig:
     files_config: FilesConfig
     heat_flux_config: HeatFluxConfig
     rock_properties_config: RockPropertiesConfig
+    command_defaults: dict = None
     flow_config: Optional[FlowConfig] = None
     hydrostat_config: Optional[HydrostatConfig] = None
 
@@ -25,6 +26,7 @@ class RunConfig:
             files_config=FilesConfig.from_dict(dct['files_config'], files_relative_to),
             heat_flux_config=HeatFluxConfig.from_dict(dct['heat_flux_config']),
             rock_properties_config=RockPropertiesConfig.from_dict(dct['rock_properties_config']),
+            command_defaults=dct.get('command_defaults'),
             flow_config=FlowConfig.from_dict(dct['flow_config']) if dct.get('flow_config') else None,
             hydrostat_config=HydrostatConfig.from_dict(dct['hydrostat_config']) if dct.get('hydrostat_config') else None,
         )
