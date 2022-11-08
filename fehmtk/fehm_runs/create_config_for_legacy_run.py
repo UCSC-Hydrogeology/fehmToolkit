@@ -94,7 +94,7 @@ def create_config_for_legacy_run(
 
     run_config = RunConfig(
         heat_flux_config=read_legacy_hfi_config(hfi_file),
-        pressure_config=read_legacy_ipi_config(ipi_file),
+        hydrostat_config=read_legacy_ipi_config(ipi_file),
         rock_properties_config=read_legacy_rpi_config(rpi_file),
         flow_config=flow_config,
         files_config=files_config,
