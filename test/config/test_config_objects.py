@@ -10,8 +10,8 @@ from fehmtk.config import (
     BoundaryConfig,
     FilesConfig,
     HeatFluxConfig,
+    HydrostatConfig,
     ModelConfig,
-    PressureConfig,
     PropertyConfig,
     RockPropertiesConfig,
     RunConfig,
@@ -52,7 +52,7 @@ def files_config_dict():
 
 
 @pytest.fixture
-def pressure_config_dict():
+def hydrostat_config_dict():
     return {
         'pressure_model': {
             'kind': 'depth',
@@ -147,7 +147,7 @@ def test_read_config(config_dict):
     config = RunConfig.from_dict(config_dict)
     assert isinstance(config.files_config, FilesConfig)
     assert isinstance(config.heat_flux_config, HeatFluxConfig)
-    assert isinstance(config.pressure_config, PressureConfig)
+    assert isinstance(config.hydrostat_config, HydrostatConfig)
     assert isinstance(config.rock_properties_config, RockPropertiesConfig)
 
 
@@ -176,7 +176,7 @@ def test_run_config_from_yaml(fixture_dir):
     config = RunConfig.from_yaml(fixture_dir / 'flat_box_cond.yaml')
     assert isinstance(config.files_config, FilesConfig)
     assert isinstance(config.heat_flux_config, HeatFluxConfig)
-    assert isinstance(config.pressure_config, PressureConfig)
+    assert isinstance(config.hydrostat_config, HydrostatConfig)
     assert isinstance(config.rock_properties_config, RockPropertiesConfig)
     assert config.files_config.grid == Path(fixture_dir / 'cond.fehm')
     assert config.files_config.flow is None
@@ -237,16 +237,16 @@ def test_heat_flux_config():
     )
 
 
-def test_pressure_config(pressure_config_dict):
-    config = PressureConfig.from_dict(pressure_config_dict)
+def test_hydrostat_config(hydrostat_config_dict):
+    config = HydrostatConfig.from_dict(hydrostat_config_dict)
     assert isinstance(config.pressure_model, ModelConfig)
     assert isinstance(config.interpolation_model, ModelConfig)
     assert isinstance(config.sampling_model, ModelConfig)
 
 
-def test_pressure_config_no_sampling(pressure_config_dict):
-    del pressure_config_dict['sampling_model']
-    config = PressureConfig.from_dict(pressure_config_dict)
+def test_hydrostat_config_no_sampling(hydrostat_config_dict):
+    del hydrostat_config_dict['sampling_model']
+    config = HydrostatConfig.from_dict(hydrostat_config_dict)
     assert isinstance(config.pressure_model, ModelConfig)
     assert isinstance(config.interpolation_model, ModelConfig)
     assert config.sampling_model is None

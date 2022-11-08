@@ -25,7 +25,7 @@ heat_flux_config:
       params:
         constant: 3.67e-07
     outside_zones: ['bottom']
-pressure_config:
+hydrostat_config:
   pressure_model:
     kind: depth
     params:

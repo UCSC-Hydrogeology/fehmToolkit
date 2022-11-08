@@ -40,7 +40,7 @@ heat_flux_config:
         crustal_age_sign: 1
         spread_rate_mm_per_year: 28.57
     outside_zones: ['bottom']
-pressure_config:
+hydrostat_config:
   pressure_model:
     kind: depth
     params:
