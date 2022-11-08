@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -12,6 +13,9 @@ from fehmtk.file_manipulation import (
     write_modified_fehm_input_file,
 )
 from fehmtk.file_interface import read_grid, read_restart, write_files_index, write_restart
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_run_from_run(
@@ -39,6 +43,7 @@ def create_run_from_run(
         pressure_file=pressure_file,
     )
     if reset_zones:
+        logger.info('Resetting zones %s to pressures found in %s', reset_zones, files_config.initial_conditions)
         replacement_state, initial_metadata = read_restart(files_config.initial_conditions)
         grid = read_grid(files_config.grid, outside_zone_file=files_config.outside_zone, read_elements=False)
         state = replace_node_pressures(state, replacement_state, node_numbers={
@@ -49,16 +54,30 @@ def create_run_from_run(
     file_pairs_by_kind = _gather_file_pairs_to_copy(files_config, target_files)
     create_run_with_source_files(target_directory, file_pairs_by_kind)
 
+    logger.info('Writing files index to %s', target_files.files)
     write_files_index(target_files, output_file=target_files.files)
+
+    logger.info('Writing initial_conditions to %s', target_files.initial_conditions)
     write_restart(state, metadata, output_file=target_files.initial_conditions)
+
+    logger.info('Writing FEHM input file with amended filenames to %s', target_files.input)
     write_modified_fehm_input_file(
         files_config.input,
         target_files.input,
         file_mapping={f1.name: f2.name for f1, f2 in file_pairs_by_kind.values()},
     )
 
+    logger.info('Writing run configuration to %s', target_directory / config_file.name)
     target_config = dataclasses.replace(config, files_config=target_files)
     target_config.to_yaml(target_directory / config_file.name)
+
+    logger.info(
+        'Suggested next steps:\n'
+        f'* Update {target_directory / config_file.name} with desired configuration\n'
+        '* Run `fehmtk` commands for anything you changed\n'
+        f'* Update {target_directory / target_files.input.name} with desired configuration\n'
+        '* Run FEHM'
+    )
 
 
 def _generate_target_files_config(
