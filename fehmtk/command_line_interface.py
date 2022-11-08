@@ -19,9 +19,26 @@ from .file_manipulation import append_zones
 
 def entry_point():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(levelname)s) %(message)s")
-
     parser = argparse.ArgumentParser(prog='fehmtk', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    add_fehmtk_subparsers(parser)
+
+    args = vars(parser.parse_args())
+
+    if '_func' not in args:
+        parser.print_help()
+        return
+
+    _func = args.pop('_func')
+    _name = args.pop('_name')
+    _func(**args)
+
+
+def add_fehmtk_subparsers(parser):
     subparsers = parser.add_subparsers(help='FEHM toolkit commands')
+
+    # --------------------
+    # run_from_mesh
+    # --------------------
 
     run_from_mesh = subparsers.add_parser(
         'run_from_mesh',
@@ -50,7 +67,11 @@ def entry_point():
     run_from_mesh.add_argument('--material_zone_file', type=Path, help='Material (_material.zone) file')
     run_from_mesh.add_argument('--outside_zone_file', type=Path, help='Boundary (_outside.zone) file')
     run_from_mesh.add_argument('--area_file', type=Path, help='Boundary area (.area) file')
-    run_from_mesh.set_defaults(func=create_run_from_mesh)
+    run_from_mesh.set_defaults(_func=create_run_from_mesh, _name='run_from_mesh')
+
+    # --------------------
+    # run_from_run
+    # --------------------
 
     run_from_run = subparsers.add_parser(
         'run_from_run',
@@ -72,20 +93,36 @@ def entry_point():
     run_from_run_exclusive.add_argument('--pressure_file', type=Path, help=(
         'Pressure (.iap/.icp) file; pressure set to those in file for all nodes'
     ))
-    run_from_run.set_defaults(func=create_run_from_run)
+    run_from_run.set_defaults(_func=create_run_from_run, _name='run_from_run')
+
+    # --------------------
+    # rock_properties
+    # --------------------
 
     rock_properties = subparsers.add_parser('rock_properties', help='Generate rock properties from configuration')
     rock_properties.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
-    rock_properties.set_defaults(func=generate_rock_properties)
+    rock_properties.set_defaults(_func=generate_rock_properties, _name='rock_properties')
+
+    # --------------------
+    # heat_flux
+    # --------------------
 
     heat_flux = subparsers.add_parser('heat_flux', help='Generate heat flux boundaries based on run configuration')
     heat_flux.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     heat_flux.add_argument('--plot', action='store_true', help='Flag to plot 2D heat flux maps for outside zones')
-    heat_flux.set_defaults(func=generate_heat_flux_boundaries)
+    heat_flux.set_defaults(_func=generate_heat_flux_boundaries, _name='heat_flux')
+
+    # --------------------
+    # flow
+    # --------------------
 
     flow = subparsers.add_parser('flow', help='Generate flow boundary conditions based on run configuration')
     flow.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
-    flow.set_defaults(func=generate_flow_boundaries)
+    flow.set_defaults(_func=generate_flow_boundaries, _name='flow')
+
+    # --------------------
+    # history
+    # --------------------
 
     history = subparsers.add_parser(
         'history',
@@ -107,7 +144,11 @@ def entry_point():
         help='Space-separated list of fields, only plot these - wrap fields with spaces in double-quotes',
         default=['temperature(deg C)', 'total pressure(Mpa)'],
     )
-    history.set_defaults(func=check_history)
+    history.set_defaults(_func=check_history, _name='history')
+
+    # --------------------
+    # summary
+    # --------------------
 
     summary = subparsers.add_parser(
         'summary',
@@ -121,7 +162,11 @@ def entry_point():
         nargs='+',
         help='Space-separated list of node numbers to inspect (default: nodes in "node" macros in FEHM input file)',
     )
-    summary.set_defaults(func=summarize_run)
+    summary.set_defaults(_func=summarize_run, _name='summary')
+
+    # --------------------
+    # compare
+    # --------------------
 
     compare = subparsers.add_parser(
         'compare',
@@ -136,15 +181,23 @@ def entry_point():
         nargs='+',
         help='Space-separated list of node numbers to inspect (default: nodes in "node" macros in FEHM input file)',
     )
-    compare.set_defaults(func=compare_runs)
+    compare.set_defaults(_func=compare_runs, _name='compare')
 
-    pressure = subparsers.add_parser(
+    # --------------------
+    # hydrostat
+    # --------------------
+
+    hydrostat = subparsers.add_parser(
         'hydrostat',
         help='Generate hydrostatic pressures by interpolating and bootstrapping down the water column',
     )
-    pressure.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
-    pressure.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
-    pressure.set_defaults(func=generate_hydrostatic_pressure)
+    hydrostat.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    hydrostat.add_argument('output_file', type=Path, help='Pressure output (.iap/.icp) to be written')
+    hydrostat.set_defaults(_func=generate_hydrostatic_pressure, _name='hydrostat')
+
+    # --------------------
+    # legacy_config
+    # --------------------
 
     create_config = subparsers.add_parser(
         'legacy_config',
@@ -174,7 +227,11 @@ def entry_point():
     create_config.add_argument('--flow_file', type=Path, help='Flow file')
     create_config.add_argument('--heat_flux_file', type=Path, help='Heat flux file')
     create_config.add_argument('--initial_conditions_file', type=Path, help='Initial_conditions file')
-    create_config.set_defaults(func=create_config_for_legacy_run)
+    create_config.set_defaults(_func=create_config_for_legacy_run, _name='legacy_config')
+
+    # --------------------
+    # append_zones
+    # --------------------
 
     zones = subparsers.add_parser(
         'append_zones',
@@ -183,16 +240,9 @@ def entry_point():
     zones.add_argument('source_file', type=Path, help='Source file for new zones to add')
     zones.add_argument('target_file', type=Path, help='Target file that new zones will be added to')
     zones.add_argument('zones', type=int_or_string, nargs='+', help='Space-separated list of zone names or numbers')
-    zones.set_defaults(func=append_zones)
+    zones.set_defaults(_func=append_zones, _name='append_zones')
 
-    args = vars(parser.parse_args())
-
-    if 'func' not in args:
-        parser.print_help()
-        return
-
-    func = args.pop('func')
-    func(**args)
+    return subparsers
 
 
 def int_or_string(arg):
