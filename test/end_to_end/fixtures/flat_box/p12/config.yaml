@@ -20,8 +20,8 @@ files_config:
   run_root: p12
   storage: p12.stor
   water_properties: ../../nist120-1800.out
-boundaries_config:
-  flow_configs:
+flow_config:
+  boundary_configs:
   - boundary_model:
       kind: 'open_flow'
       params:

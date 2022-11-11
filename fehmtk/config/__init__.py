@@ -1,4 +1,4 @@
-from .boundaries_config import BoundariesConfig, FlowConfig
+from .boundary_config import BoundaryConfig, FlowConfig
 from .files_config import FilesConfig
 from .heat_flux_config import HeatFluxConfig
 from .model_config import ModelConfig

@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from fehmtk.config import BoundariesConfig, FilesConfig, FlowConfig, ModelConfig, RunConfig
+from fehmtk.config import BoundaryConfig, FilesConfig, FlowConfig, ModelConfig, RunConfig
 from fehmtk.file_interface import get_unique_file
 from fehmtk.file_interface.legacy_config import (
     read_legacy_hfi_config,
@@ -72,23 +72,23 @@ def create_config_for_legacy_run(
     )
     files_config.assert_specified_paths_exist()
 
-    boundaries_config = None
+    flow_config = None
     if files_config.flow is not None:
         open_flow_params = {'input_fluid_temp_degC': 2, 'aiped_to_volume_ratio': 1e-8}
         logger.warning(
-            'Creating boundaries_config with default parameters, THESE MAY NOT MATCH WHAT WAS INITIALLY USED! %s',
+            'Creating flow_config with default parameters, THESE MAY NOT MATCH WHAT WAS INITIALLY USED! %s',
             open_flow_params,
         )
-        boundaries_config = BoundariesConfig(
-            flow_configs=[
-                FlowConfig(
+        flow_config = FlowConfig(
+            boundary_configs=[
+                BoundaryConfig(
                     outside_zones=['top'],
                     material_zones=[],
                     boundary_model=ModelConfig(
                         kind='open_flow',
                         params=open_flow_params,
                     ),
-                )
+                ),
             ],
         )
 
@@ -96,7 +96,7 @@ def create_config_for_legacy_run(
         heat_flux_config=read_legacy_hfi_config(hfi_file),
         pressure_config=read_legacy_ipi_config(ipi_file),
         rock_properties_config=read_legacy_rpi_config(rpi_file),
-        boundaries_config=boundaries_config,
+        flow_config=flow_config,
         files_config=files_config,
     )
     logger.info('Writing config file to %s', directory / 'config.yaml')
