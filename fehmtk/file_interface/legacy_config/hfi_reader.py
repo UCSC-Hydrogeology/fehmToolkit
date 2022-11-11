@@ -38,6 +38,7 @@ def read_legacy_hfi_config(hfi_file: Path) -> HeatFluxConfig:
 
 def _get_crustal_age_model_parameters(processed_text: str, hfi_file: Path) -> dict[str, Decimal]:
     return {
+        'crustal_age_dimension': 'x',
         'crustal_age_sign': _get_crustal_age_sign(processed_text, hfi_file),
         'spread_rate_mm_per_year': _get_spread_rate(processed_text, hfi_file),
         'coefficient_MW': _get_heatflux_coefficient(processed_text, hfi_file),

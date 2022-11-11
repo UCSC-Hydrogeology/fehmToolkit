@@ -16,6 +16,7 @@ def test_read_legacy_hfi_config_jdf(fixture_dir):
     model_config = config.heat_flux_model
     assert model_config.params == {
         'crustal_age_sign': Decimal('1'),
+        'crustal_age_dimension': 'x',
         'spread_rate_mm_per_year': Decimal('28.57'),
         'coefficient_MW': Decimal('0.367E-6'),
         'boundary_distance_to_ridge_m': Decimal('60000'),
@@ -27,6 +28,7 @@ def test_read_legacy_hfi_config_np(fixture_dir):
     model_config = config.heat_flux_model
     assert model_config.params == {
         'crustal_age_sign': Decimal('-1'),
+        'crustal_age_dimension': 'x',
         'spread_rate_mm_per_year': Decimal('17'),
         'coefficient_MW': Decimal('0.5E-6'),
         'boundary_distance_to_ridge_m': Decimal('144000'),

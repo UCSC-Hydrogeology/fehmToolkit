@@ -24,12 +24,18 @@ def _crustal_age_heatflux(node: Node, params: dict) -> Decimal:
     boundary_distance_to_ridge_m  [D]  (numeric)
     spread_rate_mm_per_year       [R]  (numeric)
     crustal_age_sign              [±]  (+, -, 1, or -1)
+    crustal_age_dimension         [x]  (x, y, or z) [default x]
     """
     if params['crustal_age_sign'] not in (1, -1, '+', '-'):
         raise ValueError(f'Invalid crustal_age_sign {params["crustal_age_sign"]}, must be 1, -1, +, or -')
 
     crustal_age_sign = 1 if params['crustal_age_sign'] in (1, '+') else -1
-    distance_from_boundary_m = crustal_age_sign * node.x
+
+    crustal_age_dimension = params.get('crustal_age_dimension', 'x')
+    if crustal_age_dimension not in ('x', 'y', 'z'):
+        raise ValueError(f'Invalid crustal_age_dimension: {crustal_age_dimension}')
+    distance_from_boundary_m = crustal_age_sign * getattr(node, crustal_age_dimension)
+
     distance_from_ridge_m = params['boundary_distance_to_ridge_m'] + distance_from_boundary_m
     age_ma = 1 / (params['spread_rate_mm_per_year'] * Decimal('1E3')) * distance_from_ridge_m
     heatflux_per_m2 = params['coefficient_MW'] / age_ma ** Decimal('0.5')
