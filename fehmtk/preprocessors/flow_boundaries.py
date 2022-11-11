@@ -4,9 +4,11 @@ import re
 from typing import Union
 import warnings
 
-from fehmtk.config import FlowConfig, RunConfig
+from fehmtk.config import BoundaryConfig, FlowConfig, HeatFluxConfig, RunConfig
 from fehmtk.fehm_objects import Grid, Node
 from fehmtk.file_interface import read_grid, write_compact_node_data
+
+from .boundary_models import get_boundary_model
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ def generate_flow_boundaries(config_file: Path):
     if config.files_config.flow is None:
         raise ValueError(f'Flow file missing from files_config in RunConfig at {config_file}')
 
-    _validate_flow_config(config.flow_config)
+    _validate_config(config.flow_config)
 
     logger.info('Parsing grid into memory')
     grid = read_grid(
@@ -29,7 +31,11 @@ def generate_flow_boundaries(config_file: Path):
     )
 
     logger.info('Generating flow data')
-    flow_by_node = generate_flow_data_by_node_number(config.flow_config, grid)
+    flow_by_node = generate_boundary_data_by_node_number(
+        grid,
+        boundary_configs=config.flow_config.boundary_configs,
+        boundary_kind='flow',
+    )
     write_compact_node_data(
         flow_by_node,
         output_file=config.files_config.flow,
@@ -40,16 +46,19 @@ def generate_flow_boundaries(config_file: Path):
     warn_if_file_not_referenced(input_file=config.files_config.input, referenced_file=config.files_config.flow)
 
 
-def generate_flow_data_by_node_number(config: FlowConfig, grid: Grid) -> dict[int, float]:
+def generate_boundary_data_by_node_number(
+    grid: Grid,
+    *,
+    boundary_configs: list[BoundaryConfig],
+    boundary_kind: str,
+) -> dict[int, float]:
     flow_data_by_number = {}
-    for boundary_config in config.boundary_configs:
-        model = boundary_config.boundary_model
+    for boundary_config in boundary_configs:
+        model = get_boundary_model(boundary_kind, boundary_config.boundary_model.kind)
         nodes = _gather_nodes(grid, boundary_config.outside_zones, boundary_config.material_zones)
         for node in nodes:
-            skd = '0'
-            eflow = -model.params['input_fluid_temp_degC']
-            aiped = abs(node.volume * model.params['aiped_to_volume_ratio'])
-            flow_data_by_number[node.number] = (skd, eflow, aiped)
+            flow_data_by_number[node.number] = model(node, boundary_config.boundary_model.params)
+
     return flow_data_by_number
 
 
@@ -69,14 +78,10 @@ def warn_if_file_not_referenced(*, input_file: Path, referenced_file: Path):
         warnings.warn(f'Generated file {referenced_file.name} IS NOT REFERENCED in {input_file.name}.')
 
 
-def _validate_flow_config(config: FlowConfig):
+def _validate_config(config: Union[FlowConfig, HeatFluxConfig]):
     if config is None:
-        raise ValueError('No flow_config in config file.')
+        raise ValueError('No relevant boundary config (flow, heat_flux) found in config file.')
 
     for boundary_config in config.boundary_configs:
-        model = boundary_config.boundary_model
-        if model.kind not in ('open_flow'):
-            raise NotImplementedError(f'Boundary model kind ({model.kind}) not supported.')
-
         if not boundary_config.material_zones and not boundary_config.outside_zones:
             raise ValueError('No zones specified (outside or material), at least one zone is required.')
