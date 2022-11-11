@@ -119,6 +119,7 @@ def test_build_template_from_rock_properties_config():
 def test_build_template_from_run_config():
     template = build_template_from_type(RunConfig)
     assert template.keys() == {
+        'command_defaults',
         'files_config',
         'heat_flux_config',
         'rock_properties_config',

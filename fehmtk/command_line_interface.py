@@ -2,6 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 
+from .config import RunConfig
 from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh, create_run_from_run
 from .preprocessors import (
     generate_flow_boundaries,
@@ -30,6 +31,14 @@ def entry_point():
 
     _func = args.pop('_func')
     _name = args.pop('_name')
+    config_file = args.get('config_file')
+    if config_file:
+        config = RunConfig.from_yaml(config_file)
+        command_defaults = (config.command_defaults or {}).get(_name, {})
+        for keyword, default_value in command_defaults.items():
+            if args.get(keyword) is None:
+                args[keyword] = default_value
+
     _func(**args)
 
 
