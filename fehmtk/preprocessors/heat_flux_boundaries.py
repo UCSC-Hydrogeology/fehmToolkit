@@ -6,16 +6,16 @@ from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-from fehmtk.config import HeatFluxConfig, RunConfig
+from fehmtk.config import ModelConfig, RunConfig
 from fehmtk.fehm_objects import Grid
 from fehmtk.file_interface import read_grid, write_compact_node_data
 
-from .heat_flux_models import get_heatflux_models_by_kind
+from .boundary_models import get_boundary_model
 
 logger = logging.getLogger(__name__)
 
 
-def generate_input_heat_flux(config_file: Path, plot: bool = False):
+def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
     if not config.files_config.heat_flux:
@@ -30,7 +30,11 @@ def generate_input_heat_flux(config_file: Path, plot: bool = False):
     )
 
     logger.info('Computing boundary heat flux')
-    heatflux_by_node = compute_boundary_heatflux(grid, config.heat_flux_config)
+    heatflux_by_node = compute_boundary_heatflux(
+        grid=grid,
+        boundary_type='heat_flux',
+        model_config=config.heat_flux_config.heat_flux_model,
+    )
 
     logger.info(f'Writing heat flux to disk: {config.files_config.heat_flux}')
     write_compact_node_data(
@@ -43,16 +47,10 @@ def generate_input_heat_flux(config_file: Path, plot: bool = False):
         plot_heatflux(heatflux_by_node, grid)
 
 
-def compute_boundary_heatflux(grid: Grid, heat_flux_config: HeatFluxConfig) -> dict[int, Decimal]:
-    heatflux_models = get_heatflux_models_by_kind()
-
-    try:
-        model = heatflux_models[heat_flux_config.heat_flux_model.kind]
-    except KeyError:
-        raise NotImplementedError(f'No model defined for kind {heat_flux_config.heat_flux_model.kind}')
-
+def compute_boundary_heatflux(*, grid: Grid, boundary_type: str, model_config: ModelConfig) -> dict[int, Decimal]:
+    model = get_boundary_model('heat_flux', model_config.kind)
     input_nodes = grid.get_nodes_in_outside_zone('bottom')
-    return {node.number: model(node, heat_flux_config.heat_flux_model.params) for node in input_nodes}
+    return {node.number: model(node, model_config.params) for node in input_nodes}
 
 
 def plot_heatflux(heatflux_by_node: dict[int, Decimal], grid: Grid):

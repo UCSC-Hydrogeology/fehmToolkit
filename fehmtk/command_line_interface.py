@@ -6,7 +6,7 @@ from .fehm_runs import create_config_for_legacy_run, create_run_from_mesh, creat
 from .preprocessors import (
     generate_flow_boundaries,
     generate_hydrostatic_pressure,
-    generate_input_heat_flux,
+    generate_heat_flux_boundaries,
     generate_rock_properties,
 )
 from .postprocessors import (
@@ -78,10 +78,10 @@ def entry_point():
     rock_properties.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
     rock_properties.set_defaults(func=generate_rock_properties)
 
-    heat_in = subparsers.add_parser('heat_in', help='Generate input heat flux based on run configuration')
-    heat_in.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
-    heat_in.add_argument('--plot', action='store_true', help='Flag to plot the heat flux')
-    heat_in.set_defaults(func=generate_input_heat_flux)
+    heat_flux = subparsers.add_parser('heat_flux', help='Generate heat flux boundaries based on run configuration')
+    heat_flux.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
+    heat_flux.add_argument('--plot', action='store_true', help='Flag to plot 2D heat flux maps for outside zones')
+    heat_flux.set_defaults(func=generate_heat_flux_boundaries)
 
     flow = subparsers.add_parser('flow', help='Generate flow boundary conditions based on run configuration')
     flow.add_argument('config_file', type=Path, help='Run configuration (config.yaml) file')
