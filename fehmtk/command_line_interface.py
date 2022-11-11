@@ -272,6 +272,29 @@ def add_fehmtk_subparsers(parser):
     compare.set_defaults(_func=compare_runs, _name='compare')
 
     # --------------------
+    # append_zones
+    # --------------------
+
+    zones = subparsers.add_parser(
+        'append_zones',
+        help='Append zones from one zone file to another, overwriting the target',
+        description=(
+            'Append zones from one zone file to another, overwriting the target file with the combined data. '
+            'This is commonly used to add outside zones to a material zone file, to allow them to be referenced '
+            'by FEHM.'
+        ),
+    )
+    zones.add_argument('source_file', type=Path, help='Source file for new zones to add')
+    zones.add_argument('target_file', type=Path, help='Target file that new zones will be added to')
+    zones.add_argument(
+        'zones',
+        type=int_or_string,
+        nargs='+',
+        help='Space-separated list of zone names or numbers to append'
+    )
+    zones.set_defaults(_func=append_zones, _name='append_zones')
+
+    # --------------------
     # hydrostat
     # --------------------
 
@@ -327,29 +350,6 @@ def add_fehmtk_subparsers(parser):
     create_config.add_argument('--heat_flux_file', type=Path, help='Heat flux file')
     create_config.add_argument('--initial_conditions_file', type=Path, help='Initial_conditions file')
     create_config.set_defaults(_func=create_config_for_legacy_run, _name='legacy_config')
-
-    # --------------------
-    # append_zones
-    # --------------------
-
-    zones = subparsers.add_parser(
-        'append_zones',
-        help='Append zones from one zone file to another, overwriting the target',
-        description=(
-            'Append zones from one zone file to another, overwriting the target file with the combined data. '
-            'This is commonly used to add outside zones to a material zone file, to allow them to be referenced '
-            'by FEHM.'
-        ),
-    )
-    zones.add_argument('source_file', type=Path, help='Source file for new zones to add')
-    zones.add_argument('target_file', type=Path, help='Target file that new zones will be added to')
-    zones.add_argument(
-        'zones',
-        type=int_or_string,
-        nargs='+',
-        help='Space-separated list of zone names or numbers to append'
-    )
-    zones.set_defaults(_func=append_zones, _name='append_zones')
 
     return subparsers
 
