@@ -29,6 +29,10 @@ def _open_flow(node: Node, params: dict) -> tuple[Decimal]:
 
     Fluid input comes in at the specified temperature, output is at the in-place temperature. AIPED value sets the
     impedence to flow, and therefore determines the model's ability to maintain the desired pressure.
+
+    Required params:
+    input_fluid_temp_degC       (numeric)
+    aiped_to_volume_ratio       (numeric)
     """
     skd = '0'
     eflow = -params['input_fluid_temp_degC']
