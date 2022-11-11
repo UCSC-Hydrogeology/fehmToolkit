@@ -121,7 +121,7 @@ rock_properties_config:
           constant: 0.05
       zones: [3]
 
-pressure_config:
+hydrostat_config:
   pressure_model:
     kind: depth
     params:

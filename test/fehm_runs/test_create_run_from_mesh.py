@@ -123,7 +123,7 @@ def test_build_template_from_run_config():
         'heat_flux_config',
         'rock_properties_config',
         'flow_config',
-        'pressure_config',
+        'hydrostat_config',
     }
     assert template['heat_flux_config'] == {
         'boundary_configs': [

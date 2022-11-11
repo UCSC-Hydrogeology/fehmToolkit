@@ -1,10 +1,10 @@
 from decimal import Decimal
 from pathlib import Path
 
-from fehmtk.config import ModelConfig, PressureConfig
+from fehmtk.config import ModelConfig, HydrostatConfig
 
 
-def read_legacy_ipi_config(ipi_file: Path) -> PressureConfig:
+def read_legacy_ipi_config(ipi_file: Path) -> HydrostatConfig:
     with open(ipi_file) as f:
         next(f)
         header = next(f).strip()
@@ -12,7 +12,7 @@ def read_legacy_ipi_config(ipi_file: Path) -> PressureConfig:
             raise ValueError(f'Unexpected header in {ipi_file}: "{header}"')
         z_interval = Decimal(next(f).strip())
         reference_z, reference_pressure, reference_temperature = [Decimal(v) for v in next(f).strip().split(',')]
-    return PressureConfig(
+    return HydrostatConfig(
         pressure_model=ModelConfig(
             kind='depth',
             params={

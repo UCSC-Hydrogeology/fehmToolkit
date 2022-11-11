@@ -7,7 +7,7 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, RegularGridInterpolator
 
 from fehmtk.common import round_significant_figures
-from fehmtk.config import ModelConfig, PressureConfig, RunConfig
+from fehmtk.config import ModelConfig, HydrostatConfig, RunConfig
 from fehmtk.fehm_objects import Grid, State
 from fehmtk.file_interface import read_grid, read_nist_lookup_table, read_restart, write_pressure
 from fehmtk.file_interface.grid import COORDINATE_SIGNIFICANT_FIGURES
@@ -39,7 +39,7 @@ def generate_hydrostatic_pressure(config_file: Path, output_file: Path):
     pressure_by_node = compute_hydrostatic_pressure(
         grid=grid,
         state=state,
-        pressure_config=config.pressure_config,
+        hydrostat_config=config.hydrostat_config,
         density_lookup_MPa_degC=density_lookup_MPa_degC,
     )
 
@@ -51,21 +51,21 @@ def compute_hydrostatic_pressure(
     *,
     grid: Grid,
     state: State,
-    pressure_config: PressureConfig,
+    hydrostat_config: HydrostatConfig,
     density_lookup_MPa_degC: LinearNDInterpolator,
 ) -> dict[int, Decimal]:
     coordinates_by_number = _get_coordinates_by_number_without_flat_dimensions(grid)
     node_coordinates, node_temperatures = _get_coordinate_and_temperature_arrays(coordinates_by_number, state)
-    _validate_pressure_config(pressure_config, node_coordinates)
+    _validate_hydrostat_config(hydrostat_config, node_coordinates)
 
     # TODO(dustin): Add config support for uniform temperature
     logger.info('Generating temperature lookups')
     temperature_lookup = NearestNDInterpolator(node_coordinates, node_temperatures)
 
-    if pressure_config.interpolation_model is None:
+    if hydrostat_config.interpolation_model is None:
         sampled_node_numbers = [node.number for node in grid.nodes]
     else:
-        sampled_node_numbers = _sample_node_numbers(grid, sampling_model=pressure_config.sampling_model)
+        sampled_node_numbers = _sample_node_numbers(grid, sampling_model=hydrostat_config.sampling_model)
 
     logger.info(f'Calculating explicit pressures for {len(sampled_node_numbers)}/{len(coordinates_by_number)} nodes')
     pressure_by_node = {}
@@ -76,7 +76,7 @@ def compute_hydrostatic_pressure(
         pressures = calculate_hydrostatic_pressure_for_column(
             target_xy=coordinates_by_number[node_number][:-1],
             z_targets=np.array([coordinates_by_number[node_number][-1]]),
-            params=pressure_config.pressure_model.params,
+            params=hydrostat_config.pressure_model.params,
             density_lookup_MPa_degC=density_lookup_MPa_degC,
             temperature_lookup=temperature_lookup,
             n_iterations=N_ITERATIONS,
@@ -85,19 +85,19 @@ def compute_hydrostatic_pressure(
         if pressure_by_node[node_number].is_nan():
             raise ValueError(f'Pressure at node {node_number} is not a number. May be out of range for density lookup.')
 
-    if pressure_config.interpolation_model is not None and pressure_config.interpolation_model.kind == 'regular_grid':
+    if hydrostat_config.interpolation_model is not None and hydrostat_config.interpolation_model.kind == 'regular_grid':
         x_targets, y_targets, z_targets = _get_xyz_targets(
             node_coordinates,
-            interpolation_params=pressure_config.interpolation_model.params,
+            interpolation_params=hydrostat_config.interpolation_model.params,
         )
-        n_columns = _get_n_columns(pressure_config.interpolation_model.params)
+        n_columns = _get_n_columns(hydrostat_config.interpolation_model.params)
         logger.info(f'Calculating explicit pressures for {n_columns} sampled columns.')
 
         target_points, P_cube = _calculate_explicit_target_pressures(
             x=x_targets,
             y=y_targets,
             z=z_targets,
-            params=pressure_config.pressure_model.params,
+            params=hydrostat_config.pressure_model.params,
             density_lookup_MPa_degC=density_lookup_MPa_degC,
             temperature_lookup=temperature_lookup,
             n_iterations=N_ITERATIONS,
@@ -355,7 +355,7 @@ def _get_flat_dimension_or_none(coordinates: np.array) -> Optional[int]:
     return None
 
 
-def _validate_pressure_config(config: PressureConfig, node_coordinates: np.ndarray):
+def _validate_hydrostat_config(config: HydrostatConfig, node_coordinates: np.ndarray):
     if config.pressure_model.kind not in ('depth'):
         raise NotImplementedError(f'Pressure model kind {config.pressure_model.kind} not supported.')
 
