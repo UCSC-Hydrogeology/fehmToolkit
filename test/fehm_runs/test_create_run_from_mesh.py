@@ -7,7 +7,7 @@ from fehmtk.fehm_runs.create_run_from_mesh import build_template_from_type, get_
 def test_build_template_from_model_config():
     (template, optional) = build_template_from_type(ModelConfig)
     assert optional is False
-    assert template == {'kind': 'replace__str', 'params': {}}
+    assert template == {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}}
 
 
 def test_get_template_files_config():
@@ -77,43 +77,44 @@ def test_get_template_files_config_run_root():
 
 
 def test_build_template_from_rock_properties_config():
-    template = build_template_from_type(RockPropertiesConfig)
+    template, optional = build_template_from_type(RockPropertiesConfig)
+    assert optional is False
     assert template == {
-        'zone_assignment_order': ['replace__int|str'],
-        'compressibility_configs': [
+        'REQUIRED__zone_assignment_order': ['TYPE__str|int'],
+        'REQUIRED__compressibility_configs': [
             {
-                'property_model': {'kind': 'replace__str', 'params': {}},
-                'zones': ['replace__int|str']
+                'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
+                'REQUIRED__zones': ['TYPE__str|int']
             },
         ],
-        'conductivity_configs': [
+        'REQUIRED__conductivity_configs': [
             {
-                'property_model': {'kind': 'replace__str', 'params': {}},
-                'zones': ['replace__int|str']
+                'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
+                'REQUIRED__zones': ['TYPE__str|int']
             },
         ],
-        'permeability_configs': [
+        'REQUIRED__permeability_configs': [
             {
-                'property_model': {'kind': 'replace__str', 'params': {}},
-                'zones': ['replace__int|str']
+                'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
+                'REQUIRED__zones': ['TYPE__str|int']
             },
         ],
-        'grain_density_configs': [
+        'REQUIRED__grain_density_configs': [
             {
-                'property_model': {'kind': 'replace__str', 'params': {}},
-                'zones': ['replace__int|str']
+                'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
+                'REQUIRED__zones': ['TYPE__str|int']
             },
         ],
-        'specific_heat_configs': [
+        'REQUIRED__specific_heat_configs': [
             {
-                'property_model': {'kind': 'replace__str', 'params': {}},
-                'zones': ['replace__int|str']
+                'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
+                'REQUIRED__zones': ['TYPE__str|int']
             },
         ],
-        'porosity_configs': [
+        'REQUIRED__porosity_configs': [
             {
-                'property_model': {'kind': 'replace__str', 'params': {}},
-                'zones': ['replace__int|str']
+                'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
+                'REQUIRED__zones': ['TYPE__str|int']
             },
         ],
     }
