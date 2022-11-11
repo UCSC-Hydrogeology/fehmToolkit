@@ -161,8 +161,6 @@ def create_template_input_file(files_config: FilesConfig, output_file: Path):
         f.write('sol\n    -1    -1\n')
         f.write('ctrl\n    # ctrl config goes here\n')
         f.write('time\n    # time config goes here\n')
-        f.write('hflx\n    # hflx config for fixed temperature zones goes here\n')
-        f.write(f'hflx\nfile\n{files_config.heat_flux.name}\n')
         f.write(f'rock\nfile\n{files_config.rock_properties.name}\n')
         f.write(f'cond\nfile\n{files_config.conductivity.name}\n')
         f.write(f'perm\nfile\n{files_config.permeability.name}\n')

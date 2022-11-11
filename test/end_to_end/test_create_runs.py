@@ -109,8 +109,6 @@ def test_create_template_input_file(tmp_path):
         'sol\n    -1    -1\n'
         'ctrl\n    # ctrl config goes here\n'
         'time\n    # time config goes here\n'
-        'hflx\n    # hflx config for fixed temperature zones goes here\n'
-        f'hflx\nfile\n{files_config.heat_flux}\n'
         f'rock\nfile\n{files_config.rock_properties}\n'
         f'cond\nfile\n{files_config.conductivity}\n'
         f'perm\nfile\n{files_config.permeability}\n'
