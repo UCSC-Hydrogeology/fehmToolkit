@@ -80,41 +80,41 @@ def test_build_template_from_rock_properties_config():
     template, optional = build_template_from_type(RockPropertiesConfig)
     assert optional is False
     assert template == {
-        'REQUIRED__zone_assignment_order': ['TYPE__str|int'],
+        'REQUIRED__zone_assignment_order': ['TYPE__int|str'],
         'REQUIRED__compressibility_configs': [
             {
                 'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'REQUIRED__zones': ['TYPE__str|int']
+                'REQUIRED__zones': ['TYPE__int|str']
             },
         ],
         'REQUIRED__conductivity_configs': [
             {
                 'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'REQUIRED__zones': ['TYPE__str|int']
+                'REQUIRED__zones': ['TYPE__int|str']
             },
         ],
         'REQUIRED__permeability_configs': [
             {
                 'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'REQUIRED__zones': ['TYPE__str|int']
+                'REQUIRED__zones': ['TYPE__int|str']
             },
         ],
         'REQUIRED__grain_density_configs': [
             {
                 'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'REQUIRED__zones': ['TYPE__str|int']
+                'REQUIRED__zones': ['TYPE__int|str']
             },
         ],
         'REQUIRED__specific_heat_configs': [
             {
                 'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'REQUIRED__zones': ['TYPE__str|int']
+                'REQUIRED__zones': ['TYPE__int|str']
             },
         ],
         'REQUIRED__porosity_configs': [
             {
                 'REQUIRED__property_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'REQUIRED__zones': ['TYPE__str|int']
+                'REQUIRED__zones': ['TYPE__int|str']
             },
         ],
     }
@@ -135,8 +135,8 @@ def test_build_template_from_run_config():
         'REQUIRED__boundary_configs': [
             {
                 'REQUIRED__boundary_model': {'REQUIRED__kind': 'TYPE__str', 'REQUIRED__params': {}},
-                'OPTIONAL__material_zones': ['TYPE__str|int'],
-                'OPTIONAL__outside_zones': ['TYPE__str|int'],
+                'OPTIONAL__material_zones': ['TYPE__int|str'],
+                'OPTIONAL__outside_zones': ['TYPE__int|str'],
             },
         ],
     }

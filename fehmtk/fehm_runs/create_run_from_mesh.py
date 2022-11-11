@@ -117,10 +117,11 @@ def _generate_template_run_config(template_files_config: dict[str, Union[str, Pa
 def build_template_from_type(base_type: Type):
     optional = False
     if isinstance(base_type, _UnionGenericAlias):
-        types = set(base_type.__args__)
-        if type(None) in types:
+        types = base_type.__args__
+        NoneType = type(None)
+        if NoneType in types:
             optional = True
-            types.remove(type(None))
+            types = [t for t in types if not t == NoneType]
 
         if len(types) > 1:
             return f"TYPE__{'|'.join(_get_type_name(t) for t in types)}", optional
