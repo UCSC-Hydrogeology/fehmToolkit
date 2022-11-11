@@ -2,7 +2,7 @@ from decimal import Decimal
 from pathlib import Path
 import re
 
-from fehmtk.config import HeatFluxConfig, ModelConfig
+from fehmtk.config import BoundaryConfig, HeatFluxConfig, ModelConfig
 
 CRUSTAL_AGE_MODEL_KIND = 'crustal_age'
 
@@ -21,16 +21,28 @@ def read_legacy_hfi_config(hfi_file: Path) -> HeatFluxConfig:
     is_crustal_age_model = CRUSTAL_AGE_MODEL_SIGNATURE in processed_text
     if is_crustal_age_model:
         return HeatFluxConfig(
-            heat_flux_model=ModelConfig(
-                kind=CRUSTAL_AGE_MODEL_KIND,
-                params=_get_crustal_age_model_parameters(processed_text, hfi_file),
-            )
+            boundary_configs=[
+                BoundaryConfig(
+                    boundary_model=ModelConfig(
+                        kind=CRUSTAL_AGE_MODEL_KIND,
+                        params=_get_crustal_age_model_parameters(processed_text, hfi_file),
+                    ),
+                    outside_zones=['bottom'],
+                    material_zones=[],
+                ),
+            ],
         )
 
     constant = _get_constant_or_none(processed_text)
     if constant is not None:
         return HeatFluxConfig(
-            heat_flux_model=ModelConfig(kind='constant_MW_per_m2', params={'constant': constant})
+            boundary_configs=[
+                BoundaryConfig(
+                    boundary_model=ModelConfig(kind='constant_MW_per_m2', params={'constant': constant}),
+                    outside_zones=['bottom'],
+                    material_zones=[],
+                ),
+            ],
         )
 
     raise NotImplementedError(f'No model matched for {hfi_file}. File format not supported.')

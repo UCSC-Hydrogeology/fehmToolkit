@@ -125,7 +125,15 @@ def test_build_template_from_run_config():
         'flow_config',
         'pressure_config',
     }
-    assert template['heat_flux_config'] == {'heat_flux_model': {'kind': 'replace__str', 'params': {}}}
+    assert template['heat_flux_config'] == {
+        'boundary_configs': [
+            {
+                'boundary_model': {'kind': 'replace__str', 'params': {}},
+                'material_zones': 'replace__list|NoneType',
+                'outside_zones': 'replace__list|NoneType',
+            },
+        ],
+    }
     for key, value in template['files_config'].items():
         if key == 'run_root':
             assert value == 'replace__str'

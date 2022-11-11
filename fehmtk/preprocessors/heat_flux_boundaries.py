@@ -6,11 +6,11 @@ from matplotlib import cm, colors, pyplot as plt
 import pandas as pd
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-from fehmtk.config import ModelConfig, RunConfig
+from fehmtk.config import RunConfig
 from fehmtk.fehm_objects import Grid
 from fehmtk.file_interface import read_grid, write_compact_node_data
 
-from .boundary_models import get_boundary_model
+from .flow_boundaries import generate_boundary_data_by_node_number
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +21,9 @@ def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     if not config.files_config.heat_flux:
         raise ValueError(f'No heat_flux file defined in {config_file}, required for output.')
 
+    if plot and len(config.heat_flux_config.boundary_configs) > 1:
+        raise NotImplementedError('No support for plotting when multiple boundary_configs are present.')
+
     logger.info('Parsing grid into memory')
     grid = read_grid(
         config.files_config.grid,
@@ -30,10 +33,10 @@ def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     )
 
     logger.info('Computing boundary heat flux')
-    heatflux_by_node = compute_boundary_heatflux(
-        grid=grid,
-        boundary_type='heat_flux',
-        model_config=config.heat_flux_config.heat_flux_model,
+    heatflux_by_node = generate_boundary_data_by_node_number(
+        grid,
+        boundary_configs=config.heat_flux_config.boundary_configs,
+        boundary_kind='heat_flux',
     )
 
     logger.info(f'Writing heat flux to disk: {config.files_config.heat_flux}')
@@ -45,12 +48,6 @@ def generate_heat_flux_boundaries(config_file: Path, plot: bool = False):
     )
     if plot:
         plot_heatflux(heatflux_by_node, grid)
-
-
-def compute_boundary_heatflux(*, grid: Grid, boundary_type: str, model_config: ModelConfig) -> dict[int, Decimal]:
-    model = get_boundary_model('heat_flux', model_config.kind)
-    input_nodes = grid.get_nodes_in_outside_zone('bottom')
-    return {node.number: model(node, model_config.params) for node in input_nodes}
 
 
 def plot_heatflux(heatflux_by_node: dict[int, Decimal], grid: Grid):

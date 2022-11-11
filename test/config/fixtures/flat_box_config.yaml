@@ -22,14 +22,16 @@ files_config:
   error: cond.err
 
 heat_flux_config:
-  heat_flux_model:
-    kind: crustal_age
-    params:
-      crustal_age_sign: 1
-      crustal_age_dimension: x
-      spread_rate_mm_per_year: 28.57
-      coefficient_MW: 0.367E-6
-      boundary_distance_to_ridge_m: 60000
+  boundary_configs:
+  - boundary_model:
+      kind: crustal_age
+      params:
+        crustal_age_sign: 1
+        crustal_age_dimension: x
+        spread_rate_mm_per_year: 28.57
+        coefficient_MW: 0.367E-6
+        boundary_distance_to_ridge_m: 60000
+    outside_zones: ['bottom']
 
 rock_properties_config:
   zone_assignment_order: [1, 2, 3]
