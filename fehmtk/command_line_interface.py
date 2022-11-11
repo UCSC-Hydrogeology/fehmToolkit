@@ -64,11 +64,7 @@ def add_fehmtk_subparsers(parser):
         '--append_zones',
         type=int_or_string,
         nargs='*',
-        help=(
-            'Space-separated list of zone names or numbers for outside zones to append to the material zone file. '
-            'Leave blank after --append_zones to skip this step. (default: top bottom)'
-        ),
-        default=('top', 'bottom'),
+        help='Space-separated list of zone names or numbers for outside zones to append to the material zone file.',
     )
     run_from_mesh.add_argument('--run_root', type=str, help='Common root to be used to name run files')
     run_from_mesh.add_argument('--grid_file', type=Path, help='Main grid (.fehm[n]) file')

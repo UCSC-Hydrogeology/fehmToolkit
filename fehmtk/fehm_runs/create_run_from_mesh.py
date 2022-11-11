@@ -80,7 +80,10 @@ def create_run_from_mesh(
     create_template_run_config(template_files_config, output_file=target_directory / CONFIG_NAME)
 
     files_config = FilesConfig.from_dict(template_files_config)
+
+    logger.info('Writing files index to %s', target_directory / files_config.files.name)
     write_files_index(files_config, output_file=target_directory / files_config.files.name)
+
     create_template_input_file(files_config, output_file=target_directory / files_config.input.name)
     logger.info(
         'Suggested next steps:\n'
