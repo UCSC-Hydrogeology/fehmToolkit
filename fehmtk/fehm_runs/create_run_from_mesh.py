@@ -79,7 +79,7 @@ def create_run_from_mesh(
     template_files_config = get_template_files_config(file_pairs_by_file_type, run_root)
     create_template_run_config(template_files_config, output_file=target_directory / CONFIG_NAME)
 
-    files_config = FilesConfig.from_dict(template_files_config)
+    files_config = _files_config_from_template(template_files_config)
 
     logger.info('Writing files index to %s', target_directory / files_config.files.name)
     write_files_index(files_config, output_file=target_directory / files_config.files.name)
@@ -96,38 +96,58 @@ def create_run_from_mesh(
 
 
 def create_template_run_config(template_files_config: dict[str, Union[str, Path]], output_file: Path):
-    logger.info(f'Writing run config file to {output_file}. This file is incomplete and must be modified!')
-
+    logger.info(
+        (
+            'Writing run config file to %s. This file is incomplete and must be modified! '
+            'Remove REQUIRED/OPTIONAL from all keys, and replace "TYPE__" values with real data.'
+        ),
+        output_file,
+    )
     template_run_config = _generate_template_run_config(template_files_config)
     with open(output_file, 'w') as f:
         yaml.dump(template_run_config, f, Dumper=yaml.Dumper)
 
 
 def _generate_template_run_config(template_files_config: dict[str, Union[str, Path]]) -> dict:
-    run_config_template = build_template_from_type(RunConfig)
-    run_config_template['files_config'] = template_files_config
+    (run_config_template, _) = build_template_from_type(RunConfig)
+    run_config_template['REQUIRED__files_config'] = template_files_config
     return run_config_template
 
 
-def build_template_from_type(base_type: Type):
+def build_template_from_type(base_type: Type) -> tuple[dict, bool]:
+    optional = False
+    if isinstance(base_type, _UnionGenericAlias):
+        types = base_type.__args__
+        NoneType = type(None)
+        if NoneType in types:
+            optional = True
+            types = [t for t in types if not t == NoneType]
+
+        if len(types) > 1:
+            return f"TYPE__{'|'.join(_get_type_name(t) for t in types)}", optional
+        else:
+            (base_type,) = types
+
     if base_type == list:
-        return []
+        return [], optional
     if base_type == dict:
-        return {}
+        return {}, optional
     if isinstance(base_type, GenericAlias):
         if base_type.__origin__ == list:
-            return [build_template_from_type(base_type.__args__[0])]
-        return f'replace__{base_type}'
-    if isinstance(base_type, _UnionGenericAlias):
-        type_names = [_get_type_name(t) for t in base_type.__args__]
-        return f"replace__{'|'.join(type_names)}"
+            template, _ = build_template_from_type(base_type.__args__[0])
+            return [template], optional
+        return f'TYPE__{base_type}', optional
     if dataclasses.is_dataclass(base_type):
-        return {field.name: build_template_from_type(field.type) for field in dataclasses.fields(base_type)}
+        template = {}
+        for field in dataclasses.fields(base_type):
+            field_template, field_optional = build_template_from_type(field.type)
+            template[f"{'OPTIONAL' if field_optional else 'REQUIRED'}__{field.name}"] = field_template
+        return template, optional
 
-    return f'replace__{_get_type_name(base_type)}'
+    return f'TYPE__{_get_type_name(base_type)}', optional
 
 
-def _get_type_name(base_type: Type):
+def _get_type_name(base_type: Type) -> str:
     try:
         return base_type.__name__
     except AttributeError:
@@ -142,8 +162,6 @@ def create_template_input_file(files_config: FilesConfig, output_file: Path):
         f.write('sol\n    -1    -1\n')
         f.write('ctrl\n    # ctrl config goes here\n')
         f.write('time\n    # time config goes here\n')
-        f.write('hflx\n    # hflx config for fixed temperature zones goes here\n')
-        f.write(f'hflx\nfile\n{files_config.heat_flux.name}\n')
         f.write(f'rock\nfile\n{files_config.rock_properties.name}\n')
         f.write(f'cond\nfile\n{files_config.conductivity.name}\n')
         f.write(f'perm\nfile\n{files_config.permeability.name}\n')
@@ -188,25 +206,33 @@ def get_template_files_config(
     file_pairs_by_file_type: dict[str, tuple[Path, Path]],
     run_root: Optional[str],
 ) -> dict[str, Path]:
-    template_files_config = {
-        'run_root': run_root or 'run',
-        'files': 'fehmn.files',  # FEHM expects a specific name for this file
-    }
 
-    for field in dataclasses.fields(FilesConfig):
+    template, _ = build_template_from_type(FilesConfig)
 
-        if field.name in ('run_root', 'initial_conditions', 'files'):
+    template['REQUIRED__run_root'] = run_root or 'run'
+    template['REQUIRED__files'] = 'fehmn.files'  # FEHM expects a specific name for this file
+
+    for key, value in template.items():
+        (required_str, file_name) = key.split('__')
+
+        if file_name in ('run_root', 'files'):
             continue
 
-        if field.name in file_pairs_by_file_type:
-            (source_file, run_file) = file_pairs_by_file_type[field.name]
-            template_files_config[field.name] = run_file.name
+        if file_name in file_pairs_by_file_type:
+            (source_file, run_file) = file_pairs_by_file_type[file_name]
+            template[key] = run_file.name
             continue
 
-        if run_root:
-            template_files_config[field.name] = f'{run_root}{EXT_BY_FILE[field.name]}'
-            continue
+        if required_str == 'REQUIRED':
+            template[key] = f'{run_root}{EXT_BY_FILE[file_name]}' if run_root else f'{file_name}.txt'
 
-        template_files_config[field.name] = f'{field.name}.txt'
+    return template
 
-    return template_files_config
+
+def _files_config_from_template(template_files_config: dict) -> FilesConfig:
+    config_dict = {}
+    for key, value in template_files_config.items():
+        (required_str, file_name) = key.split('__')
+        if not value.startswith('TYPE__'):
+            config_dict[file_name] = value
+    return FilesConfig.from_dict(config_dict)
