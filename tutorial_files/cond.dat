@@ -1,0 +1,50 @@
+"Conductive run - 10km box model of a section of crust"
+cont
+avs 10000  365e7
+material
+liquid
+velocity
+temperature
+pressure
+flux
+source
+endavs
+sol
+ -1    -1
+node
+4
+221 662 1723 3404
+node
+8
+5085 6766 8447 10128 11809 13490 14551 14832
+init
+   25.0, 2.0,  900., 0., 0., 900., 0., 0.
+perm
+file
+cond.perm
+rock
+file
+cond.rock
+cond
+file
+cond.cond
+ppor
+file
+cond.ppor
+hflx
+-4 0 0 2.0 1.e6
+0
+hflx
+file
+cond.hflx
+time
+  1.e-4 365e8  10000  10  0   1   0
+  0.0    0.0    0.0    0.0
+ctrl
+   -50 1.e-04  25 100 gmre
+   1   0   0   2
+   0   0   0   0
+  1.0  3  1.0 
+  7   2.0   1.e-6  365e5
+  0   1
+stop
