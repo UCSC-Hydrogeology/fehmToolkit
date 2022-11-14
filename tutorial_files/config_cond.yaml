@@ -9,7 +9,7 @@ files_config:
   heat_flux: cond.hflx
   history: cond.hist
   input: cond.dat
-  material_zone: cond.zone
+  material_zone: cond_material.zone
   output: cond.out
   outside_zone: cond_outside.zone
   permeability: cond.perm
