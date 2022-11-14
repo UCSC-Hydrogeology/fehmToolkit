@@ -114,7 +114,7 @@ def _generate_template_run_config(template_files_config: dict[str, Union[str, Pa
     return run_config_template
 
 
-def build_template_from_type(base_type: Type):
+def build_template_from_type(base_type: Type) -> tuple[dict, bool]:
     optional = False
     if isinstance(base_type, _UnionGenericAlias):
         types = base_type.__args__
@@ -147,7 +147,7 @@ def build_template_from_type(base_type: Type):
     return f'TYPE__{_get_type_name(base_type)}', optional
 
 
-def _get_type_name(base_type: Type):
+def _get_type_name(base_type: Type) -> str:
     try:
         return base_type.__name__
     except AttributeError:
@@ -229,7 +229,7 @@ def get_template_files_config(
     return template
 
 
-def _files_config_from_template(template_files_config: dict):
+def _files_config_from_template(template_files_config: dict) -> FilesConfig:
     config_dict = {}
     for key, value in template_files_config.items():
         (required_str, file_name) = key.split('__')
