@@ -18,7 +18,9 @@ FILES_INDEX_KEY_MAPPING = {
 
 
 def write_files_index(files_config: FilesConfig, output_file: Path):
+    files_config_relative_to_output = files_config.relative_to(output_file.parent)
+
     with open(output_file, 'w') as f:
         for config_key, files_index_key in FILES_INDEX_KEY_MAPPING.items():
-            f.write(f'{files_index_key}: {getattr(files_config, config_key)}\n')
+            f.write(f'{files_index_key}: {getattr(files_config_relative_to_output, config_key)}\n')
         f.write('\nall')

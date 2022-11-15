@@ -66,7 +66,7 @@ def create_run_from_mesh(
         material_zone_file=material_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['material_zone']}"),
         outside_zone_file=outside_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['outside_zone']}"),
         area_file=area_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['area']}"),
-        water_properties_file=water_properties_file,
+        water_properties_file=water_properties_file.absolute(),
     )
     file_manipulation.create_run_with_source_files(target_directory, file_pairs_by_file_type)
     if append_zones:
@@ -79,7 +79,7 @@ def create_run_from_mesh(
     template_files_config = get_template_files_config(file_pairs_by_file_type, run_root)
     create_template_run_config(template_files_config, output_file=target_directory / CONFIG_NAME)
 
-    files_config = _files_config_from_template(template_files_config)
+    files_config = _files_config_from_template(template_files_config, target_directory)
 
     logger.info('Writing files index to %s', target_directory / files_config.files.name)
     write_files_index(files_config, output_file=target_directory / files_config.files.name)
@@ -229,10 +229,10 @@ def get_template_files_config(
     return template
 
 
-def _files_config_from_template(template_files_config: dict) -> FilesConfig:
+def _files_config_from_template(template_files_config: dict, target_directory: Path) -> FilesConfig:
     config_dict = {}
     for key, value in template_files_config.items():
         (required_str, file_name) = key.split('__')
         if not value.startswith('TYPE__'):
             config_dict[file_name] = value
-    return FilesConfig.from_dict(config_dict)
+    return FilesConfig.from_dict(config_dict, files_relative_to=target_directory)
