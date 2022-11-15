@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
+from IPython import embed
 from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -26,6 +27,7 @@ def check_history(
     last_fraction: Optional[float] = None,
     nodes: Optional[list[int]] = None,
     fields: Optional[list[str]] = None,
+    interact: bool = False,
 ):
     logger.info(f'Reading configuration file: {config_file}')
     config = RunConfig.from_yaml(config_file)
@@ -42,6 +44,8 @@ def check_history(
         fields = [field for field in history.columns if field not in ('time_days', 'node')]
 
     plot_history(history, fields)
+    if interact:
+        embed()
 
 
 def plot_history(history: pd.DataFrame, fields: list[str]):
