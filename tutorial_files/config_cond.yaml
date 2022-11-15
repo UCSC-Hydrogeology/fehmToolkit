@@ -3,7 +3,7 @@ files_config:
   check: cond.chk
   conductivity: cond.cond
   error: cond.err
-  files: cond.files
+  files: fehmn.files
   final_conditions: cond.fin
   grid: cond.fehm
   heat_flux: cond.hflx
