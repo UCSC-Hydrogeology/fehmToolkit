@@ -66,7 +66,7 @@ def create_run_from_mesh(
         material_zone_file=material_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['material_zone']}"),
         outside_zone_file=outside_zone_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['outside_zone']}"),
         area_file=area_file or get_unique_file(mesh_directory, f"*{EXT_BY_FILE['area']}"),
-        water_properties_file=water_properties_file,
+        water_properties_file=water_properties_file.absolute(),
     )
     file_manipulation.create_run_with_source_files(target_directory, file_pairs_by_file_type)
     if append_zones:
