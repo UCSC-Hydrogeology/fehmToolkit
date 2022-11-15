@@ -228,6 +228,11 @@ def add_fehmtk_subparsers(parser):
         help='Space-separated list of fields, only plot these; wrap fields with spaces in double-quotes',
         default=['temperature(deg C)', 'total pressure(Mpa)'],
     )
+    history.add_argument(
+        '--interact',
+        action='store_true',
+        help='Flag to open an interactive session with data in memory'
+    )
     history.set_defaults(_func=check_history, _name='history')
 
     # --------------------
@@ -246,6 +251,11 @@ def add_fehmtk_subparsers(parser):
         type=int,
         nargs='+',
         help='Space-separated list of node numbers to inspect (default: nodes in "node" macros in FEHM input file)',
+    )
+    summary.add_argument(
+        '--interact',
+        action='store_true',
+        help='Flag to open an interactive session with data in memory'
     )
     summary.set_defaults(_func=summarize_run, _name='summary')
 
@@ -268,6 +278,11 @@ def add_fehmtk_subparsers(parser):
         type=int,
         nargs='+',
         help='Space-separated list of node numbers to inspect (default: nodes in "node" macros in FEHM input file)',
+    )
+    compare.add_argument(
+        '--interact',
+        action='store_true',
+        help='Flag to open an interactive session with data in memory'
     )
     compare.set_defaults(_func=compare_runs, _name='compare')
 

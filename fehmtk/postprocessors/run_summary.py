@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional, Sequence
 import warnings
 
+from IPython import embed
 import pandas as pd
 
 from fehmtk.config import RunConfig
@@ -12,12 +13,27 @@ from fehmtk.file_interface import read_grid, read_restart
 logger = logging.getLogger(__name__)
 
 
-def compare_runs(config_file: Path, compare_config_file: Path, output_file: Path, nodes: Optional[Sequence] = None):
-    _summarize_run(config_file, compare_config_file=compare_config_file, output_file=output_file, nodes=nodes)
+def compare_runs(
+    config_file: Path,
+    compare_config_file: Path,
+    output_file: Path,
+    nodes: Optional[Sequence] = None,
+    interact: bool = False,
+):
+    grid, summary = _summarize_run(
+        config_file,
+        compare_config_file=compare_config_file,
+        output_file=output_file,
+        nodes=nodes,
+    )
+    if interact:
+        embed()
 
 
-def summarize_run(config_file: Path, output_file: Path, nodes: Optional[Sequence] = None):
-    _summarize_run(config_file, output_file=output_file, nodes=nodes)
+def summarize_run(config_file: Path, output_file: Path, nodes: Optional[Sequence] = None, interact: bool = False):
+    grid, summary = _summarize_run(config_file, output_file=output_file, nodes=nodes)
+    if interact:
+        embed()
 
 
 def _summarize_run(
@@ -26,7 +42,7 @@ def _summarize_run(
     output_file: Path,
     nodes: Optional[Sequence] = None,
     compare_config_file: Optional[Path] = None,
-):
+) -> tuple[Grid, pd.DataFrame]:
     logger.info('Reading configuration file: %s', config_file)
     config = RunConfig.from_yaml(config_file)
 
@@ -67,6 +83,7 @@ def _summarize_run(
 
     logger.info('Writing output to: %s', output_file)
     monitored.to_csv(output_file, index=False)
+    return grid, monitored
 
 
 def _dict_from_node(node: Node) -> dict:
