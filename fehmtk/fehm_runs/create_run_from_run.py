@@ -128,13 +128,16 @@ def _get_file_name(file, old_root, new_root):
     'p13_outside.zone'
     >>> _get_file_name(Path('fehmn.files'), 'run', 'run2')
     'fehmn.files'
+    >>> _get_file_name(Path('fehmn.files'), 'cond', 'p15')
+    'fehmn.files'
     >>> _get_file_name(Path('run.txt'), 'run', None)
     'run.txt'
+    >>> _get_file_name(Path('cond.cond'), 'cond', 'p15')
+    'p15.cond'
     """
     if new_root is None:
         return file.name
-
-    return file.name.replace(old_root, new_root)
+    return file.name.replace(old_root, new_root, 1)
 
 
 def _gather_file_pairs_to_copy(source_files: FilesConfig, target_files: FilesConfig) -> dict[str, tuple[Path, Path]]:
