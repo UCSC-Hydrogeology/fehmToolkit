@@ -95,7 +95,7 @@ def _generate_target_files_config(
         conductivity=target_directory / _get_file_name(source_files.conductivity, old_root, run_root),
         pore_pressure=target_directory / _get_file_name(source_files.pore_pressure, old_root, run_root),
         permeability=target_directory / _get_file_name(source_files.permeability, old_root, run_root),
-        files=target_directory / _get_file_name(source_files.files, old_root, run_root),
+        files=target_directory / source_files.files.name,
         grid=target_directory / _get_file_name(source_files.grid, old_root, run_root),
         input=target_directory / _get_file_name(source_files.input, old_root, run_root),
         output=target_directory / _get_file_name(source_files.output, old_root, run_root),
