@@ -1,0 +1,128 @@
+*-----------------------------box.lgi----------------------
+*
+* Lagrit input file for idealized three-dimensional
+* seafloor grid for tutorial purposes. Mesh dimensions
+* are 10km x 10km x 4km, with sediment, aquifer, and
+* conductive basement layers.
+*
+*------------------------------------------------------------
+*
+* ----
+* MESH
+* ----
+*
+cmo / create / 10km_mesh
+cmo / select / 10km_mesh
+cmo / setatt / 10km_mesh / ipolydat / no
+*
+* -----------
+* DEFINITIONS
+* -----------
+define / xmin / 0.
+define / xmax / 10000.
+define / ymin / 0.
+define / ymax / 10000.
+*
+define / sf / 4000.
+define / sbi / 3550.
+define / aq_base / 2950.
+*
+define / sed_mid / 3800.
+define / sed_bot / 3575.
+define / aq0-300_top / 3525.
+define / aq0-300_bot / 3325.
+define / aq300-600_top / 3175.
+define / aq300-600_bot / 3025.
+define / base_top / 2875.
+define / base_mid1 / 2100.
+define / base_mid2 / 1400.
+define / base_bot / 0.
+*
+*
+* ---------
+* POINTSETS
+* ---------
+* Sediment main
+createpts / xyz / 21 21 2 / &
+           xmin ymin sf / &
+           xmax ymax sed_mid / 1 1 1
+*
+* Sediment bottom
+createpts / xyz / 41 41 1 / &
+           xmin ymin sed_bot / &
+           xmax ymax sed_bot / 1 1 1
+*
+* Aquifer 0-300m
+createpts / xyz / 41 41 5 / &
+           xmin ymin aq0-300_top / &
+           xmax ymax aq0-300_bot / 1 1 1
+*
+* Aquifer 300-600m
+createpts / xyz / 41 41 2 / &
+           xmin ymin aq300-600_top / &
+           xmax ymax aq300-600_bot / 1 1 1
+*
+* Basement top
+createpts / xyz / 21 21 1 / &
+           xmin ymin base_top / &
+           xmax ymax base_top / 1 1 1
+*
+* Basement mid1
+createpts / xyz / 11 11 1 / &
+           xmin ymin base_mid1 / &
+           xmax ymax base_mid1 / 1 1 1
+*
+* Basement mid2
+createpts / xyz / 6 6 1 / &
+           xmin ymin base_mid2 / &
+           xmax ymax base_mid2 / 1 1 1
+*
+* Basement bottom
+createpts / xyz / 6 6 1 / &
+           xmin ymin base_bot / &
+           xmax ymax base_bot / 1 1 1
+*
+*
+* --------
+* SURFACES
+* --------
+surface / s_sf / intrface / plane / &
+    0., 0., sf / 100., 0., sf / 100., 100., sf /
+surface / s_sbi / intrface / plane / &
+    0., 0., sbi / 100., 0., sbi / 100., 100., sbi /
+surface / s_aq_base / intrface / plane / &
+    0., 0., aq_base / 100., 0., aq_base / 100., 100., aq_base /
+*
+*
+* -------
+* REGIONS
+* -------
+region / r_sed / gt s_sbi and le s_sf
+region / r_aq / lt s_sbi and gt s_aq_base
+region / r_base / lt s_aq_base
+*
+*
+* ---------
+* M-REGIONS
+* ---------
+* SEDIMENT
+mregion / m_sed / r_sed
+mregion / m_aq / r_aq
+mregion / m_base / r_base
+*
+*
+* -------
+* CLEANUP
+* -------
+filter / 1 0 0 / 2.0
+rmpoint/compress
+setpts
+*
+connect / noadd
+settets
+resetpts / itp
+*
+dump / gmv / box.gmv / 10km_mesh
+dump / fehm / box / 10km_mesh / ascii
+*
+finish

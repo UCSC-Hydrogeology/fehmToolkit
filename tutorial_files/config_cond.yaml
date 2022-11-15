@@ -1,0 +1,116 @@
+files_config:
+  area: cond.area
+  check: cond.chk
+  conductivity: cond.cond
+  error: cond.err
+  files: fehmn.files
+  final_conditions: cond.fin
+  grid: cond.fehm
+  heat_flux: cond.hflx
+  history: cond.hist
+  input: cond.dat
+  material_zone: cond_material.zone
+  output: cond.out
+  outside_zone: cond_outside.zone
+  permeability: cond.perm
+  pore_pressure: cond.ppor
+  rock_properties: cond.rock
+  run_root: cond
+  storage: cond.stor
+  water_properties: cond.wpi
+heat_flux_config:
+  boundary_configs:
+  - boundary_model:
+      kind: crustal_age
+      params:
+        boundary_distance_to_ridge_m: 95000
+        coefficient_MW: 3.67E-7
+        crustal_age_dimension: x
+        crustal_age_sign: 1
+        spread_rate_mm_per_year: 28.57
+    outside_zones: [bottom]
+rock_properties_config:
+  compressibility_configs:
+  - property_model:
+      kind: overburden
+      params:
+        a: 0.09
+        grav: 9.81
+        min_overburden: 25
+        rhow: 1000
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 6.0E-10
+    zones: [2, 3]
+  conductivity_configs:
+  - property_model:
+      kind: porosity_weighted
+      params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+    zones: [1]
+  - property_model:
+      kind: porosity_weighted
+      params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+    zones: [2, 3]
+  grain_density_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 2650
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 2700
+    zones: [2, 3]
+  permeability_configs:
+  - property_model:
+      kind: void_ratio_exponential
+      params:
+        A: 3.66E-18
+        B: 1.68
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.0E-15
+    zones: [2]
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.0E-18
+    zones: [3]
+  porosity_configs:
+  - property_model:
+      kind: depth_power_law_with_maximum
+      params:
+        porosity_a: 0.84
+        porosity_b: -0.125
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.1
+    zones: [2]
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.05
+    zones: [3]
+  specific_heat_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 800
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 800
+    zones: [2, 3]
+  zone_assignment_order: [1, 2, 3]
