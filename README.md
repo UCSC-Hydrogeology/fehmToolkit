@@ -46,6 +46,8 @@ We recommend installing as an editable package for both development and use of t
     conda create -n fehmtk python=3.9
     ```
 
+1. Follow the instructions in [Getting set up with Git and Github](https://github.com/UCSC-Hydrogeology/fehmToolkit/wiki/Getting-set-up-with-Git-and-GitHub), unless you have everything set up already.
+
 1. Clone the repository to your local code directory (`~/code` in this case):
 
     ```zsh
