@@ -7,14 +7,17 @@ from typing import Callable
 from ..common import round_significant_figures
 from ..config.model_config import MODEL_PARAMS_SIGNIFICANT_FIGURES, ModelConfig
 from ..fehm_objects import Vector
+from .generic import _constant
 from .porosity import get_porosity_model
 
 TCON_SPACING_M = 1
 
-
+#TODO: test these functions
 def get_conductivity_models_by_kind() -> dict:
     return {
         'porosity_weighted': _porosity_weighted,
+        'porosity_weighted_anisotropic': _porosity_weighted_anisotropic,
+        'constant_anisotropic': _constant_anisotropic,
         'ctr2tcon': _ctr2tcon,
     }
 
@@ -41,6 +44,46 @@ def _porosity_weighted(
 
     conductivity = (kw ** porosity) * (kg ** (1 - porosity))
     return Vector(x=conductivity, y=conductivity, z=conductivity)
+
+
+def _porosity_weighted_anisotropic(
+    depth: Decimal,
+    model_config_by_property_kind: dict[str, ModelConfig],
+    property_kind: str,
+) -> Vector:
+    """Conductivity set by _porosity_weighted function, with anisotropic scaling applied after.
+    [x_scale * value, y_scale * value, z_scale * value]
+
+    Required params:
+    A                    (numeric)
+    B                    (numeric)
+    water_conductivity   (numeric)
+    rock_conductivity    (numeric)
+    """
+    value = _porosity_weighted(depth, model_config_by_property_kind, property_kind)
+    params = model_config_by_property_kind[property_kind].params
+    x_scale, y_scale, z_scale = params['x_scale'], params['y_scale'], params['z_scale']
+    return Vector(x=value.x * x_scale, y=value.y * y_scale, z=value.z * z_scale)
+
+
+def _constant_anisotropic(
+    depth: Decimal,
+    model_config_by_property_kind: dict[str, ModelConfig],
+    property_kind: str,
+) -> Vector:
+    """Property set as a constant value, with anisotropic scaling applied after.
+    [x_scale * constant, y_scale * constant, z_scale * constant]
+
+    Required params:
+    constant  (numeric)
+    x_scale   (numeric)
+    y_scale   (numeric)
+    z_scale   (numeric)
+    """
+    constant = _constant(depth, model_config_by_property_kind, property_kind)
+    params = model_config_by_property_kind[property_kind].params
+    x_scale, y_scale, z_scale = params['x_scale'], params['y_scale'], params['z_scale']
+    return Vector(x=constant.x * x_scale, y=constant.y * y_scale, z=constant.z * z_scale)
 
 
 def _ctr2tcon(depth: Decimal, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Vector:
