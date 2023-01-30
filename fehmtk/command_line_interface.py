@@ -374,3 +374,7 @@ def int_or_string(arg):
         return int(arg)  # try convert to int
     except ValueError:
         return arg
+
+
+if __name__ == "__main__":
+    entry_point()
