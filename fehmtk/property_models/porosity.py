@@ -16,12 +16,12 @@ def get_porosity_model(model_kind: str) -> Callable:
 
 def get_porosity_models_by_kind() -> dict:
     return {
-        'depth_exponential': _depth_exponential,
-        'depth_power_law_with_maximum': _depth_power_law_with_maximum,
+        'depth_exponential': depth_exponential,
+        'depth_power_law_with_maximum': depth_power_law_with_maximum,
     }
 
 
-def _depth_exponential(
+def depth_exponential(
         depth: Decimal,
         model_config_by_property_kind: dict[str, ModelConfig],
         property_kind: str,
@@ -39,7 +39,7 @@ def _depth_exponential(
     return porosity_a * (porosity_b * depth).exp()  # A * e^(B * d)
 
 
-def _depth_power_law_with_maximum(
+def depth_power_law_with_maximum(
     depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
