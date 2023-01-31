@@ -7,22 +7,22 @@ from typing import Callable
 from ..common import round_significant_figures
 from ..config.model_config import MODEL_PARAMS_SIGNIFICANT_FIGURES, ModelConfig
 from ..fehm_objects import Vector
-from .generic import _constant
+from .generic import constant
 from .porosity import get_porosity_model
 
 TCON_SPACING_M = 1
 
-#TODO: test these functions
+
 def get_conductivity_models_by_kind() -> dict:
     return {
-        'porosity_weighted': _porosity_weighted,
-        'porosity_weighted_anisotropic': _porosity_weighted_anisotropic,
-        'constant_anisotropic': _constant_anisotropic,
-        'ctr2tcon': _ctr2tcon,
+        'porosity_weighted': porosity_weighted,
+        'porosity_weighted_anisotropic': porosity_weighted_anisotropic,
+        'constant_anisotropic': constant_anisotropic,
+        'ctr2tcon': ctr2tcon,
     }
 
 
-def _porosity_weighted(
+def porosity_weighted(
     depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
@@ -46,7 +46,7 @@ def _porosity_weighted(
     return Vector(x=conductivity, y=conductivity, z=conductivity)
 
 
-def _porosity_weighted_anisotropic(
+def porosity_weighted_anisotropic(
     depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
@@ -60,13 +60,13 @@ def _porosity_weighted_anisotropic(
     water_conductivity   (numeric)
     rock_conductivity    (numeric)
     """
-    value = _porosity_weighted(depth, model_config_by_property_kind, property_kind)
+    value = porosity_weighted(depth, model_config_by_property_kind, property_kind)
     params = model_config_by_property_kind[property_kind].params
     x_scale, y_scale, z_scale = params['x_scale'], params['y_scale'], params['z_scale']
     return Vector(x=value.x * x_scale, y=value.y * y_scale, z=value.z * z_scale)
 
 
-def _constant_anisotropic(
+def constant_anisotropic(
     depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
@@ -75,18 +75,18 @@ def _constant_anisotropic(
     [x_scale * constant, y_scale * constant, z_scale * constant]
 
     Required params:
-    constant  (numeric)
+    value     (numeric)
     x_scale   (numeric)
     y_scale   (numeric)
     z_scale   (numeric)
     """
-    constant = _constant(depth, model_config_by_property_kind, property_kind)
+    value = constant(depth, model_config_by_property_kind, property_kind)
     params = model_config_by_property_kind[property_kind].params
     x_scale, y_scale, z_scale = params['x_scale'], params['y_scale'], params['z_scale']
-    return Vector(x=constant.x * x_scale, y=constant.y * y_scale, z=constant.z * z_scale)
+    return Vector(x=value.x * x_scale, y=value.y * y_scale, z=value.z * z_scale)
 
 
-def _ctr2tcon(depth: Decimal, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Vector:
+def ctr2tcon(depth: Decimal, model_config_by_property_kind: dict[str, ModelConfig], property_kind: str) -> Vector:
     """Conductivity calculated by inverting a cumulative thermal resistance profile.
 
     CTR must be defined with a ctr_model (e.g. polynomial function), and is optimised on the basis of the node depths
