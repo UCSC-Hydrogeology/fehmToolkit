@@ -11,11 +11,11 @@ def get_generic_model(model_kind) -> Callable:
 
 def get_generic_models_by_kind() -> dict:
     return {
-        'constant': _constant,
+        'constant': constant,
     }
 
 
-def _constant(
+def constant(
     depth: Decimal,
     model_config_by_property_kind: dict[str, ModelConfig],
     property_kind: str,
