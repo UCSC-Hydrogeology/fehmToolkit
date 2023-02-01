@@ -9,6 +9,7 @@ class State:
     temperature: Sequence[Decimal]
     pressure: Sequence[Decimal]
     saturation: Optional[Sequence[Decimal]] = None
+    porosity: Optional[Sequence[Decimal]] = None
     source: Optional[Sequence[Decimal]] = None
     mass_flux: Optional[Sequence[Decimal]] = None
 
@@ -19,8 +20,9 @@ class State:
         return State(
             pressure=_subtract_items(self.pressure, other.pressure),
             temperature=_subtract_items(self.temperature, other.temperature),
-            mass_flux=_subtract_items(self.mass_flux, other.mass_flux),
             saturation=_subtract_items(self.saturation, other.saturation),
+            porosity=_subtract_items(self.porosity, other.porosity),
+            mass_flux=_subtract_items(self.mass_flux, other.mass_flux),
             source=_subtract_items(self.source, other.source),
         )
 

@@ -153,6 +153,30 @@ def test_read_simple_restart_fehm_format(fixture_dir):
     )
 
 
+def test_read_porosity_restart(fixture_dir):
+    state, metadata = read_restart(fixture_dir / 'simple_restart_with_porosity.fin')
+    assert metadata == RestartMetadata(
+        runtime_header='FEHM V3.4.0macMojave 19-09-12    01/28/2023    10:46:20',
+        model_description='"Conductive run - 10km box model of a section of crust"',
+        simulation_time_days=36500000000,
+        n_nodes=12,
+        dual_porosity_permeability_keyword='nddp',
+        unsupported_blocks=False,
+    )
+    assert state == State(
+        temperature=[
+            Decimal(v) for v in (
+                '2.000000012398605', '2.000000024793144', '2.000000024781631', '2.000000024763683',
+                '2.000000024740088', '2.000000024711498', '2.000000024678946', '2.000000024643460',
+                '2.000000024605882', '2.000000024566908', '2.000000024527291', '2.000000024487809',
+            )
+        ],
+        saturation=12 * [Decimal('1.000000000000000')],
+        pressure=12 * [Decimal('25.00000000000000')],
+        porosity=12 * [Decimal('0.5151200000000000')],
+    )
+
+
 def test_read_tracer_restart(fixture_dir):
     state, metadata = read_restart(fixture_dir / 'tracer_restart.fin')
     assert metadata == RestartMetadata(

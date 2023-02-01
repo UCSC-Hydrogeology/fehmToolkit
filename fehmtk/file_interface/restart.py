@@ -5,8 +5,9 @@ from typing import Sequence, TextIO
 from fehmtk.fehm_objects import RestartMetadata, State
 from .helpers import grouper
 
-SUPPORTED_BLOCK_KINDS = ('temperature', 'saturation', 'pressure')
-EXPECTED_BLOCK_KINDS = ('no fluxes',)
+SUPPORTED_BLOCK_KINDS = ('temperature', 'saturation', 'pressure', 'porosity')  # also sets write order
+REQUIRED_BLOCK_KINDS = {'temperature', 'pressure'}
+EXPECTED_BLOCK_KINDS = {'no fluxes'}
 
 
 def read_restart(restart_file: Path) -> tuple[State, RestartMetadata]:
@@ -27,15 +28,10 @@ def read_restart(restart_file: Path) -> tuple[State, RestartMetadata]:
             elif block_name not in EXPECTED_BLOCK_KINDS:
                 unsupported_blocks = True
 
-    try:
-        state = State(
-            temperature=values_by_block['temperature'],
-            saturation=values_by_block['saturation'],
-            pressure=values_by_block['pressure'],
-        )
-    except KeyError:
+    if set(REQUIRED_BLOCK_KINDS) - values_by_block.keys():
         raise KeyError(f'Required block "{block_name}" not found in restart file {restart_file}.')
 
+    state = State(**values_by_block)
     metadata = RestartMetadata(
         runtime_header=runtime_header,
         model_description=model_description,
@@ -71,13 +67,11 @@ def write_restart(state: State, metadata: RestartMetadata, output_file: Path, fm
 
         if fmt == 'fehm':
             _write_headers_fehm_format(f, metadata)
-            for block_name in SUPPORTED_BLOCK_KINDS:
-                block_data = _get_data_for_block(block_name, state)
+            for block_name, block_data in _get_data_for_blocks(state):
                 _write_block_fehm_format(f, block_name, block_data)
         elif fmt == 'legacy':
             _write_headers_legacy_format(f, metadata)
-            for block_name in SUPPORTED_BLOCK_KINDS:
-                block_data = _get_data_for_block(block_name, state)
+            for block_name, block_data in _get_data_for_blocks(state):
                 _write_block_legacy_format(f, block_name, block_data)
         else:
             raise NotImplementedError(f'Invalid format for restart writer ({fmt})')
@@ -119,12 +113,20 @@ def _write_block_legacy_format(open_file: TextIO, block_name: str, block_data: S
         open_file.write('    '.join(f'{float(v):21.10f}' for v in chunk) + '\n')
 
 
+def _get_data_for_blocks(state: State) -> dict[str, Sequence]:
+    name_data_pairs = []
+    for block_name in SUPPORTED_BLOCK_KINDS:
+        block_data = _get_data_for_block(block_name, state)
+        if not block_data:
+            if block_name in REQUIRED_BLOCK_KINDS:
+                raise ValueError(f'Missing data for required block: {block_name}')
+            continue
+        name_data_pairs.append((block_name, block_data))
+    return name_data_pairs
+
+
 def _get_data_for_block(block_name: str, state: State) -> Sequence:
-    if block_name == 'temperature':
-        return state.temperature
-    elif block_name == 'pressure':
-        return state.pressure
-    elif block_name == 'saturation':
-        return state.saturation
-    else:
+    if block_name not in SUPPORTED_BLOCK_KINDS:
         raise NotImplementedError(f'Block kind "{block_name}" not supported.')
+
+    return getattr(state, block_name)
