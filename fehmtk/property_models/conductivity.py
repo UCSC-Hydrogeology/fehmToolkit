@@ -55,10 +55,11 @@ def porosity_weighted_anisotropic(
     [x_scale * value, y_scale * value, z_scale * value]
 
     Required params:
-    A                    (numeric)
-    B                    (numeric)
     water_conductivity   (numeric)
     rock_conductivity    (numeric)
+    x_scale   (numeric)
+    y_scale   (numeric)
+    z_scale   (numeric)
     """
     value = porosity_weighted(depth, model_config_by_property_kind, property_kind)
     params = model_config_by_property_kind[property_kind].params
