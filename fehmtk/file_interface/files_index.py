@@ -16,11 +16,21 @@ FILES_INDEX_KEY_MAPPING = {
     'history': 'hist',
 }
 
+OPTIONAL_KEYS_MAPPING = {
+    'initial_conditions': 'rsti',
+}
+
 
 def write_files_index(files_config: FilesConfig, output_file: Path):
     files_config_relative_to_output = files_config.relative_to(output_file.parent)
 
     with open(output_file, 'w') as f:
         for config_key, files_index_key in FILES_INDEX_KEY_MAPPING.items():
-            f.write(f'{files_index_key}: {getattr(files_config_relative_to_output, config_key)}\n')
+            file_path = getattr(files_config_relative_to_output, config_key)
+            f.write(f'{files_index_key}: {file_path}\n')
+        for config_key, files_index_key in OPTIONAL_KEYS_MAPPING.items():
+            file_path = getattr(files_config_relative_to_output, config_key)
+            if file_path is not None:
+                f.write(f'{files_index_key}: {file_path}\n')
+
         f.write('\nall')

@@ -47,6 +47,8 @@ def test_create_run_from_mesh_flat_box_infer_run_root(tmp_path, end_to_end_fixtu
         'fehmn.files',
         'new_run.dat',
     }
+    assert 'rsti:' not in (new_directory / 'fehmn.files').read_text()
+
 
 
 def test_create_run_from_mesh_outcrop_explicit_files(tmp_path, end_to_end_fixture_dir):
@@ -139,6 +141,8 @@ def test_create_run_from_run(tmp_path, end_to_end_fixture_dir):
     assert new_config.files_config.grid.exists()
     assert new_config.files_config.storage.exists()
     assert new_config.files_config.files.exists()
+
+    assert 'rsti: cond.ini' in new_config.files_config.files.read_text()
 
     assert new_config.files_config.input.exists()
     input_content = new_config.files_config.input.read_text()
