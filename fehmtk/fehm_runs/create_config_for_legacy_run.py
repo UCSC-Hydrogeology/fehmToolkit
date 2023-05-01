@@ -42,13 +42,15 @@ def create_config_for_legacy_run(
     if not directory.is_dir():
         raise ValueError(f'{directory.absolute()} is not a directory.')
 
-    hfi_file = hfi_file or get_unique_file(directory, '*.hfi')
-    ipi_file = ipi_file or get_unique_file(directory, '*.ipi')
+    input_file = input_file or get_unique_file(directory, '*.dat')
     rpi_file = rpi_file or get_unique_file(directory, '*.rpi')
-    run_root = hfi_file.stem if hfi_file.stem == ipi_file.stem == rpi_file.stem else 'run'
+    hfi_file = hfi_file or get_unique_file(directory, '*.hfi', optional=True)
+    ipi_file = ipi_file or get_unique_file(directory, '*.ipi', optional=True)
+    run_root = input_file.stem if input_file.stem == rpi_file.stem else 'run'
 
     files_config = FilesConfig(
         run_root=run_root,
+        input=input_file,
         material_zone=material_zone_file or _find_material_zone_file(directory),
         outside_zone=outside_zone_file or get_unique_file(directory, '*_outside.zone'),
         area=area_file or get_unique_file(directory, '*.area'),
@@ -58,19 +60,19 @@ def create_config_for_legacy_run(
         permeability=permeability_file or get_unique_file(directory, '*.perm'),
         files=files_file or get_unique_file(directory, '*.files'),
         grid=grid_file or get_unique_file(directory, '*.fehm*'),
-        input=input_file or get_unique_file(directory, '*.dat'),
-        output=output_file or get_unique_file(directory, '*.out'),
+        output=output_file or get_unique_file(directory, '*.out', optional=True) or Path(f'{run_root}.out'),
         storage=storage_file or get_unique_file(directory, '*.stor'),
-        history=history_file or get_unique_file(directory, '*.hist'),
+        history=history_file or get_unique_file(directory, '*.hist', optional=True) or Path(f'{run_root}.hist'),
         water_properties=water_properties_file or get_unique_file(directory, '*.wpi'),
-        check=check_file or get_unique_file(directory, '*.chk'),
-        error=error_file or get_unique_file(directory, '*.err'),
-        final_conditions=final_conditions_file or get_unique_file(directory, '*.fin'),
+        check=check_file or get_unique_file(directory, '*.chk', optional=True) or Path(f'{run_root}.chk'),
+        error=error_file or get_unique_file(directory, '*.err', optional=True) or Path(f'{run_root}.err'),
+        final_conditions=(
+            final_conditions_file or get_unique_file(directory, '*.fin', optional=True) or Path(f'{run_root}.fin')
+        ),
         flow=flow_file or get_unique_file(directory, '*.flow', optional=True),
         heat_flux=heat_flux_file or get_unique_file(directory, '*.hflx', optional=True),
         initial_conditions=initial_conditions_file or get_unique_file(directory, '*.ini', optional=True),
     )
-    files_config.assert_specified_paths_exist()
 
     flow_config = None
     if files_config.flow is not None:
@@ -93,11 +95,11 @@ def create_config_for_legacy_run(
         )
 
     run_config = RunConfig(
-        heat_flux_config=read_legacy_hfi_config(hfi_file),
-        hydrostat_config=read_legacy_ipi_config(ipi_file),
-        rock_properties_config=read_legacy_rpi_config(rpi_file),
-        flow_config=flow_config,
         files_config=files_config,
+        flow_config=flow_config,
+        rock_properties_config=read_legacy_rpi_config(rpi_file),
+        heat_flux_config=read_legacy_hfi_config(hfi_file) if hfi_file else None,
+        hydrostat_config=read_legacy_ipi_config(ipi_file) if ipi_file else None,
     )
     logger.info('Writing config file to %s', directory / 'config.yaml')
     run_config.to_yaml(directory / 'config.yaml')
