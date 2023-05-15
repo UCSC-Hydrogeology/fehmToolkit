@@ -6,11 +6,13 @@ This toolkit abstracts away most manual file copying and editing associated with
 The specific focus of the FEHM Toolkit is on simulations of seafloor hydrothermal circulation, though it can be used in other contexts and even modified to better support other use-cases as the need arises.
 
 ## Work in progress
-* This toolkit is in the early stages of development and is not yet in working order.
-* Work to date is focused on collating and testing previous Matlab versions of the code.
-* This page will be updated when an initial release is ready.
+* This toolkit is under active development, some utilities may not be well-tested.
+* Please raise any issues directly on this repository!
 
-## Usage
+# Wiki
+Please refer to the [fehmToolkit Wiki](https://github.com/UCSC-Hydrogeology/fehmToolkit/wiki) for tutorials, how-tos, documentation, and discussion.
+
+# Usage
 After [installing the package](#installation), you can invoke commands directly using `fehmtk`:
 
 ```zsh
@@ -36,7 +38,7 @@ An sample workflow looks like this:
 1. Update `my_run/run_1.dat` to configure your FEHM run
 1. Run FEHM
 
-## Installation
+# Installation
 We recommend installing as an editable package for both development and use of the toolkit.
 
 1. Install a system for managing virual environments. [Anaconda](https://www.anaconda.com/products/distribution#Downloads) or the lighter-weight [Miniconda](https://docs.conda.io/en/latest/miniconda.html#latest-miniconda-installer-links) are recommended, but you can use whatever you prefer.
@@ -75,11 +77,11 @@ We recommend installing as an editable package for both development and use of t
     fehmtk --help
     ```
 
-## Configuration
+# Configuration
 All of the configuration used by `fehmtk` for a model run is kept as a single [YAML file](https://yaml.org/spec/1.2.2/#chapter-2-language-overview) (usually `config.yaml`), within the run directory. This provides `fehmtk` with file paths and settings for its various commands, particularly those responsible for property assignment and the specification of initial and boundary conditions.
 
-### Overlap with FEHM configuration
+## Overlap with FEHM configuration
 FEHM has its own configuration files, notably the files index (usually `fehmn.files`) and the FEHM input file (often ending in `.dat` or `.txt`). There is some redundancy between the `fehmtk` config and that used by FEHM, and utilities will attempt to keep any shared references aligned when handling these files, such as when making a new model directory. Still, users should take care to ensure that the FEHM config files stay in sync with the `fehmtk` config.
 
-### Specification
+## Specification
 See [Run configuration specification](https://github.com/UCSC-Hydrogeology/fehmToolkit/wiki/Run-configuration-specification) for details.
