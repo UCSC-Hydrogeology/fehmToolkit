@@ -1,0 +1,94 @@
+files_config:
+  area: cold.area
+  check: cold.chk
+  conductivity: cold.cond
+  error: cold.err
+  files: fehmn.files
+  final_conditions: cold.fin
+  grid: cold.fehm
+  history: cold.hist
+  input: cold.dat
+  material_zone: cold_material.zone
+  output: cold.out
+  outside_zone: cold_outside.zone
+  permeability: cold.perm
+  pore_pressure: cold.ppor
+  rock_properties: cold.rock
+  run_root: cold
+  storage: cold.stor
+  water_properties: cold.wpi
+
+rock_properties_config:
+  compressibility_configs:
+  - property_model:
+      kind: overburden
+      params:
+        a: 0.09
+        grav: 9.81
+        min_overburden: 25
+        rhow: 1000
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 6.0E-10
+    zones: [2, 3]
+  conductivity_configs:
+  - property_model:
+      kind: porosity_weighted
+      params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+    zones: [1]
+  - property_model:
+      kind: porosity_weighted
+      params:
+        rock_conductivity: 2.05
+        water_conductivity: 0.62
+    zones: [2, 3]
+  grain_density_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 2650
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 2700
+    zones: [2, 3]
+  permeability_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 1.0E-15
+    zones: [1, 2, 3]
+  porosity_configs:
+  - property_model:
+      kind: depth_power_law_with_maximum
+      params:
+        porosity_a: 0.84
+        porosity_b: -0.125
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.1
+    zones: [2]
+  - property_model:
+      kind: constant
+      params:
+        constant: 0.05
+    zones: [3]
+  specific_heat_configs:
+  - property_model:
+      kind: constant
+      params:
+        constant: 800
+    zones: [1]
+  - property_model:
+      kind: constant
+      params:
+        constant: 800
+    zones: [2, 3]
+  zone_assignment_order: [1, 2, 3]
