@@ -1,0 +1,40 @@
+"Initial cold hydrostatic run, moderate permeability"
+pres
+1 0 0 50.0 2.0 1
+0
+hflx
+-4 0 0 2.0 1.e6
+-5 0 0 2.0 1.e6
+0
+flow
+221 221 1 26.0 -2.00000 0.25
+0
+sol
+1 -1
+ctrl
+-50 1.e-04  25 100 gmre
+1   0   0   2
+0   0   0   0
+1.0  3  1.0 
+7   1.2   1.e-6  365e5
+0   1
+time
+1.e-4 365e8  10000  10  0   1   0
+0.0    0.0    0.0    0.0
+eos
+5  0  0
+21.  50.  997.   0.0   -0.45  0.23   0.0  4.2e-03  5.5e-04  0. 0.
+0.1  20.  1.29   0.     0.    2.5   0.     0.1     2.e-4   0. 0.
+rock
+file
+cold.rock
+cond
+file
+cold.cond
+perm
+1 0 0 1.0e-15 1.0e-15 1.0e-15
+0
+ppor
+file
+cold.ppor
+stop
